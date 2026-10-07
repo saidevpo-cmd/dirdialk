@@ -7,6 +7,7 @@ import '../../core/settings/settings_controller.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../dashboard/dashboard_page.dart';
 import '../settings/settings_page.dart';
+import '../products/products_page.dart';
 import '../../shared/widgets/placeholder_page.dart';
 
 class AppShell extends StatefulWidget {
@@ -42,7 +43,7 @@ class _AppShellState extends State<AppShell> {
 
   List<Widget> _buildPages() => [
         DashboardPage(onNavigate: _select),
-        const PlaceholderPage(section: NavSection.products),
+        const ProductsPage(),
         const PlaceholderPage(section: NavSection.orders),
         const PlaceholderPage(section: NavSection.customers),
         const PlaceholderPage(section: NavSection.resources),
