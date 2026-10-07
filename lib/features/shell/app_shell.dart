@@ -8,6 +8,13 @@ import '../../l10n/generated/app_localizations.dart';
 import '../dashboard/dashboard_page.dart';
 import '../settings/settings_page.dart';
 import '../products/products_page.dart';
+import '../orders/orders_page.dart';
+import '../customers/customers_page.dart';
+import '../resources/resources_page.dart';
+import '../forms/forms_page.dart';
+import '../pages/pages_page.dart';
+import '../store/store_page.dart';
+
 import '../../shared/widgets/placeholder_page.dart';
 
 class AppShell extends StatefulWidget {
@@ -44,12 +51,12 @@ class _AppShellState extends State<AppShell> {
   List<Widget> _buildPages() => [
         DashboardPage(onNavigate: _select),
         const ProductsPage(),
-        const PlaceholderPage(section: NavSection.orders),
-        const PlaceholderPage(section: NavSection.customers),
-        const PlaceholderPage(section: NavSection.resources),
-        const PlaceholderPage(section: NavSection.forms),
-        const PlaceholderPage(section: NavSection.pages),
-        const PlaceholderPage(section: NavSection.store),
+        const OrdersPage(),
+        const CustomersPage(),
+        const ResourcesPage(),
+        const FormsPage(),
+        const PagesPage(),
+        const StorePage(),
         SettingsPage(settings: widget.settings),
       ];
 
