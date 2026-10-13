@@ -18,20 +18,24 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code
+# Keep .vscode if you want to version-control launch/tasks configuration.
+# .vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-/coverage/
+build/
+coverage/
+
+# Flutter generated / temporary
+**/generated/
+.flutter-plugins-dependencies
 
 # Symbolication related
 app.*.symbols
@@ -39,10 +43,68 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android Studio build artifacts
 /android/app/debug
 /android/app/profile
 /android/app/release
 
-# Widget Preview related
+# Android local configuration
+android/local.properties
+android/key.properties
+android/.gradle/
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+
+# macOS
+macos/Pods/
+macos/.symlinks/
+macos/Flutter/ephemeral/
+
+# Linux
+linux/flutter/ephemeral/
+
+# Windows
+windows/flutter/ephemeral/
+
+# Widget Preview
 .widget_preview/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Secrets / credentials
+credentials.json
+secrets.json
+*.pem
+*.key
+*.p12
+*.jks
+
+# Firebase / Google sensitive files
+google-services.json
+GoogleService-Info.plist
+
+# Hive local database
+*.hive
+*.hive.lock
+*.box
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
+
+# Test artifacts
+test/.dart_tool/
+
+# OS files
+Thumbs.db
+desktop.ini

@@ -5,6 +5,7 @@ import '../../l10n/generated/app_localizations.dart';
 enum NavSection {
   dashboard,
   products,
+  categories,
   orders,
   customers,
   resources,
@@ -16,6 +17,7 @@ enum NavSection {
   String label(AppLocalizations l10n) => switch (this) {
         NavSection.dashboard => l10n.navDashboard,
         NavSection.products => l10n.navProducts,
+        NavSection.categories => l10n.navCategories,
         NavSection.orders => l10n.navOrders,
         NavSection.customers => l10n.navCustomers,
         NavSection.resources => l10n.navResources,
@@ -30,6 +32,8 @@ enum NavSection {
           selected ? Icons.dashboard : Icons.dashboard_outlined,
         NavSection.products =>
           selected ? Icons.inventory_2 : Icons.inventory_2_outlined,
+        NavSection.categories =>
+          selected ? Icons.category : Icons.category_outlined,
         NavSection.orders =>
           selected ? Icons.receipt_long : Icons.receipt_long_outlined,
         NavSection.customers =>
@@ -49,6 +53,7 @@ enum NavSection {
   String get phase => switch (this) {
         NavSection.dashboard => '1',
         NavSection.products => '2',
+        NavSection.categories => '2',
         NavSection.orders => '6',
         NavSection.customers => '6',
         NavSection.resources => '7',
@@ -57,4 +62,19 @@ enum NavSection {
         NavSection.store => '5',
         NavSection.settings => '1',
       };
+
+  /// URL-safe segment used in the admin route (`/admin/<slug>`).
+  String get slug => name;
+
+  /// Absolute admin route for this section.
+  String get location => '/admin/$slug';
+
+  /// Resolves a [slug] back to a section, or `null` when unknown.
+  static NavSection? fromSlug(String? slug) {
+    if (slug == null) return null;
+    for (final section in NavSection.values) {
+      if (section.slug == slug) return section;
+    }
+    return null;
+  }
 }

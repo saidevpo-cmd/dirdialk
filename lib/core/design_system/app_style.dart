@@ -44,7 +44,7 @@ class AppStyleConfig {
 
   static const _modern = AppStyleConfig(
     style: AppStyle.modern,
-    seedColor: AppColors.modernSeed,
+    seedColor: AppColors.primary,
     cardRadius: 16,
     buttonRadius: 12,
     cardBorderWidth: 1,
@@ -60,7 +60,7 @@ class AppStyleConfig {
 
   static const _minimal = AppStyleConfig(
     style: AppStyle.minimal,
-    seedColor: AppColors.minimalSeed,
+    seedColor: AppColors.primary,
     cardRadius: 4,
     buttonRadius: 4,
     cardBorderWidth: 1,
@@ -76,7 +76,7 @@ class AppStyleConfig {
 
   static const _professional = AppStyleConfig(
     style: AppStyle.professional,
-    seedColor: AppColors.professionalSeed,
+    seedColor: AppColors.primary,
     cardRadius: 8,
     buttonRadius: 6,
     cardBorderWidth: 0,

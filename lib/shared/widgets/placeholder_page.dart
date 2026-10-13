@@ -50,7 +50,7 @@ class PlaceholderPage extends StatelessWidget {
                 backgroundColor: scheme.secondaryContainer,
                 side: BorderSide.none,
                 label: Text(
-                  l10n.pageBadge,
+                  'Phase ${section.phase}',
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: scheme.onSecondaryContainer,
                     fontWeight: FontWeight.w600,
@@ -59,7 +59,7 @@ class PlaceholderPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                l10n.pagePhase(section.phase),
+                l10n.actionComingSoon,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(color: scheme.onSurfaceVariant),

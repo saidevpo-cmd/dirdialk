@@ -16,16 +16,25 @@ and a local Storefront.
 
 ## Status
 
-Phase 0 / Phase 1 — Base application:
+Phase 0 / Phase 1 — Base application + local-first product images:
 
 - App Shell + Navigation
 - Dashboard with demo data
-- Settings: Language, Appearance mode, Style
+- Products & Categories with local image management
+  - Pick images from the device (gallery) with optional crop
+  - Multi-image product galleries (set main image, replace, remove, reorder)
+  - Images persisted locally (bytes stored in Hive, web-safe)
+  - Asset fallbacks and placeholders for missing images
+- Storefront with promotional banner carousel, category strip,
+  featured/latest product carousels and an in-app cart (creates an order)
+- Repeat-safe demo data loader (Settings → Data) with 12 products,
+  6 categories and banner images — never overwrites existing data
+- Settings: Language, Appearance mode, Style, Notifications, Privacy, Data
 - Arabic / English / Français with RTL + LTR
 - Light / Dark / System theme
 - Style switching (Modern / Minimal / Professional)
 - Responsive layout (desktop, laptop, tablet, mobile)
-- Local persistence for user settings
+- Local persistence for user settings and catalog data
 
 Backend, GitHub and Authentication are **not** part of this phase.
 
@@ -71,16 +80,32 @@ lib/
   app/                      # app root: locale, theme, navigation
   core/
     design_system/          # AppColors, Typography, Spacing, Radius, Theme
-    storage/                # local settings persistence (no backend)
+    images/                 # ImageStore, ImageService, AppImage helpers
+    storage/                # local settings + catalog persistence (Hive/InMemory)
     settings/               # settings controller
     navigation/             # navigation definitions
+  domain/
+    models/                 # Product, Category, Order, etc.
+    repositories/           # repository interfaces
+  data/
+    app_repositories.dart   # shared repository wiring (configure/reset)
+    mock/                   # in-memory + persistent catalog repositories
+    demo/                   # demo catalog + repeat-safe demo seeder
   features/
     shell/                  # responsive app shell + navigation
     dashboard/              # dashboard page
-    settings/               # language, appearance, style
+    products/               # product list, details, image manager/gallery
+    categories/             # category list + image field
+    orders/                 # orders page
+    store/                  # storefront carousels + cart
+    settings/               # language, appearance, style, data
   shared/
-    widgets/                # reusable UI components
+    widgets/                # reusable UI components (AppCard, AppImage, etc.)
   l10n/                     # localization files
+assets/
+  images/                   # bundled demo assets (products/categories/banners)
+tool/
+  generate_demo_assets.dart # regenerates the bundled demo images
 ```
 
 ## Quick start
@@ -90,3 +115,4 @@ lib/
 3. Run `flutter run` to start the app
 4. Run `flutter test` to verify everything works
 
+# dirdialk

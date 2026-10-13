@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/design_system/app_spacing.dart';
 import '../../core/design_system/app_style.dart';
 import '../../core/navigation/nav_section.dart';
-import '../../core/settings/settings_controller.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../dashboard/dashboard_page.dart';
-import '../settings/settings_page.dart';
-import '../products/products_page.dart';
-import '../orders/orders_page.dart';
-import '../customers/customers_page.dart';
-import '../resources/resources_page.dart';
-import '../forms/forms_page.dart';
-import '../pages/pages_page.dart';
-import '../store/store_page.dart';
 
-import '../../shared/widgets/placeholder_page.dart';
-
+/// Responsive admin shell (sidebar / rail / drawer) that hosts the currently
+/// routed section as [child].
+///
+/// Navigation is delegated to go_router: selecting a section navigates to
+/// `/admin/<slug>` and the router rebuilds this shell with the new section.
 class AppShell extends StatefulWidget {
-  const AppShell({super.key, required this.settings});
+  const AppShell({
+    super.key,
+    required this.currentSection,
+    required this.child,
+  });
 
-  final SettingsController settings;
+  final NavSection currentSection;
+  final Widget child;
 
   static const sidebarKey = Key('app-sidebar');
   static const drawerKey = Key('app-drawer');
@@ -36,11 +35,11 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  NavSection _current = NavSection.dashboard;
+  NavSection get _current => widget.currentSection;
 
   void _select(NavSection section) {
     if (section == _current) return;
-    setState(() => _current = section);
+    context.go(section.location);
   }
 
   void _selectFromDrawer(NavSection section) {
@@ -48,24 +47,9 @@ class _AppShellState extends State<AppShell> {
     _select(section);
   }
 
-  List<Widget> _buildPages() => [
-        DashboardPage(onNavigate: _select),
-        const ProductsPage(),
-        const OrdersPage(),
-        const CustomersPage(),
-        const ResourcesPage(),
-        const FormsPage(),
-        const PagesPage(),
-        const StorePage(),
-        SettingsPage(settings: widget.settings),
-      ];
-
   Widget _buildBody() => KeyedSubtree(
         key: AppShell.bodyKey,
-        child: IndexedStack(
-          index: _current.index,
-          children: _buildPages(),
-        ),
+        child: widget.child,
       );
 
   @override

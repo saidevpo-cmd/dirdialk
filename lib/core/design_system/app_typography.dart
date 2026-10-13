@@ -5,19 +5,34 @@ import 'app_style.dart';
 class AppTypography {
   const AppTypography._();
 
+  /// Primary UI font. Latin script is rendered with Inter; any glyph Inter
+  /// does not cover (notably Arabic) falls back to Cairo automatically.
+  static const String fontFamily = 'Inter';
+  static const List<String> fontFamilyFallback = ['Cairo'];
+
   static TextTheme apply(
     TextTheme base,
     AppStyleConfig config,
-    Brightness brightness,
-  ) {
-    TextStyle? titleStyle(TextStyle? style) => style?.copyWith(
+    Brightness brightness, {
+    String? fontFamily,
+    List<String>? fontFamilyFallback,
+  }) {
+    TextStyle? withFont(TextStyle? style) {
+      if (style == null) return null;
+      return style.copyWith(
+        fontFamily: fontFamily,
+        fontFamilyFallback: fontFamilyFallback,
+      );
+    }
+
+    TextStyle? titleStyle(TextStyle? style) => withFont(style)?.copyWith(
           fontWeight: config.titleWeight,
           letterSpacing: config.titleLetterSpacing,
           height: 1.2,
         );
 
     TextStyle? bodyStyle(TextStyle? style) =>
-        style?.copyWith(height: config.bodyHeight);
+        withFont(style)?.copyWith(height: config.bodyHeight);
 
     return base.copyWith(
       displayLarge: bodyStyle(base.displayLarge),

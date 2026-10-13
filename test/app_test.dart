@@ -4,6 +4,8 @@ import 'package:diali/core/navigation/nav_section.dart';
 import 'package:diali/core/settings/settings_controller.dart';
 import 'package:diali/core/storage/settings_store.dart';
 import 'package:diali/features/dashboard/dashboard_page.dart';
+import 'package:diali/features/orders/orders_page.dart';
+import 'package:diali/features/products/products_page.dart';
 import 'package:diali/features/settings/settings_page.dart';
 import 'package:diali/features/shell/app_shell.dart';
 import 'package:diali/l10n/generated/app_localizations.dart';
@@ -67,15 +69,11 @@ void main() {
     expect(find.byKey(AppShell.sidebarKey), findsOneWidget);
 
     await tester.tap(find.byKey(AppShell.navTile(NavSection.products)));
-    await tester.pump();
-    expect(
-      find.byKey(const ValueKey('placeholder-products')),
-      findsOneWidget,
-    );
-    expect(find.byType(DashboardPage), findsNothing);
+    await tester.pumpAndSettle();
+    expect(find.byType(ProductsPage), findsOneWidget);
 
     await tester.tap(find.byKey(AppShell.navTile(NavSection.dashboard)));
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(find.byType(DashboardPage), findsOneWidget);
   });
 
@@ -258,10 +256,7 @@ void main() {
 
     await tester.tap(find.byKey(AppShell.navTile(NavSection.orders)));
     await tester.pumpAndSettle();
-    expect(
-      find.byKey(const ValueKey('placeholder-orders')),
-      findsOneWidget,
-    );
+    expect(find.byType(OrdersPage), findsOneWidget);
   });
 
   testWidgets('quick actions navigate to their section', (tester) async {
@@ -271,11 +266,8 @@ void main() {
     final text = await l10n(const Locale('en'));
 
     await tester.tap(find.text(text.actionAddProduct));
-    await tester.pump();
-    expect(
-      find.byKey(const ValueKey('placeholder-products')),
-      findsOneWidget,
-    );
+    await tester.pumpAndSettle();
+    expect(find.byType(ProductsPage), findsOneWidget);
   });
 
   testWidgets('view all opens the orders section', (tester) async {
@@ -285,10 +277,7 @@ void main() {
     final text = await l10n(const Locale('en'));
 
     await tester.tap(find.text(text.viewAll));
-    await tester.pump();
-    expect(
-      find.byKey(const ValueKey('placeholder-orders')),
-      findsOneWidget,
-    );
+    await tester.pumpAndSettle();
+    expect(find.byType(OrdersPage), findsOneWidget);
   });
 }
