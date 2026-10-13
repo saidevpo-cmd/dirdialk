@@ -41,16 +41,17 @@ bootstrap the first owner and repair roles.
 Tables with **no** public read policy: `customers`, `orders`, `order_items`, `locations`,
 `stock_movements`, `tracking_events`, `resources`, `app_settings`, `profiles`.
 
-> **Status**: policies are written and reviewed in the migration, and were exercised against a real
-> PostgreSQL 14 instance using a Supabase-compatible shim (`auth.uid()`, `storage.buckets`,
-> `storage.objects`, `anon`/`authenticated`/`service_role` roles) — 75 assertions across
-> `anon`/`viewer`/`staff`/`admin`/`owner`, all security-relevant expectations held. This run also
-> caught a real bug: an initial owner-only role trigger would have blocked role changes from the
-> SQL editor/`service_role` too, making the first owner impossible to bootstrap; it was corrected by
-> scoping the guard to the client roles. This verifies the
-> **SQL/RLS logic**; it does **not** replace testing against a real Supabase project. Still unverified
-> against the live stack: GoTrue/PostgREST JWT-to-claim wiring, the Storage API and signed URLs,
-> `service_role` behaviour, and Supabase's exact default GRANTs (see `deployment-guide.md`).
+> **Status**: policies are written and reviewed in the migration, and are exercised against a real
+> PostgreSQL instance by the version-controlled harness `tool/rls_verify/run.sh` (Supabase-compatible
+> shim: `auth.uid()`, `storage.buckets`, `storage.objects`, `anon`/`authenticated`/`service_role`
+> roles). 74 assertions across `anon`/`viewer`/`staff`/`admin`/`owner`; all expectations held. The
+> first run of this harness caught a real bug: an initial owner-only role trigger would have blocked
+> role changes from the SQL editor/`service_role` too, making the first owner impossible to
+> bootstrap; it was corrected by scoping the guard to the client roles. `run.sh` exits non-zero on
+> any regression. This verifies the **SQL/RLS logic**; it does **not** replace testing against a real
+> Supabase project. Still unverified against the live stack: GoTrue/PostgREST JWT-to-claim wiring,
+> the Storage API and signed URLs, `service_role` behaviour, and Supabase's exact default GRANTs
+> (see `deployment-guide.md`).
 > Re-run the checks on a cloud project before public launch.
 
 ## 4. Storage security
