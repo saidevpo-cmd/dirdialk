@@ -1,7 +1,6 @@
 {
   "@@locale": "ar",
   "appTitle": "ديالي",
-
   "navDashboard": "لوحة التحكم",
   "navProducts": "المنتجات",
   "navOrders": "الطلبات",
@@ -13,12 +12,10 @@
   "navSettings": "الإعدادات",
   "openNavigation": "فتح قائمة التنقل",
   "closeNavigation": "إغلاق قائمة التنقل",
-
   "dashboardSubtitle": "إليك ما يحدث في عملك وتجارتك اليوم.",
   "recentActivity": "النشاط الأخير",
   "quickActions": "إجراءات سريعة",
   "viewAll": "عرض الكل",
-
   "statProducts": "إجمالي المنتجات",
   "statOrders": "إجمالي الطلبات",
   "statCustomers": "إجمالي العملاء",
@@ -27,14 +24,12 @@
   "statOrdersTrend": "+8% هذا الشهر",
   "statCustomersTrend": "+5% هذا الشهر",
   "statResourcesTrend": "تمت إضافة 2 هذا الأسبوع",
-
   "activityOrder": "تم استلام طلب جديد {id}",
   "activityLowStock": "مخزون منخفض لـ {name}",
   "activityCustomer": "عميل جديد: {name}",
   "activityResource": "تمت إضافة {name} إلى الموارد",
   "timeToday": "اليوم",
   "timeYesterday": "أمس",
-
   "actionAddProduct": "إضافة منتج",
   "actionNewOrder": "طلب جديد",
   "actionAddCustomer": "إضافة عميل",
@@ -47,11 +42,9 @@
   "actionClose": "إغلاق",
   "actionCopy": "نسخ",
   "actionCopied": "تم النسخ إلى الحافظة.",
-
   "searchIn": "البحث في {section}",
   "emptySearch": "لا توجد نتائج لـ “{query}”.",
   "resultCount": "{count} نتيجة",
-
   "productsSubtitle": "إدارة الكتالوج والأسعار ومستويات المخزون.",
   "ordersSubtitle": "تتبع كل طلب من الدفع إلى التسليم.",
   "customersSubtitle": "قاعدة عملائك وسجل الشراء والطلبات.",
@@ -59,7 +52,6 @@
   "formsSubtitle": "بناء النماذج وجمع الإرسالات والملاحظات.",
   "pagesSubtitle": "إنشاء وإدارة صفحات منصتك وموقعك.",
   "storeSubtitle": "معاينة واجهة متجرك الإلكتروني.",
-
   "colName": "الاسم",
   "colSku": "رمز المنتج",
   "colCategory": "الفئة",
@@ -80,7 +72,6 @@
   "colSubmissions": "الإرسالات",
   "colTitle": "العنوان",
   "colSlug": "الرابط المختصر",
-
   "statusActive": "نشط",
   "statusLow": "مخزون منخفض",
   "statusPaid": "مدفوع",
@@ -93,12 +84,10 @@
   "statusNew": "جديد",
   "statusVip": "عميل مميز",
   "statusRegular": "عادي",
-
   "typeDocument": "مستند",
   "typeSpreadsheet": "جدول بيانات",
   "typeImage": "صورة",
   "typeFolder": "مجلد",
-
   "productsLowStockTitle": "مخزون منخفض",
   "productsLowStock": "{count} منخفض في المخزن",
   "productsValueTitle": "قيمة المخزون",
@@ -113,23 +102,19 @@
   "formsPublished": "{count} منشور",
   "pagesPublished": "{count} منشورة",
   "pagesDraft": "{count} مسودة",
-
   "storeOpen": "فتح واجهة المتجر",
   "storeBannerTitle": "موسم جديد، تشكيلة جديدة",
   "storeBannerBody": "تصفح كتالوج العرض التجريبي.",
   "storeBannerCta": "تصفح المنتجات",
-
   "addToCart": "إضافة إلى السلة",
   "addedToCart": "تمت إضافة {name} إلى سلتك.",
   "storeCartTitle": "سلة التسوق",
   "cartEmpty": "سلة التسوق فارغة.",
   "storeCartItems": "{count} عناصر في السلة",
-
   "settingsTitle": "الإعدادات",
   "settingsSubtitle": "كل ما يتعلق باللغة والإشعارات والخصوصية والبيانات.",
   "settingsSearchHint": "بحث في الإعدادات",
   "settingsNoResults": "لا توجد إعدادات تطابق “{query}”.",
-
   "sectionGeneral": "عام",
   "sectionGeneralDesc": "اللغة والمظهر والنمط البصري.",
   "sectionNotifications": "الإشعارات",
@@ -140,7 +125,6 @@
   "sectionDataDesc": "التصدير وإعادة الضبط والتخزين المحلي.",
   "sectionAbout": "حول التطبيق",
   "sectionAboutDesc": "الإصدار والتراخيص والدعم.",
-
   "languageTitle": "اللغة",
   "languageDescription": "اختر لغة واجهة التطبيق.",
   "appearanceTitle": "المظهر",
@@ -156,14 +140,12 @@
   "styleModernDesc": "حواف مستديرة وألوان مريحة وجذابة.",
   "styleMinimalDesc": "تصميم مسطح ومباشر وهادئ.",
   "styleProfessionalDesc": "مدمج ورسمي وعالي الكثافة.",
-
   "notifOrders": "الطلبات الجديدة",
   "notifOrdersDesc": "تلقي إشعار عند وصول طلب جديد.",
   "notifLowStock": "تنبيهات انخفاض المخزون",
   "notifLowStockDesc": "تنبيهي عندما يوشك منتج على النفاد.",
   "notifWeekly": "الملخص الأسبوعي",
   "notifWeeklyDesc": "ملخص شامل للنشاط كل يوم اثنين.",
-
   "privacyAnalytics": "تحليلات مجهولة",
   "privacyAnalyticsDesc": "مشاركة إحصاءات استخدام مجهولة لتحسين التطبيق.",
   "privacyCrash": "تقارير الأعطال",
@@ -174,7 +156,6 @@
   "privacyPolicyActionDesc": "كيفية تخزين بياناتك وحمايتها.",
   "termsAction": "قراءة شروط الخدمة",
   "termsActionDesc": "القواعد المطبقة عند استخدام ديالي.",
-
   "consentTitle": "الموافقة على السياسات",
   "consentAccepted": "تمت الموافقة في {date}.",
   "consentPending": "لم تتم الموافقة على السياسة الحالية بعد.",
@@ -183,7 +164,6 @@
   "consentAcceptedToast": "شكراً لك — تم تسجيل موافقتك.",
   "policyAccept": "قبول السياسة",
   "policyNotNow": "ليس الآن",
-
   "privacyPolicyTitle": "سياسة الخصوصية",
   "privacyIntro": "يعمل تطبيق ديالي بالكامل على جهازك محلياً.",
   "privacyIntroTitle": "نظرة عامة",
@@ -199,7 +179,6 @@
   "privacyContactBody": "أسئلة حول هذه السياسة؟ راسلنا على {email}.",
   "privacyUpdatedOn": "آخر تحديث: {date}",
   "privacyUpdatedTitle": "آخر تحديث",
-
   "termsTitle": "شروط الخدمة",
   "termsAcceptTitle": "القبول",
   "termsAcceptBody": "باستخدامك لديالي فإنك توافق على هذه الشروط.",
@@ -213,7 +192,6 @@
   "termsChangesBody": "قد نقوم بتحديث هذه الشروط وسياسة الخصوصية دورياً.",
   "termsContactTitle": "التواصل",
   "termsContactBody": "أسئلة حول هذه الشروط؟ راسلنا على {email}.",
-
   "dataStorage": "التخزين المحلي",
   "dataStorageDesc": "يتم حفظ التفضيلات على هذا الجهاز فقط.",
   "dataExport": "تصدير الإعدادات",
@@ -224,7 +202,6 @@
   "dataResetTitle": "إعادة ضبط جميع الإعدادات؟",
   "dataResetBody": "لا يمكن التراجع عن هذا الإجراء.",
   "dataResetConfirm": "إعادة ضبط",
-
   "aboutVersion": "إصدار التطبيق",
   "aboutBuild": "رقم البناء",
   "aboutLicenses": "تراخيص المصادر المفتوحة",
@@ -233,9 +210,7 @@
   "aboutContactDesc": "الأسئلة والملاحظات والدعم الفني.",
   "aboutOffline": "يعمل دون اتصال",
   "aboutOfflineDesc": "ديالي يعمل بالكامل دون الحاجة للاتصال بالإنترنت.",
-
   "navCategories": "الفئات",
-
   "dashboardRecentOrders": "أحدث الطلبات",
   "dashboardRecentProducts": "أحدث المنتجات",
   "dashboardLatestArticles": "أحدث المقالات",
@@ -248,7 +223,6 @@
   "dashboardTotalCategories": "الفئات",
   "dashboardRevenue": "الإيرادات",
   "dashboardPublishedArticles": "المقالات المنشورة",
-
   "categoriesSubtitle": "نظّم كتالوجك باستخدام فئات قابلة لإعادة الاستخدام.",
   "addCategory": "إضافة فئة",
   "editCategory": "تعديل الفئة",
@@ -264,7 +238,6 @@
   "deleteCategoryBody": "هل أنت متأكد من حذف \"{name}\"؟",
   "deleteCategoryInUse": "يستخدم {count} منتج هذه الفئة. سيتم نقلهم إلى غير مصنّف.",
   "uncategorized": "غير مصنّف",
-
   "storeProfileTitle": "ملف المتجر",
   "storeProfileDescription": "اسم الواجهة العامة والهوية وبيانات الاتصال.",
   "storeName": "اسم المتجر",
@@ -279,7 +252,6 @@
   "templateMinimal": "بسيط",
   "templateProfessional": "احترافي",
   "saved": "تم الحفظ.",
-
   "demoDataTitle": "بيانات تجريبية",
   "demoDataDesc": "تحميل منتجات وفئات تجريبية مع صور محلية.",
   "demoDataAction": "تحميل البيانات التجريبية",
@@ -287,7 +259,6 @@
   "demoDataResult": "تمت إضافة {products} منتجًا و{categories} فئة.",
   "demoDataAlready": "البيانات التجريبية محمّلة بالفعل.",
   "demoDataFailed": "تعذر تحميل البيانات التجريبية.",
-
   "loginTitle": "تسجيل الدخول",
   "loginSubtitle": "سجّل الدخول لإدارة أعمالك.",
   "loginEmail": "البريد الإلكتروني",
@@ -299,7 +270,6 @@
   "loginPasswordRequired": "أدخل كلمة المرور.",
   "loginFailed": "فشل تسجيل الدخول. تحقّق من بياناتك وحاول مجددًا.",
   "loginOfflineNotice": "يعمل دون اتصال — لا حاجة لتسجيل الدخول.",
-
   "accountTitle": "الحساب",
   "accountDescription": "تسجيل الدخول والجلسة.",
   "accountSignedInAs": "مسجّل الدخول باسم {email}",
@@ -308,7 +278,6 @@
   "signOutConfirmTitle": "تسجيل الخروج؟",
   "signOutConfirmBody": "ستحتاج إلى تسجيل الدخول مجددًا للوصول إلى لوحة التحكم.",
   "signOutConfirm": "تسجيل الخروج",
-
   "actionRetry": "إعادة المحاولة",
   "actionSave": "حفظ",
   "actionCreate": "إنشاء",
@@ -462,5 +431,35 @@
   "categoryImageHint": "المقاس الموصى به 600 × 600 (1:1).",
   "selectImage": "اختيار صورة",
   "removeCategoryImageBody": "ستُزال الصورة من الفئة. لا يمكن التراجع عن هذا الإجراء.",
-  "imageCounter": "{current} / {total}"
+  "imageCounter": "{current} / {total}",
+  "checkoutNameTooShort": "يرجى إدخال الاسم الكامل للعميل.",
+  "checkoutPhoneInvalid": "أدخل رقم هاتف صالح (7-15 رقمًا).",
+  "checkoutQuantityInvalid": "يجب أن تكون الكمية 1 على الأقل.",
+  "checkoutInsufficientStock": "المتبقي {available} فقط من {product}.",
+  "checkoutAddressTooLong": "العنوان طويل جدًا (300 حرف كحد أقصى).",
+  "checkoutCityTooLong": "اسم المدينة طويل جدًا (120 حرفًا كحد أقصى).",
+  "businessLocation": "موقع النشاط",
+  "businessLocationHint": "يظهر على خريطة المتجر ويُستخدم للاتجاهات.",
+  "latitudeLabel": "خط العرض",
+  "longitudeLabel": "خط الطول",
+  "useCurrentLocation": "استخدام الموقع الحالي",
+  "locationPermissionDenied": "تم رفض إذن الوصول إلى الموقع.",
+  "locationServicesDisabled": "خدمات الموقع متوقفة.",
+  "locationUnavailable": "تعذّر تحديد موقعك.",
+  "locationInvalid": "أدخل خط عرض بين -90 و90 وخط طول بين -180 و180.",
+  "openInMaps": "فتح في الخرائط",
+  "socialMedia": "وسائل التواصل الاجتماعي",
+  "socialMediaHint": "أضف روابط حسابات النشاط التي تظهر في المتجر.",
+  "socialInstagram": "إنستغرام",
+  "socialFacebook": "فيسبوك",
+  "socialTiktok": "تيك توك",
+  "socialWhatsapp": "واتساب",
+  "socialYoutube": "يوتيوب",
+  "socialLinkedin": "لينكدإن",
+  "socialUrlLabel": "رابط الملف الشخصي",
+  "socialInvalidUrl": "أدخل رابط http(s) صالحًا.",
+  "paginationRange": "عرض {start}-{end} من {total}",
+  "paginationPageOf": "صفحة {page} من {total}",
+  "paginationPrevious": "السابق",
+  "paginationNext": "التالي"
 }

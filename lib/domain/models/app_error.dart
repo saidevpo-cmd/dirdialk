@@ -35,6 +35,17 @@ class AppError {
   static const serverError =
       AppError(code: 'SERVER_ERROR', message: 'Server error', statusCode: 500);
 
+  static const validationCode = 'VALIDATION';
+  static const conflictCode = 'CONFLICT';
+
+  /// Input failed a client- or server-side business rule.
+  factory AppError.validation(String message) =>
+      AppError(code: validationCode, message: message, statusCode: 422);
+
+  /// The request conflicts with current state (e.g. not enough stock).
+  factory AppError.conflict(String message) =>
+      AppError(code: conflictCode, message: message, statusCode: 409);
+
   @override
   String toString() => 'AppError($code: $message)';
 }

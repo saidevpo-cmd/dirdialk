@@ -1,7 +1,6 @@
 {
   "@@locale": "fr",
   "appTitle": "diali",
-
   "navDashboard": "Tableau de bord",
   "navProducts": "Produits",
   "navOrders": "Commandes",
@@ -13,12 +12,10 @@
   "navSettings": "Paramètres",
   "openNavigation": "Ouvrir le menu de navigation",
   "closeNavigation": "Fermer le menu de navigation",
-
   "dashboardSubtitle": "Voici l'activité de votre entreprise aujourd'hui.",
   "recentActivity": "Activité récente",
   "quickActions": "Actions rapides",
   "viewAll": "Tout afficher",
-
   "statProducts": "Total des produits",
   "statOrders": "Total des commandes",
   "statCustomers": "Total des clients",
@@ -27,14 +24,12 @@
   "statOrdersTrend": "+8% ce mois-ci",
   "statCustomersTrend": "+5% ce mois-ci",
   "statResourcesTrend": "2 ajoutés cette semaine",
-
   "activityOrder": "Nouvelle commande {id} reçue",
   "activityLowStock": "Stock faible pour {name}",
   "activityCustomer": "Nouveau client : {name}",
   "activityResource": "{name} ajouté aux ressources",
   "timeToday": "Aujourd'hui",
   "timeYesterday": "Hier",
-
   "actionAddProduct": "Ajouter un produit",
   "actionNewOrder": "Nouvelle commande",
   "actionAddCustomer": "Ajouter un client",
@@ -47,11 +42,9 @@
   "actionClose": "Fermer",
   "actionCopy": "Copier",
   "actionCopied": "Copié dans le presse-papiers.",
-
   "searchIn": "Rechercher dans {section}",
   "emptySearch": "Aucun résultat pour « {query} ».",
   "resultCount": "{count} résultats",
-
   "productsSubtitle": "Gérez votre catalogue, vos prix et vos niveaux de stock.",
   "ordersSubtitle": "Suivez chaque commande du paiement à la livraison.",
   "customersSubtitle": "Votre base de clients et l'historique des achats.",
@@ -59,7 +52,6 @@
   "formsSubtitle": "Créez des formulaires et recueillez des soumissions.",
   "pagesSubtitle": "Créez et gérez les pages de votre plateforme.",
   "storeSubtitle": "Prévisualisez votre vitrine commerciale.",
-
   "colName": "Nom",
   "colSku": "UGS / SKU",
   "colCategory": "Catégorie",
@@ -80,7 +72,6 @@
   "colSubmissions": "Soumissions",
   "colTitle": "Titre",
   "colSlug": "Slug",
-
   "statusActive": "Actif",
   "statusLow": "Stock faible",
   "statusPaid": "Payé",
@@ -93,12 +84,10 @@
   "statusNew": "Nouveau",
   "statusVip": "VIP",
   "statusRegular": "Standard",
-
   "typeDocument": "Document",
   "typeSpreadsheet": "Feuille de calcul",
   "typeImage": "Image",
   "typeFolder": "Dossier",
-
   "productsLowStockTitle": "Stock faible",
   "productsLowStock": "{count} en stock faible",
   "productsValueTitle": "Valeur du stock",
@@ -113,23 +102,19 @@
   "formsPublished": "{count} publiés",
   "pagesPublished": "{count} publiées",
   "pagesDraft": "{count} brouillons",
-
   "storeOpen": "Ouvrir la vitrine",
   "storeBannerTitle": "Nouvelle saison, nouveaux produits",
   "storeBannerBody": "Parcourez le catalogue de démonstration local.",
   "storeBannerCta": "Découvrir les produits",
-
   "addToCart": "Ajouter au panier",
   "addedToCart": "{name} a été ajouté à votre panier.",
   "storeCartTitle": "Panier",
   "cartEmpty": "Votre panier est vide.",
   "storeCartItems": "{count} articles dans le panier",
-
   "settingsTitle": "Paramètres",
   "settingsSubtitle": "Langue, alertes, confidentialité et données.",
   "settingsSearchHint": "Rechercher dans les paramètres",
   "settingsNoResults": "Aucun paramètre ne correspond à « {query} ».",
-
   "sectionGeneral": "Général",
   "sectionGeneralDesc": "Langue, apparence et style visuel.",
   "sectionNotifications": "Notifications",
@@ -140,7 +125,6 @@
   "sectionDataDesc": "Exportation, réinitialisation et stockage local.",
   "sectionAbout": "À propos",
   "sectionAboutDesc": "Version, licences et contact.",
-
   "languageTitle": "Langue",
   "languageDescription": "Choisissez la langue de l'application.",
   "appearanceTitle": "Apparence",
@@ -156,14 +140,12 @@
   "styleModernDesc": "Arrondi, coloré et convivial.",
   "styleMinimalDesc": "Épuré, sobre et calme.",
   "styleProfessionalDesc": "Compact, formel et dense.",
-
   "notifOrders": "Nouvelles commandes",
   "notifOrdersDesc": "Être notifié lorsqu'une nouvelle commande arrive.",
   "notifLowStock": "Alertes de stock faible",
   "notifLowStockDesc": "M'avertir lorsqu'un produit est presque épuisé.",
   "notifWeekly": "Résumé hebdomadaire",
   "notifWeeklyDesc": "Un récapitulatif de l'activité chaque lundi.",
-
   "privacyAnalytics": "Statistiques anonymes",
   "privacyAnalyticsDesc": "Partager des statistiques d'usage pour améliorer l'application.",
   "privacyCrash": "Rapports de plantage",
@@ -174,7 +156,6 @@
   "privacyPolicyActionDesc": "Comment vos données sont stockées et protégées.",
   "termsAction": "Lire les conditions d'utilisation",
   "termsActionDesc": "Les règles applicables à l'utilisation de diali.",
-
   "consentTitle": "Consentement aux politiques",
   "consentAccepted": "Accepté le {date}.",
   "consentPending": "La politique actuelle n'a pas encore été acceptée.",
@@ -183,7 +164,6 @@
   "consentAcceptedToast": "Merci — votre consentement a été enregistré.",
   "policyAccept": "Accepter la politique",
   "policyNotNow": "Pas maintenant",
-
   "privacyPolicyTitle": "Politique de confidentialité",
   "privacyIntro": "diali fonctionne entièrement sur votre appareil.",
   "privacyIntroTitle": "Aperçu",
@@ -199,7 +179,6 @@
   "privacyContactBody": "Des questions sur cette politique ? Écrivez à {email}.",
   "privacyUpdatedOn": "Dernière mise à jour : {date}",
   "privacyUpdatedTitle": "Dernière mise à jour",
-
   "termsTitle": "Conditions d'utilisation",
   "termsAcceptTitle": "Acceptation",
   "termsAcceptBody": "En utilisant diali, vous acceptez ces conditions.",
@@ -213,7 +192,6 @@
   "termsChangesBody": "Nous pouvons mettre à jour ces conditions.",
   "termsContactTitle": "Contact",
   "termsContactBody": "Des questions sur ces conditions ? Écrivez à {email}.",
-
   "dataStorage": "Stockage local",
   "dataStorageDesc": "Les préférences sont sauvegardées sur cet appareil uniquement.",
   "dataExport": "Exporter les paramètres",
@@ -224,7 +202,6 @@
   "dataResetTitle": "Réinitialiser tous les paramètres ?",
   "dataResetBody": "Cette action est irréversible.",
   "dataResetConfirm": "Réinitialiser",
-
   "aboutVersion": "Version de l'application",
   "aboutBuild": "Numéro de build",
   "aboutLicenses": "Licences open source",
@@ -233,9 +210,7 @@
   "aboutContactDesc": "Questions, commentaires et support.",
   "aboutOffline": "Fonctionne hors ligne",
   "aboutOfflineDesc": "diali fonctionne entièrement sans connexion Internet.",
-
   "navCategories": "Catégories",
-
   "dashboardRecentOrders": "Commandes récentes",
   "dashboardRecentProducts": "Produits récents",
   "dashboardLatestArticles": "Derniers articles",
@@ -248,7 +223,6 @@
   "dashboardTotalCategories": "Catégories",
   "dashboardRevenue": "Chiffre d'affaires",
   "dashboardPublishedArticles": "Articles publiés",
-
   "categoriesSubtitle": "Organisez votre catalogue avec des catégories réutilisables.",
   "addCategory": "Ajouter une catégorie",
   "editCategory": "Modifier la catégorie",
@@ -264,7 +238,6 @@
   "deleteCategoryBody": "Voulez-vous vraiment supprimer « {name} » ?",
   "deleteCategoryInUse": "{count} produit(s) utilisent cette catégorie. Ils seront déplacés vers Non classé.",
   "uncategorized": "Non classé",
-
   "storeProfileTitle": "Profil de la boutique",
   "storeProfileDescription": "Nom public, identité et coordonnées.",
   "storeName": "Nom de la boutique",
@@ -279,7 +252,6 @@
   "templateMinimal": "Minimal",
   "templateProfessional": "Professionnel",
   "saved": "Enregistré.",
-
   "demoDataTitle": "Données de démonstration",
   "demoDataDesc": "Charger des produits et catégories d'exemple avec des images locales.",
   "demoDataAction": "Charger les données démo",
@@ -287,7 +259,6 @@
   "demoDataResult": "{products} produits et {categories} catégories ajoutés.",
   "demoDataAlready": "Les données démo sont déjà chargées.",
   "demoDataFailed": "Impossible de charger les données démo.",
-
   "loginTitle": "Connexion",
   "loginSubtitle": "Connectez-vous pour gérer votre activité.",
   "loginEmail": "E-mail",
@@ -299,7 +270,6 @@
   "loginPasswordRequired": "Saisissez votre mot de passe.",
   "loginFailed": "Échec de la connexion. Vérifiez vos identifiants et réessayez.",
   "loginOfflineNotice": "Mode hors ligne — aucune connexion requise.",
-
   "accountTitle": "Compte",
   "accountDescription": "Connexion et session.",
   "accountSignedInAs": "Connecté en tant que {email}",
@@ -308,7 +278,6 @@
   "signOutConfirmTitle": "Se déconnecter ?",
   "signOutConfirmBody": "Vous devrez vous reconnecter pour accéder au tableau de bord.",
   "signOutConfirm": "Se déconnecter",
-
   "actionRetry": "Réessayer",
   "actionSave": "Enregistrer",
   "actionCreate": "Créer",
@@ -462,5 +431,35 @@
   "categoryImageHint": "Résolution recommandée 600 × 600 (1:1).",
   "selectImage": "Choisir une image",
   "removeCategoryImageBody": "L'image sera retirée de la catégorie. Cette action est irréversible.",
-  "imageCounter": "{current} / {total}"
+  "imageCounter": "{current} / {total}",
+  "checkoutNameTooShort": "Veuillez saisir le nom complet du client.",
+  "checkoutPhoneInvalid": "Saisissez un numéro de téléphone valide (7-15 chiffres).",
+  "checkoutQuantityInvalid": "La quantité doit être d'au moins 1.",
+  "checkoutInsufficientStock": "Il ne reste que {available} de {product}.",
+  "checkoutAddressTooLong": "L'adresse est trop longue (300 caractères max).",
+  "checkoutCityTooLong": "Le nom de la ville est trop long (120 caractères max).",
+  "businessLocation": "Localisation de l'entreprise",
+  "businessLocationHint": "Affichée sur la carte de la boutique et utilisée pour l'itinéraire.",
+  "latitudeLabel": "Latitude",
+  "longitudeLabel": "Longitude",
+  "useCurrentLocation": "Utiliser la position actuelle",
+  "locationPermissionDenied": "L'autorisation de localisation a été refusée.",
+  "locationServicesDisabled": "Les services de localisation sont désactivés.",
+  "locationUnavailable": "Impossible de déterminer votre position.",
+  "locationInvalid": "Saisissez une latitude entre -90 et 90 et une longitude entre -180 et 180.",
+  "openInMaps": "Ouvrir dans les cartes",
+  "socialMedia": "Réseaux sociaux",
+  "socialMediaHint": "Ajoutez les liens de profil affichés sur la boutique.",
+  "socialInstagram": "Instagram",
+  "socialFacebook": "Facebook",
+  "socialTiktok": "TikTok",
+  "socialWhatsapp": "WhatsApp",
+  "socialYoutube": "YouTube",
+  "socialLinkedin": "LinkedIn",
+  "socialUrlLabel": "URL du profil",
+  "socialInvalidUrl": "Saisissez un lien http(s) valide.",
+  "paginationRange": "Affichage de {start}-{end} sur {total}",
+  "paginationPageOf": "Page {page} sur {total}",
+  "paginationPrevious": "Précédent",
+  "paginationNext": "Suivant"
 }

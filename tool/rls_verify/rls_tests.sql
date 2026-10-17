@@ -218,26 +218,93 @@ SELECT _expect_ok('staff can read private resources bucket',
   'SELECT 1 FROM storage.objects WHERE bucket_id=''resources''');
 
 -- place_order: happy path + stock ledger + rejections
+-- The client sends a deliberately absurd total (999999) to prove the server
+-- recomputes money from the product row instead of trusting the payload.
 SELECT _expect_ok('staff places a valid order',
-  'SELECT public.place_order(''{"order_number":"ORD-STAFF-1","total":30,"subtotal":30}''::jsonb,
-     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"Active Widget","qty":3,"unit_price":10,"subtotal":30}]''::jsonb)');
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-1","total":999999,"subtotal":999999,
+     "customer_name":"Customer One","customer_phone":"+1 555 0100"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"Active Widget","qty":3,"unit_price":999999,"subtotal":999999}]''::jsonb)');
+SELECT _expect_rows('server ignored the client total (10 x 3 x 1.08)',
+  1, 'SELECT 1 FROM orders WHERE order_number=''ORD-STAFF-1'' AND total=32.40 AND subtotal=30.00');
 SELECT _expect_rows('stock decreased by 3 after order', 1,
   'SELECT 1 FROM products WHERE id=''22222222-2222-2222-2222-222222222221'' AND stock_qty=7');
 SELECT _expect_rows('stock movement row recorded', 1,
   'SELECT 1 FROM stock_movements WHERE reference=''ORD-STAFF-1'' AND delta=-3');
+SELECT _expect_rows('contact phone persisted on the order', 1,
+  'SELECT 1 FROM orders WHERE order_number=''ORD-STAFF-1'' AND customer_phone=''+1 555 0100''');
+
+-- Cancellation / reopening keeps inventory consistent.
+SELECT _expect_ok('staff cancels the order',
+  'UPDATE orders SET status=''cancelled'' WHERE order_number=''ORD-STAFF-1''');
+SELECT _expect_rows('cancelling restored the 3 units', 1,
+  'SELECT 1 FROM products WHERE id=''22222222-2222-2222-2222-222222222221'' AND stock_qty=10');
+SELECT _expect_ok('staff reopens the order',
+  'UPDATE orders SET status=''paid'' WHERE order_number=''ORD-STAFF-1''');
+SELECT _expect_rows('reopening re-reserved the 3 units', 1,
+  'SELECT 1 FROM products WHERE id=''22222222-2222-2222-2222-222222222221'' AND stock_qty=7');
+-- Put it back to a live state so later assertions see stock 7.
+SELECT _expect_ok('staff cancels and reopens again for a clean state',
+  'UPDATE orders SET status=''cancelled'' WHERE order_number=''ORD-STAFF-1''');
+SELECT _expect_ok('reopen for clean state',
+  'UPDATE orders SET status=''paid'' WHERE order_number=''ORD-STAFF-1''');
+
+-- Idempotent replay: the same key must never create a second order or move
+-- stock twice (a client retry after a lost response). The key is supplied on
+-- the first attempt, exactly as the client does. Stock is 7 here.
+SELECT _expect_ok('checkout attempt with a key succeeds',
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-IDEM","idempotency_key":"11111111-1111-1111-1111-111111111111",
+     "customer_name":"Customer One","customer_phone":"+1 555 0100"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"Active Widget","qty":1,"unit_price":10,"subtotal":10}]''::jsonb)');
+SELECT _expect_rows('first attempt moved 1 unit', 1,
+  'SELECT 1 FROM products WHERE id=''22222222-2222-2222-2222-222222222221'' AND stock_qty=6');
+SELECT _expect_ok('replayed checkout key succeeds',
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-IDEM","idempotency_key":"11111111-1111-1111-1111-111111111111",
+     "customer_name":"Customer One","customer_phone":"+1 555 0100"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"Active Widget","qty":1,"unit_price":10,"subtotal":10}]''::jsonb)');
+SELECT _expect_rows('replay created no second order', 1,
+  'SELECT 1 FROM orders WHERE idempotency_key=''11111111-1111-1111-1111-111111111111''');
+SELECT _expect_rows('replay moved no extra stock', 1,
+  'SELECT 1 FROM products WHERE id=''22222222-2222-2222-2222-222222222221'' AND stock_qty=6');
+
+-- Deleting a live order returns its reserved units (the DELETE branch of the
+-- stock trigger), so cancellation is not the only way to recover inventory.
+SELECT _expect_ok('staff places an order for the delete test',
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-DEL","customer_name":"C","customer_phone":"5550100"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"Active Widget","qty":2,"unit_price":10,"subtotal":20}]''::jsonb)');
+SELECT _expect_rows('delete-test order reserved 2 units', 1,
+  'SELECT 1 FROM products WHERE id=''22222222-2222-2222-2222-222222222221'' AND stock_qty=4');
+SELECT _expect_ok('staff deletes the live order',
+  'DELETE FROM orders WHERE order_number=''ORD-STAFF-DEL''');
+SELECT _expect_rows('deleting a live order restored 2 units', 1,
+  'SELECT 1 FROM products WHERE id=''22222222-2222-2222-2222-222222222221'' AND stock_qty=6');
+SELECT _expect_rows('delete also removed its items', 0,
+  'SELECT 1 FROM order_items WHERE order_id NOT IN (SELECT id FROM orders)');
+
 SELECT _expect_err('order rejected on insufficient stock',
-  'SELECT public.place_order(''{"order_number":"ORD-STAFF-2","total":1000}''::jsonb,
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-2","customer_name":"C","customer_phone":"5550100"}''::jsonb,
      ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"Active Widget","qty":9999,"unit_price":1,"subtotal":9999}]''::jsonb)');
 SELECT _expect_rows('failed order did not persist', 0,
   'SELECT 1 FROM orders WHERE order_number=''ORD-STAFF-2''');
+SELECT _expect_err('order rejected without a customer name',
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-NONAME","customer_phone":"5550100"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"x","qty":1,"unit_price":1,"subtotal":1}]''::jsonb)');
+SELECT _expect_err('order rejected without a phone number',
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-NOPHONE","customer_name":"C"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"x","qty":1,"unit_price":1,"subtotal":1}]''::jsonb)');
+SELECT _expect_err('order rejected with a malformed phone number',
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-BADPHONE","customer_name":"C","customer_phone":"abc"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"x","qty":1,"unit_price":1,"subtotal":1}]''::jsonb)');
 SELECT _expect_err('order rejected on non-positive qty',
-  'SELECT public.place_order(''{"order_number":"ORD-STAFF-3","total":1}''::jsonb,
-     ''[{"product_name":"x","qty":0,"unit_price":1,"subtotal":1}]''::jsonb)');
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-3","customer_name":"C","customer_phone":"5550100"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"x","qty":0,"unit_price":1,"subtotal":1}]''::jsonb)');
 SELECT _expect_err('order rejected with no items',
-  'SELECT public.place_order(''{"order_number":"ORD-STAFF-4","total":1}''::jsonb, ''[]''::jsonb)');
-SELECT _expect_err('order rejected with negative amount',
-  'SELECT public.place_order(''{"order_number":"ORD-STAFF-5","total":-5}''::jsonb,
-     ''[{"product_name":"x","qty":1,"unit_price":1,"subtotal":1}]''::jsonb)');
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-4","customer_name":"C","customer_phone":"5550100"}''::jsonb, ''[]''::jsonb)');
+SELECT _expect_err('order rejected with a negative discount',
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-5","discount":-5,"customer_name":"C","customer_phone":"5550100"}''::jsonb,
+     ''[{"product_id":"22222222-2222-2222-2222-222222222221","product_name":"x","qty":1,"unit_price":1,"subtotal":1}]''::jsonb)');
+SELECT _expect_err('order item must reference a real product',
+  'SELECT public.place_order(''{"order_number":"ORD-STAFF-NOPROD","customer_name":"C","customer_phone":"5550100"}''::jsonb,
+     ''[{"product_name":"ghost","qty":1,"unit_price":1,"subtotal":1}]''::jsonb)');
 SELECT _expect_err('oversized form payload rejected',
   'INSERT INTO form_submissions (form_id, payload) VALUES
     (''aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1'', jsonb_build_object(''blob'', repeat(''a'', 300000)))');
@@ -305,10 +372,61 @@ RESET ROLE;
 SET request.jwt.claims='{"sub":"00000000-0000-0000-0000-000000000003","role":"authenticated"}';
 SET ROLE authenticated;
 SELECT _expect_ok('staff can still place an order',
-  'SELECT public.place_order(''{"order_number":"OWN-1","total":5,"subtotal":5}''::jsonb,
+  'SELECT public.place_order(''{"order_number":"OWN-1","total":5,"subtotal":5,"customer_name":"C","customer_phone":"5550100"}''::jsonb,
      ''[{"product_id":"dddddddd-dddd-dddd-dddd-ddddddddddd1","product_name":"Owner-only Widget","qty":1,"unit_price":5,"subtotal":5}]''::jsonb)');
 SELECT _expect_rows('owner-only widget stock decremented', 1,
   'SELECT 1 FROM products WHERE id=''dddddddd-dddd-dddd-dddd-ddddddddddd1'' AND stock_qty=9');
+
+-- =====================================================================
+-- Business location + social links (site_settings) and app_settings
+-- =====================================================================
+RESET ROLE;
+SET request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000002","role":"authenticated","email":"admin@diali.test"}';
+SET ROLE authenticated;
+
+SELECT _expect_ok('admin can store a valid social profile',
+  $sql$UPDATE site_settings SET
+        latitude = 33.5138,
+        longitude = 36.2765,
+        social_links = '{"instagram":{"url":"https://www.instagram.com/diali/","enabled":true},
+                         "whatsapp":{"url":"https://wa.me/9635550100","enabled":true}}'::jsonb$sql$);
+SELECT _expect_rows('business coordinates persisted', 1,
+  'SELECT 1 FROM site_settings WHERE latitude=33.5138 AND longitude=36.2765');
+SELECT _expect_err('admin cannot store an unknown social platform',
+  $sql$UPDATE site_settings SET
+        social_links = '{"myspace":{"url":"https://myspace.com/x","enabled":true}}'::jsonb$sql$);
+SELECT _expect_err('admin cannot store a social entry without a url',
+  $sql$UPDATE site_settings SET
+        social_links = '{"instagram":{"enabled":true}}'::jsonb$sql$);
+SELECT _expect_err('admin cannot store an out-of-range latitude',
+  'UPDATE site_settings SET latitude = 999');
+SELECT _expect_err('admin cannot store an out-of-range longitude',
+  'UPDATE site_settings SET longitude = -999');
+
+-- staff (operational, not config) may not write site_settings
+RESET ROLE;
+SET request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000003","role":"authenticated","email":"staff@diali.test"}';
+SET ROLE authenticated;
+SELECT _expect_affected('staff cannot write site_settings', 0,
+  'UPDATE site_settings SET brand_name=''hax''');
+
+-- anon may read the public presentation row (including social links)
+RESET ROLE;
+SET request.jwt.claims = '{"role":"anon"}';
+SET ROLE anon;
+SELECT _expect_rows('anon sees the public social links', 1,
+  $$SELECT 1 FROM site_settings WHERE social_links ? 'instagram'$$);
+SELECT _expect_rows('anon sees the business coordinates', 1,
+  'SELECT 1 FROM site_settings WHERE latitude IS NOT NULL');
+
+-- app_settings.updated_at now has a trigger
+RESET ROLE;
+SET request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000002","role":"authenticated","email":"admin@diali.test"}';
+SET ROLE authenticated;
+SELECT _expect_ok('admin touches an app setting',
+  'UPDATE app_settings SET value = value WHERE key = ''currency''');
+SELECT _expect_rows('app_settings.updated_at refreshed by trigger', 1,
+  'SELECT 1 FROM app_settings WHERE key=''currency'' AND updated_at > now() - interval ''1 minute''');
 
 -- =====================================================================
 -- Structural checks (superuser)

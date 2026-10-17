@@ -1397,4 +1397,103 @@ class AppLocalizationsAr extends AppLocalizations {
   String imageCounter(Object current, Object total) {
     return '$current / $total';
   }
+
+  @override
+  String get checkoutNameTooShort => 'يرجى إدخال الاسم الكامل للعميل.';
+
+  @override
+  String get checkoutPhoneInvalid => 'أدخل رقم هاتف صالح (7-15 رقمًا).';
+
+  @override
+  String get checkoutQuantityInvalid => 'يجب أن تكون الكمية 1 على الأقل.';
+
+  @override
+  String checkoutInsufficientStock(Object available, Object product) {
+    return 'المتبقي $available فقط من $product.';
+  }
+
+  @override
+  String get checkoutAddressTooLong => 'العنوان طويل جدًا (300 حرف كحد أقصى).';
+
+  @override
+  String get checkoutCityTooLong =>
+      'اسم المدينة طويل جدًا (120 حرفًا كحد أقصى).';
+
+  @override
+  String get businessLocation => 'موقع النشاط';
+
+  @override
+  String get businessLocationHint =>
+      'يظهر على خريطة المتجر ويُستخدم للاتجاهات.';
+
+  @override
+  String get latitudeLabel => 'خط العرض';
+
+  @override
+  String get longitudeLabel => 'خط الطول';
+
+  @override
+  String get useCurrentLocation => 'استخدام الموقع الحالي';
+
+  @override
+  String get locationPermissionDenied => 'تم رفض إذن الوصول إلى الموقع.';
+
+  @override
+  String get locationServicesDisabled => 'خدمات الموقع متوقفة.';
+
+  @override
+  String get locationUnavailable => 'تعذّر تحديد موقعك.';
+
+  @override
+  String get locationInvalid =>
+      'أدخل خط عرض بين -90 و90 وخط طول بين -180 و180.';
+
+  @override
+  String get openInMaps => 'فتح في الخرائط';
+
+  @override
+  String get socialMedia => 'وسائل التواصل الاجتماعي';
+
+  @override
+  String get socialMediaHint => 'أضف روابط حسابات النشاط التي تظهر في المتجر.';
+
+  @override
+  String get socialInstagram => 'إنستغرام';
+
+  @override
+  String get socialFacebook => 'فيسبوك';
+
+  @override
+  String get socialTiktok => 'تيك توك';
+
+  @override
+  String get socialWhatsapp => 'واتساب';
+
+  @override
+  String get socialYoutube => 'يوتيوب';
+
+  @override
+  String get socialLinkedin => 'لينكدإن';
+
+  @override
+  String get socialUrlLabel => 'رابط الملف الشخصي';
+
+  @override
+  String get socialInvalidUrl => 'أدخل رابط http(s) صالحًا.';
+
+  @override
+  String paginationRange(Object end, Object start, Object total) {
+    return 'عرض $start-$end من $total';
+  }
+
+  @override
+  String paginationPageOf(Object page, Object total) {
+    return 'صفحة $page من $total';
+  }
+
+  @override
+  String get paginationPrevious => 'السابق';
+
+  @override
+  String get paginationNext => 'التالي';
 }

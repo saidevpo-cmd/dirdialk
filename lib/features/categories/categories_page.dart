@@ -8,6 +8,7 @@ import '../../domain/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
+import '../../shared/utils/id_gen.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/app_image.dart';
 import '../../shared/widgets/empty_state_view.dart';
@@ -83,10 +84,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
     setState(() {
       _isLoading = false;
-      if (res is Success) {
-        _categories = (res as Success).data.items;
-      } else {
-        _errorMessage = AppLocalizations.of(context)!.loadFailed;
+      switch (res) {
+        case Success(data: final page):
+          _categories = page.items;
+        case Failure(:final error):
+          // Surface the real error (network / RLS / validation) instead of a
+          // generic message so the cause is actionable.
+          _errorMessage = error.message;
       }
     });
   }
@@ -218,7 +222,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       ));
                     } else {
                       result = await _repo.create(Category(
-                        id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
+                        id: IdGen.uuid(),
                         name: name,
                         slug: slug,
                         description: descCtrl.text.trim(),

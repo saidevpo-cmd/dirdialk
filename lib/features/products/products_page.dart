@@ -8,6 +8,7 @@ import '../../domain/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
+import '../../shared/utils/id_gen.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/app_image.dart';
 import '../../shared/widgets/error_state_view.dart';
@@ -304,7 +305,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       result = await _repo.update(updated);
                     } else {
                       final newProd = Product(
-                        id: 'prod_${DateTime.now().millisecondsSinceEpoch}',
+                        id: IdGen.uuid(),
                         name: nameCtrl.text.trim(),
                         sku: skuCtrl.text.trim().isNotEmpty
                             ? skuCtrl.text.trim()
@@ -324,18 +325,28 @@ class _ProductsPageState extends State<ProductsPage> {
                       result = await _repo.create(newProd);
                     }
 
-                    if (dialogCtx.mounted) {
-                      Navigator.of(dialogCtx).pop();
+                    switch (result) {
+                      case Success():
+                        // Only close the dialog once the write actually
+                        // succeeded; on failure the user keeps their input
+                        // and sees the error.
+                        if (dialogCtx.mounted) {
+                          Navigator.of(dialogCtx).pop();
+                        }
+                        if (!mounted) return;
+                        AppFeedback.success(
+                          this.context,
+                          isEditing
+                              ? l10n.productUpdated
+                              : l10n.productCreated,
+                        );
+                        _loadData();
+                      case Failure(:final error):
+                        AppFeedback.error(
+                          dialogCtx.mounted ? dialogCtx : this.context,
+                          error,
+                        );
                     }
-                    if (!mounted) return;
-                    AppFeedback.fromResult(
-                      this.context,
-                      result,
-                      successMessage: isEditing
-                          ? l10n.productUpdated
-                          : l10n.productCreated,
-                    );
-                    _loadData();
                   },
                   child: Text(
                     isEditing ? l10n.actionSaveChanges : l10n.actionCreate,

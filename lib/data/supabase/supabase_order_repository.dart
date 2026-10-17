@@ -26,7 +26,8 @@ class SupabaseOrderRepository implements OrderRepository {
       if (search != null && search.trim().isNotEmpty) {
         final q = search.trim();
         query = query.or(
-          'order_number.ilike.%$q%,customer_name.ilike.%$q%,customer_email.ilike.%$q%',
+          'order_number.ilike.%$q%,customer_name.ilike.%$q%,'
+          'customer_phone.ilike.%$q%,customer_email.ilike.%$q%',
         );
       }
       final response = await query
@@ -60,14 +61,9 @@ class SupabaseOrderRepository implements OrderRepository {
   @override
   Future<Result<Order>> create(Order order) async {
     if (order.items.isEmpty) {
-      return guard(() async {
-        final data = await AppSupabase.client
-            .from('orders')
-            .insert(Db.order(order))
-            .select(_select)
-            .single();
-        return Db.orderFrom(Map<String, dynamic>.from(data));
-      });
+      return Failure(
+        AppError.validation('An order must contain at least one item.'),
+      );
     }
     final inserted = await guard<String>(() async {
       final id = await AppSupabase.client.rpc('place_order', params: {

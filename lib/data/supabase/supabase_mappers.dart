@@ -190,6 +190,7 @@ class Db {
         'order_number': o.orderNumber,
         'customer_id': o.customerId,
         'customer_name': o.customerName,
+        'customer_phone': o.customerPhone,
         'customer_email': o.customerEmail,
         'shipping_address': o.shippingAddress,
         'shipping_city': o.shippingCity,
@@ -203,6 +204,7 @@ class Db {
         'delivered_at': _iso(o.deliveredAt),
         'cancelled_at': _iso(o.cancelledAt),
         'notes': o.notes,
+        'idempotency_key': o.idempotencyKey,
       };
 
   static Order orderFrom(Map<String, dynamic> r) => Order(
@@ -210,6 +212,7 @@ class Db {
         orderNumber: _str(r['order_number']) ?? '',
         customerId: _str(r['customer_id']),
         customerName: _str(r['customer_name']) ?? _joinedName(r['customer']),
+        customerPhone: _str(r['customer_phone']),
         customerEmail: _str(r['customer_email']),
         shippingAddress: _str(r['shipping_address']),
         shippingCity: _str(r['shipping_city']),
@@ -229,6 +232,7 @@ class Db {
         deliveredAt: _date(r['delivered_at']),
         cancelledAt: _date(r['cancelled_at']),
         notes: _str(r['notes']),
+        idempotencyKey: _str(r['idempotency_key']),
         createdAt: _dateOr(r['created_at'], DateTime.now()),
         updatedAt: _dateOr(r['updated_at'], DateTime.now()),
       );

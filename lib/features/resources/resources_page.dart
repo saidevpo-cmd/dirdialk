@@ -6,6 +6,7 @@ import '../../domain/models/app_error.dart';
 import '../../domain/models/resource.dart';
 import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
+import '../../shared/utils/id_gen.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/error_state_view.dart';
 import '../../shared/widgets/responsive_data_table.dart';
@@ -332,7 +333,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
                     } else {
                       result = await _repo.create(
                         Resource(
-                          id: 'res_${DateTime.now().millisecondsSinceEpoch}',
+                          id: IdGen.uuid(),
                           name: name,
                           category: category.isEmpty ? null : category,
                           description:

@@ -63,7 +63,7 @@ class AppRepositories {
           MockProductRepository(categoryRepository: mockCategories, store: store);
       products = mockProducts;
       customers = MockCustomerRepository();
-      orders = MockOrderRepository();
+      orders = MockOrderRepository(productRepository: mockProducts);
       resources = MockResourceRepository();
       forms = MockFormRepository();
       pages = MockPageRepository();

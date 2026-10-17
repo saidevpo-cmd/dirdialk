@@ -31,6 +31,7 @@ class Order {
     required this.orderNumber,
     this.customerId,
     this.customerName,
+    this.customerPhone,
     this.customerEmail,
     this.shippingAddress,
     this.shippingCity,
@@ -45,6 +46,7 @@ class Order {
     this.deliveredAt,
     this.cancelledAt,
     this.notes,
+    this.idempotencyKey,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -53,6 +55,10 @@ class Order {
   final String orderNumber;
   final String? customerId;
   final String? customerName;
+
+  /// Contact phone captured at checkout (guest checkout does not require a
+  /// customer account, but does require reachable contact information).
+  final String? customerPhone;
   final String? customerEmail;
   final String? shippingAddress;
   final String? shippingCity;
@@ -67,6 +73,11 @@ class Order {
   final DateTime? deliveredAt;
   final DateTime? cancelledAt;
   final String? notes;
+
+  /// One key per checkout attempt; reused on retry so a lost response can be
+  /// replayed without creating a duplicate order (enforced by a unique index
+  /// in Postgres).
+  final String? idempotencyKey;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -75,6 +86,7 @@ class Order {
     String? orderNumber,
     String? customerId,
     String? customerName,
+    String? customerPhone,
     String? customerEmail,
     String? shippingAddress,
     String? shippingCity,
@@ -89,6 +101,7 @@ class Order {
     DateTime? deliveredAt,
     DateTime? cancelledAt,
     String? notes,
+    String? idempotencyKey,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) =>
@@ -97,6 +110,7 @@ class Order {
         orderNumber: orderNumber ?? this.orderNumber,
         customerId: customerId ?? this.customerId,
         customerName: customerName ?? this.customerName,
+        customerPhone: customerPhone ?? this.customerPhone,
         customerEmail: customerEmail ?? this.customerEmail,
         shippingAddress: shippingAddress ?? this.shippingAddress,
         shippingCity: shippingCity ?? this.shippingCity,
@@ -111,6 +125,7 @@ class Order {
         deliveredAt: deliveredAt ?? this.deliveredAt,
         cancelledAt: cancelledAt ?? this.cancelledAt,
         notes: notes ?? this.notes,
+        idempotencyKey: idempotencyKey ?? this.idempotencyKey,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );

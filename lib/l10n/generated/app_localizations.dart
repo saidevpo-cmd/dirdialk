@@ -2691,6 +2691,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{current} / {total}'**
   String imageCounter(Object current, Object total);
+
+  /// No description provided for @checkoutNameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the customer\'s full name.'**
+  String get checkoutNameTooShort;
+
+  /// No description provided for @checkoutPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number (7-15 digits).'**
+  String get checkoutPhoneInvalid;
+
+  /// No description provided for @checkoutQuantityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Item quantity must be at least 1.'**
+  String get checkoutQuantityInvalid;
+
+  /// No description provided for @checkoutInsufficientStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {available} left of {product}.'**
+  String checkoutInsufficientStock(Object available, Object product);
+
+  /// No description provided for @checkoutAddressTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Address is too long (max 300 characters).'**
+  String get checkoutAddressTooLong;
+
+  /// No description provided for @checkoutCityTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'City is too long (max 120 characters).'**
+  String get checkoutCityTooLong;
+
+  /// No description provided for @businessLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Business location'**
+  String get businessLocation;
+
+  /// No description provided for @businessLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown on the storefront map and used for directions.'**
+  String get businessLocationHint;
+
+  /// No description provided for @latitudeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Latitude'**
+  String get latitudeLabel;
+
+  /// No description provided for @longitudeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Longitude'**
+  String get longitudeLabel;
+
+  /// No description provided for @useCurrentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Use current location'**
+  String get useCurrentLocation;
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission was denied.'**
+  String get locationPermissionDenied;
+
+  /// No description provided for @locationServicesDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are turned off.'**
+  String get locationServicesDisabled;
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not determine your location.'**
+  String get locationUnavailable;
+
+  /// No description provided for @locationInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a latitude between -90 and 90 and a longitude between -180 and 180.'**
+  String get locationInvalid;
+
+  /// No description provided for @openInMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in maps'**
+  String get openInMaps;
+
+  /// No description provided for @socialMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Social media'**
+  String get socialMedia;
+
+  /// No description provided for @socialMediaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the business profile links shown on the storefront.'**
+  String get socialMediaHint;
+
+  /// No description provided for @socialInstagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Instagram'**
+  String get socialInstagram;
+
+  /// No description provided for @socialFacebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Facebook'**
+  String get socialFacebook;
+
+  /// No description provided for @socialTiktok.
+  ///
+  /// In en, this message translates to:
+  /// **'TikTok'**
+  String get socialTiktok;
+
+  /// No description provided for @socialWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get socialWhatsapp;
+
+  /// No description provided for @socialYoutube.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube'**
+  String get socialYoutube;
+
+  /// No description provided for @socialLinkedin.
+  ///
+  /// In en, this message translates to:
+  /// **'LinkedIn'**
+  String get socialLinkedin;
+
+  /// No description provided for @socialUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile URL'**
+  String get socialUrlLabel;
+
+  /// No description provided for @socialInvalidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid http(s) link.'**
+  String get socialInvalidUrl;
+
+  /// No description provided for @paginationRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {start}-{end} of {total}'**
+  String paginationRange(Object end, Object start, Object total);
+
+  /// No description provided for @paginationPageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String paginationPageOf(Object page, Object total);
+
+  /// No description provided for @paginationPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get paginationPrevious;
+
+  /// No description provided for @paginationNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get paginationNext;
 }
 
 class _AppLocalizationsDelegate

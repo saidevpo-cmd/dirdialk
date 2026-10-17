@@ -1414,4 +1414,105 @@ class AppLocalizationsEn extends AppLocalizations {
   String imageCounter(Object current, Object total) {
     return '$current / $total';
   }
+
+  @override
+  String get checkoutNameTooShort => 'Please enter the customer\'s full name.';
+
+  @override
+  String get checkoutPhoneInvalid =>
+      'Enter a valid phone number (7-15 digits).';
+
+  @override
+  String get checkoutQuantityInvalid => 'Item quantity must be at least 1.';
+
+  @override
+  String checkoutInsufficientStock(Object available, Object product) {
+    return 'Only $available left of $product.';
+  }
+
+  @override
+  String get checkoutAddressTooLong =>
+      'Address is too long (max 300 characters).';
+
+  @override
+  String get checkoutCityTooLong => 'City is too long (max 120 characters).';
+
+  @override
+  String get businessLocation => 'Business location';
+
+  @override
+  String get businessLocationHint =>
+      'Shown on the storefront map and used for directions.';
+
+  @override
+  String get latitudeLabel => 'Latitude';
+
+  @override
+  String get longitudeLabel => 'Longitude';
+
+  @override
+  String get useCurrentLocation => 'Use current location';
+
+  @override
+  String get locationPermissionDenied => 'Location permission was denied.';
+
+  @override
+  String get locationServicesDisabled => 'Location services are turned off.';
+
+  @override
+  String get locationUnavailable => 'Could not determine your location.';
+
+  @override
+  String get locationInvalid =>
+      'Enter a latitude between -90 and 90 and a longitude between -180 and 180.';
+
+  @override
+  String get openInMaps => 'Open in maps';
+
+  @override
+  String get socialMedia => 'Social media';
+
+  @override
+  String get socialMediaHint =>
+      'Add the business profile links shown on the storefront.';
+
+  @override
+  String get socialInstagram => 'Instagram';
+
+  @override
+  String get socialFacebook => 'Facebook';
+
+  @override
+  String get socialTiktok => 'TikTok';
+
+  @override
+  String get socialWhatsapp => 'WhatsApp';
+
+  @override
+  String get socialYoutube => 'YouTube';
+
+  @override
+  String get socialLinkedin => 'LinkedIn';
+
+  @override
+  String get socialUrlLabel => 'Profile URL';
+
+  @override
+  String get socialInvalidUrl => 'Enter a valid http(s) link.';
+
+  @override
+  String paginationRange(Object end, Object start, Object total) {
+    return 'Showing $start-$end of $total';
+  }
+
+  @override
+  String paginationPageOf(Object page, Object total) {
+    return 'Page $page of $total';
+  }
+
+  @override
+  String get paginationPrevious => 'Previous';
+
+  @override
+  String get paginationNext => 'Next';
 }

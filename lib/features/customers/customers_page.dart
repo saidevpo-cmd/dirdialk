@@ -7,6 +7,7 @@ import '../../domain/models/customer.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
+import '../../shared/utils/id_gen.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/error_state_view.dart';
 import '../../shared/widgets/responsive_data_table.dart';
@@ -229,7 +230,7 @@ class _CustomersPageState extends State<CustomersPage> {
                       result = await _repo.update(updated);
                     } else {
                       final newCust = Customer(
-                        id: 'cust_${DateTime.now().millisecondsSinceEpoch}',
+                        id: IdGen.uuid(),
                         name: nameCtrl.text.trim(),
                         email: emailCtrl.text.trim(),
                         phone: phoneCtrl.text.trim(),
@@ -246,18 +247,27 @@ class _CustomersPageState extends State<CustomersPage> {
                       result = await _repo.create(newCust);
                     }
 
-                    if (dialogCtx.mounted) {
-                      Navigator.of(dialogCtx).pop();
+                    switch (result) {
+                      case Success():
+                        // Close only after a confirmed write so a failure
+                        // never discards the user's input.
+                        if (dialogCtx.mounted) {
+                          Navigator.of(dialogCtx).pop();
+                        }
+                        if (!mounted) return;
+                        AppFeedback.success(
+                          this.context,
+                          isEditing
+                              ? l10n.customerUpdated
+                              : l10n.customerCreated,
+                        );
+                        _loadData();
+                      case Failure(:final error):
+                        AppFeedback.error(
+                          dialogCtx.mounted ? dialogCtx : this.context,
+                          error,
+                        );
                     }
-                    if (!mounted) return;
-                    AppFeedback.fromResult(
-                      this.context,
-                      result,
-                      successMessage: isEditing
-                          ? l10n.customerUpdated
-                          : l10n.customerCreated,
-                    );
-                    _loadData();
                   },
                   child: Text(
                     isEditing ? l10n.actionSaveChanges : l10n.actionCreate,

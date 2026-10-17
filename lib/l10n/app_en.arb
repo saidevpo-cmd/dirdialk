@@ -1,7 +1,6 @@
 {
   "@@locale": "en",
   "appTitle": "diali",
-
   "navDashboard": "Dashboard",
   "navProducts": "Products",
   "navOrders": "Orders",
@@ -13,12 +12,10 @@
   "navSettings": "Settings",
   "openNavigation": "Open navigation menu",
   "closeNavigation": "Close navigation menu",
-
   "dashboardSubtitle": "Here is what is happening in your business today.",
   "recentActivity": "Recent activity",
   "quickActions": "Quick actions",
   "viewAll": "View all",
-
   "statProducts": "Total products",
   "statOrders": "Total orders",
   "statCustomers": "Total customers",
@@ -27,14 +24,12 @@
   "statOrdersTrend": "+8% this month",
   "statCustomersTrend": "+5% this month",
   "statResourcesTrend": "2 added this week",
-
   "activityOrder": "New order {id} received",
   "activityLowStock": "Low stock for {name}",
   "activityCustomer": "New customer: {name}",
   "activityResource": "{name} added to resources",
   "timeToday": "Today",
   "timeYesterday": "Yesterday",
-
   "actionAddProduct": "Add product",
   "actionNewOrder": "New order",
   "actionAddCustomer": "Add customer",
@@ -47,11 +42,9 @@
   "actionClose": "Close",
   "actionCopy": "Copy",
   "actionCopied": "Copied to clipboard.",
-
   "searchIn": "Search in {section}",
   "emptySearch": "No results for “{query}”.",
   "resultCount": "{count} results",
-
   "productsSubtitle": "Manage your catalogue, prices and stock levels.",
   "ordersSubtitle": "Track every order from payment to delivery.",
   "customersSubtitle": "Your customer base and purchase history.",
@@ -59,7 +52,6 @@
   "formsSubtitle": "Build forms and collect submissions.",
   "pagesSubtitle": "Create and manage the pages of your platform.",
   "storeSubtitle": "Preview your storefront, running entirely on this device.",
-
   "colName": "Name",
   "colSku": "SKU",
   "colCategory": "Category",
@@ -80,7 +72,6 @@
   "colSubmissions": "Submissions",
   "colTitle": "Title",
   "colSlug": "Slug",
-
   "statusActive": "Active",
   "statusLow": "Low stock",
   "statusPaid": "Paid",
@@ -93,12 +84,10 @@
   "statusNew": "New",
   "statusVip": "VIP",
   "statusRegular": "Regular",
-
   "typeDocument": "Document",
   "typeSpreadsheet": "Spreadsheet",
   "typeImage": "Image",
   "typeFolder": "Folder",
-
   "productsLowStockTitle": "Low stock",
   "productsLowStock": "{count} low in stock",
   "productsValueTitle": "Inventory value",
@@ -113,7 +102,6 @@
   "formsPublished": "{count} published",
   "pagesPublished": "{count} published",
   "pagesDraft": "{count} draft",
-
   "storeOpen": "Open storefront",
   "storeBannerTitle": "New season, new stock",
   "storeBannerBody": "Browse the demo catalogue. Everything runs locally, no server required.",
@@ -123,12 +111,10 @@
   "storeCartTitle": "Cart",
   "cartEmpty": "Your cart is empty.",
   "storeCartItems": "{count} items in cart",
-
   "settingsTitle": "Settings",
   "settingsSubtitle": "Everything about language, alerts, privacy and data.",
   "settingsSearchHint": "Search settings",
   "settingsNoResults": "No settings match “{query}”.",
-
   "sectionGeneral": "General",
   "sectionGeneralDesc": "Language, appearance and visual style.",
   "sectionNotifications": "Notifications",
@@ -139,7 +125,6 @@
   "sectionDataDesc": "Export, reset and local storage.",
   "sectionAbout": "About",
   "sectionAboutDesc": "Version, licenses and contact.",
-
   "languageTitle": "Language",
   "languageDescription": "Choose the application language.",
   "appearanceTitle": "Appearance",
@@ -155,14 +140,12 @@
   "styleModernDesc": "Rounded, colorful and friendly.",
   "styleMinimalDesc": "Flat, sharp and quiet.",
   "styleProfessionalDesc": "Compact, formal and dense.",
-
   "notifOrders": "New orders",
   "notifOrdersDesc": "Get notified when a new order arrives.",
   "notifLowStock": "Low stock alerts",
   "notifLowStockDesc": "Warn me when a product is about to run out.",
   "notifWeekly": "Weekly summary",
   "notifWeeklyDesc": "A recap of activity every Monday.",
-
   "privacyAnalytics": "Anonymous analytics",
   "privacyAnalyticsDesc": "Share anonymous usage counts to improve the app.",
   "privacyCrash": "Crash reports",
@@ -173,7 +156,6 @@
   "privacyPolicyActionDesc": "How your data is stored and protected.",
   "termsAction": "Read the terms of service",
   "termsActionDesc": "The rules that apply when you use diali.",
-
   "consentTitle": "Policy consent",
   "consentAccepted": "Accepted on {date}.",
   "consentPending": "The current policy has not been accepted yet.",
@@ -182,7 +164,6 @@
   "consentAcceptedToast": "Thank you — your consent has been recorded.",
   "policyAccept": "Accept policy",
   "policyNotNow": "Not now",
-
   "privacyPolicyTitle": "Privacy policy",
   "privacyIntro": "diali runs entirely on your device. This policy explains what is stored locally, what optional data you can share, and how to change your mind at any time.",
   "privacyIntroTitle": "Overview",
@@ -198,7 +179,6 @@
   "privacyContactBody": "Questions about this policy? Write to {email}.",
   "privacyUpdatedOn": "Last updated: {date}",
   "privacyUpdatedTitle": "Last updated",
-
   "termsTitle": "Terms of service",
   "termsAcceptTitle": "Acceptance",
   "termsAcceptBody": "By using diali you agree to these terms. If you do not agree, do not use the application.",
@@ -212,7 +192,6 @@
   "termsChangesBody": "We may update these terms and the privacy policy. When the policy changes you will be asked to review and accept it again from Settings.",
   "termsContactTitle": "Contact",
   "termsContactBody": "Questions about these terms? Write to {email}.",
-
   "dataStorage": "Local storage",
   "dataStorageDesc": "Preferences are saved on this device only. No account, no server, no sync.",
   "dataExport": "Export settings",
@@ -223,7 +202,6 @@
   "dataResetTitle": "Reset all settings?",
   "dataResetBody": "This cannot be undone. Every preference will return to its default value.",
   "dataResetConfirm": "Reset",
-
   "aboutVersion": "App version",
   "aboutBuild": "Build number",
   "aboutLicenses": "Open-source licenses",
@@ -232,9 +210,7 @@
   "aboutContactDesc": "Questions, feedback and support.",
   "aboutOffline": "Works offline",
   "aboutOfflineDesc": "diali runs fully locally, without an internet connection.",
-
   "navCategories": "Categories",
-
   "dashboardRecentOrders": "Recent orders",
   "dashboardRecentProducts": "Recent products",
   "dashboardLatestArticles": "Latest articles",
@@ -247,7 +223,6 @@
   "dashboardTotalCategories": "Categories",
   "dashboardRevenue": "Revenue",
   "dashboardPublishedArticles": "Published articles",
-
   "categoriesSubtitle": "Organize your catalogue with reusable categories.",
   "addCategory": "Add category",
   "editCategory": "Edit category",
@@ -263,7 +238,6 @@
   "deleteCategoryBody": "Are you sure you want to delete “{name}”?",
   "deleteCategoryInUse": "{count} product(s) use this category. They will be moved to Uncategorized.",
   "uncategorized": "Uncategorized",
-
   "storeProfileTitle": "Store profile",
   "storeProfileDescription": "Public storefront name, branding and contact details.",
   "storeName": "Store name",
@@ -278,7 +252,6 @@
   "templateMinimal": "Minimal",
   "templateProfessional": "Professional",
   "saved": "Saved.",
-
   "demoDataTitle": "Demo data",
   "demoDataDesc": "Load sample products and categories with local images.",
   "demoDataAction": "Load demo data",
@@ -286,7 +259,6 @@
   "demoDataResult": "Added {products} products and {categories} categories.",
   "demoDataAlready": "Demo data is already loaded.",
   "demoDataFailed": "Could not load demo data.",
-
   "loginTitle": "Sign in",
   "loginSubtitle": "Sign in to manage your business.",
   "loginEmail": "Email",
@@ -298,7 +270,6 @@
   "loginPasswordRequired": "Enter your password.",
   "loginFailed": "Sign in failed. Check your credentials and try again.",
   "loginOfflineNotice": "Running offline — no sign-in required.",
-
   "accountTitle": "Account",
   "accountDescription": "Your sign-in and session.",
   "accountSignedInAs": "Signed in as {email}",
@@ -314,7 +285,6 @@
   "signOutConfirmTitle": "Sign out?",
   "signOutConfirmBody": "You will need to sign in again to access the dashboard.",
   "signOutConfirm": "Sign out",
-
   "actionRetry": "Try again",
   "actionSave": "Save",
   "actionCreate": "Create",
@@ -468,5 +438,35 @@
   "categoryImageHint": "Recommended 600 x 600 (1:1).",
   "selectImage": "Select image",
   "removeCategoryImageBody": "The image will be removed from the category. This cannot be undone.",
-  "imageCounter": "{current} / {total}"
+  "imageCounter": "{current} / {total}",
+  "checkoutNameTooShort": "Please enter the customer's full name.",
+  "checkoutPhoneInvalid": "Enter a valid phone number (7-15 digits).",
+  "checkoutQuantityInvalid": "Item quantity must be at least 1.",
+  "checkoutInsufficientStock": "Only {available} left of {product}.",
+  "checkoutAddressTooLong": "Address is too long (max 300 characters).",
+  "checkoutCityTooLong": "City is too long (max 120 characters).",
+  "businessLocation": "Business location",
+  "businessLocationHint": "Shown on the storefront map and used for directions.",
+  "latitudeLabel": "Latitude",
+  "longitudeLabel": "Longitude",
+  "useCurrentLocation": "Use current location",
+  "locationPermissionDenied": "Location permission was denied.",
+  "locationServicesDisabled": "Location services are turned off.",
+  "locationUnavailable": "Could not determine your location.",
+  "locationInvalid": "Enter a latitude between -90 and 90 and a longitude between -180 and 180.",
+  "openInMaps": "Open in maps",
+  "socialMedia": "Social media",
+  "socialMediaHint": "Add the business profile links shown on the storefront.",
+  "socialInstagram": "Instagram",
+  "socialFacebook": "Facebook",
+  "socialTiktok": "TikTok",
+  "socialWhatsapp": "WhatsApp",
+  "socialYoutube": "YouTube",
+  "socialLinkedin": "LinkedIn",
+  "socialUrlLabel": "Profile URL",
+  "socialInvalidUrl": "Enter a valid http(s) link.",
+  "paginationRange": "Showing {start}-{end} of {total}",
+  "paginationPageOf": "Page {page} of {total}",
+  "paginationPrevious": "Previous",
+  "paginationNext": "Next"
 }

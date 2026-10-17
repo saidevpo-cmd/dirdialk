@@ -9,6 +9,7 @@ import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/error_state_view.dart';
+import '../../shared/widgets/pagination_bar.dart';
 import '../../shared/widgets/responsive_data_table.dart';
 import '../../shared/widgets/search_and_filter_bar.dart';
 import '../../shared/widgets/stat_card.dart';
@@ -30,6 +31,10 @@ class _OrdersPageState extends State<OrdersPage> {
   List<Order> _orders = [];
   Map<String, dynamic> _stats = {};
   OrderStatus? _selectedStatus;
+
+  static const int _pageSize = 10;
+  int _page = 1;
+  int _total = 0;
 
   @override
   void initState() {
@@ -61,18 +66,34 @@ class _OrdersPageState extends State<OrdersPage> {
     final res = await _repo.list(
       search: _searchController.text,
       status: _selectedStatus,
+      page: _page,
+      limit: _pageSize,
     );
 
     if (!mounted) return;
 
     setState(() {
       _isLoading = false;
-      if (res is Success) {
-        _orders = (res as Success).data.items;
-      } else {
-        _errorMessage = (res as Failure).error.message;
+      switch (res) {
+        case Success(data: final page):
+          _orders = page.items;
+          _total = page.total;
+        case Failure(:final error):
+          _errorMessage = error.message;
       }
     });
+  }
+
+  /// Applies a filter change and returns to the first page so the visible
+  /// rows always match the reported total.
+  void _applyFilters() {
+    _page = 1;
+    _fetchOrders();
+  }
+
+  void _goToPage(int page) {
+    _page = page;
+    _fetchOrders();
   }
 
   String _orderStatusLabel(AppLocalizations l10n, OrderStatus status) {
@@ -457,7 +478,7 @@ class _OrdersPageState extends State<OrdersPage> {
             SearchAndFilterBar(
               searchController: _searchController,
               searchHint: l10n.searchOrdersHint,
-              onSearchChanged: (_) => _fetchOrders(),
+              onSearchChanged: (_) => _applyFilters(),
               filterWidgets: [
                 DropdownButton<OrderStatus?>(
                   value: _selectedStatus,
@@ -477,7 +498,7 @@ class _OrdersPageState extends State<OrdersPage> {
                   ],
                   onChanged: (status) {
                     setState(() => _selectedStatus = status);
-                    _fetchOrders();
+                    _applyFilters();
                   },
                 ),
               ],
@@ -587,6 +608,12 @@ class _OrdersPageState extends State<OrdersPage> {
                   ),
                 );
               },
+            ),
+            PaginationBar(
+              page: _page,
+              pageSize: _pageSize,
+              total: _total,
+              onPageChanged: _goToPage,
             ),
           ],
         ),

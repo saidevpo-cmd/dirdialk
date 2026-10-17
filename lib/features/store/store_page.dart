@@ -5,16 +5,18 @@ import '../../data/app_repositories.dart';
 import '../../data/demo/demo_catalog.dart';
 import '../../domain/models/app_error.dart';
 import '../../domain/models/category.dart';
-import '../../domain/models/order.dart';
 import '../../domain/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
+import '../../shared/utils/id_gen.dart';
+import '../../shared/utils/phone_number.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/app_image.dart';
 import '../../shared/widgets/empty_state_view.dart';
 import '../../shared/widgets/error_state_view.dart';
 import '../../shared/widgets/status_badge.dart';
 import '../products/product_details_page.dart';
+import 'checkout/checkout.dart';
 
 class StoreCartItem {
   StoreCartItem({required this.product, this.quantity = 1});
@@ -34,6 +36,7 @@ class StorePage extends StatefulWidget {
 class _StorePageState extends State<StorePage> {
   final _prodRepo = AppRepositories.instance.products;
   final _orderRepo = AppRepositories.instance.orders;
+  final _settingsRepo = AppRepositories.instance.siteSettings;
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -41,6 +44,39 @@ class _StorePageState extends State<StorePage> {
   List<Category> _categories = [];
   String? _selectedCategory;
   final Map<String, StoreCartItem> _cart = {};
+
+  /// Tax rate and currency come from `app_settings`; totals shown here are
+  /// estimates only — `place_order` recomputes them from the product rows.
+  double _taxRatePercent = 0;
+  String _currencySymbol = r'$';
+
+  // Contact fields are captured once per checkout attempt so a retry after a
+  // failed submission keeps the same idempotency key.
+  final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
+  final _cityCtrl = TextEditingController();
+  String? _idempotencyKey;
+  bool _placing = false;
+  List<CheckoutIssue> _checkoutIssues = const [];
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _phoneCtrl.dispose();
+    _addressCtrl.dispose();
+    _cityCtrl.dispose();
+    super.dispose();
+  }
+
+  /// Any change to the cart content is a different order, so a fresh
+  /// idempotency key is generated on the next checkout attempt.
+  void _invalidateCheckoutAttempt() {
+    _idempotencyKey = null;
+    _checkoutIssues = const [];
+  }
+
+  String _money(double value) => '$_currencySymbol${value.toStringAsFixed(2)}';
 
   List<Product> get _visibleProducts {
     if (_selectedCategory == null) return _allProducts;
@@ -74,10 +110,17 @@ class _StorePageState extends State<StorePage> {
       limit: 100,
     );
 
+    final currencyRes = await _settingsRepo.currencySymbol();
+    final taxRes = await _settingsRepo.taxRatePercent();
+    final symbol = currencyRes is Success<String> ? currencyRes.data : r'$';
+    final tax = taxRes is Success<double> ? taxRes.data : 0.0;
+
     if (!mounted) return;
 
     setState(() {
       _isLoading = false;
+      _currencySymbol = symbol;
+      _taxRatePercent = tax;
       if (prodRes is Success) {
         _allProducts = (prodRes as Success).data.items;
       } else {
@@ -95,7 +138,23 @@ class _StorePageState extends State<StorePage> {
   }
 
   void _addToCart(Product product) {
+    final l10n = AppLocalizations.of(context)!;
+    final inCart = _cart[product.id]?.quantity ?? 0;
+
+    if (product.stockQty <= 0) {
+      AppFeedback.failure(context, l10n.outOfStock);
+      return;
+    }
+    if (inCart + 1 > product.stockQty) {
+      AppFeedback.failure(
+        context,
+        l10n.checkoutInsufficientStock(product.stockQty, product.name),
+      );
+      return;
+    }
+
     setState(() {
+      _invalidateCheckoutAttempt();
       if (_cart.containsKey(product.id)) {
         _cart[product.id]!.quantity += 1;
       } else {
@@ -103,7 +162,6 @@ class _StorePageState extends State<StorePage> {
       }
     });
 
-    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.addedToCart(product.name)),
@@ -111,6 +169,107 @@ class _StorePageState extends State<StorePage> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  Future<void> _submitCheckout({
+    required BuildContext sheetContext,
+    required StateSetter refresh,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final lines = _cart.values
+        .map((ci) => CheckoutLine(product: ci.product, qty: ci.quantity))
+        .toList();
+
+    final issues = CheckoutValidator.validate(
+      customerName: _nameCtrl.text,
+      customerPhone: _phoneCtrl.text,
+      lines: lines,
+      shippingAddress: _addressCtrl.text,
+      shippingCity: _cityCtrl.text,
+    );
+    if (issues.isNotEmpty) {
+      setState(() => _checkoutIssues = issues);
+      refresh(() {});
+      return;
+    }
+
+    setState(() {
+      _checkoutIssues = const [];
+      _placing = true;
+    });
+    refresh(() {});
+
+    // One key per attempt: a retry after a lost response replays the same
+    // order instead of creating a duplicate.
+    _idempotencyKey ??= IdGen.uuid();
+
+    final totals = CheckoutTotals.compute(
+      lines: lines,
+      taxRatePercent: _taxRatePercent,
+    );
+    final order = CheckoutValidator.buildOrder(
+      lines: lines,
+      totals: totals,
+      customerName: _nameCtrl.text,
+      customerPhone: PhoneNumber.normalize(_phoneCtrl.text),
+      shippingAddress: _addressCtrl.text,
+      shippingCity: _cityCtrl.text,
+      idempotencyKey: _idempotencyKey,
+    );
+
+    final result = await _orderRepo.create(order);
+    if (!mounted) return;
+
+    setState(() => _placing = false);
+    refresh(() {});
+
+    switch (result) {
+      case Success(data: final saved):
+        setState(() {
+          _cart.clear();
+          _invalidateCheckoutAttempt();
+        });
+        if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+        AppFeedback.success(context, l10n.orderPlaced(saved.orderNumber));
+      case Failure(:final error):
+        AppFeedback.error(context, error);
+    }
+  }
+
+  /// Localised message for a single validation issue.
+  String _issueMessage(CheckoutIssue issue, AppLocalizations l10n) {
+    switch (issue.problem) {
+      case CheckoutProblem.customerNameRequired:
+      case CheckoutProblem.phoneRequired:
+        return l10n.fieldRequired;
+      case CheckoutProblem.customerNameTooShort:
+        return l10n.checkoutNameTooShort;
+      case CheckoutProblem.phoneInvalid:
+        return l10n.checkoutPhoneInvalid;
+      case CheckoutProblem.cartEmpty:
+        return l10n.cartEmptyMessage;
+      case CheckoutProblem.quantityInvalid:
+        return l10n.checkoutQuantityInvalid;
+      case CheckoutProblem.insufficientStock:
+        return l10n.checkoutInsufficientStock(
+          issue.available ?? 0,
+          issue.productName ?? '',
+        );
+      case CheckoutProblem.addressTooLong:
+        return l10n.checkoutAddressTooLong;
+      case CheckoutProblem.cityTooLong:
+        return l10n.checkoutCityTooLong;
+    }
+  }
+
+  /// Error text for a group of problem codes (first match wins).
+  String? _errorFor(Set<CheckoutProblem> problems, AppLocalizations l10n) {
+    for (final issue in _checkoutIssues) {
+      if (problems.contains(issue.problem)) {
+        return _issueMessage(issue, l10n);
+      }
+    }
+    return null;
   }
 
   void _openCartDrawer() {
@@ -124,13 +283,16 @@ class _StorePageState extends State<StorePage> {
         return StatefulBuilder(
           builder: (bottomCtx, setModalState) {
             final cartItems = _cart.values.toList();
-            final subtotal =
-                cartItems.fold<double>(0, (sum, i) => sum + i.total);
-            final tax = subtotal * 0.08;
-            final total = subtotal + tax;
+            final lines = cartItems
+                .map((ci) => CheckoutLine(product: ci.product, qty: ci.quantity))
+                .toList();
+            final totals = CheckoutTotals.compute(
+              lines: lines,
+              taxRatePercent: _taxRatePercent,
+            );
 
             return Container(
-              height: MediaQuery.sizeOf(ctx).height * 0.75,
+              height: MediaQuery.sizeOf(ctx).height * 0.85,
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
                 borderRadius:
@@ -166,66 +328,146 @@ class _StorePageState extends State<StorePage> {
                     )
                   else ...[
                     Expanded(
-                      child: ListView.separated(
-                        itemCount: cartItems.length,
-                        separatorBuilder: (context, index) => const Divider(),
-                        itemBuilder: (context, idx) {
-                          final item = cartItems[idx];
-                          return ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: AppImage(
-                              imageRef: item.product.images.isNotEmpty
-                                  ? item.product.images.first
-                                  : null,
-                              width: 44,
-                              height: 44,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            title: Text(item.product.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600)),
-                            subtitle: Text(
-                                '\$${item.product.price.toStringAsFixed(2)} ${l10n.eachLabel}'),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline,
-                                      size: 20),
-                                  tooltip: item.quantity > 1
-                                      ? l10n.decreaseQuantity
-                                      : l10n.removeFromCart,
-                                  onPressed: () {
-                                    setModalState(() {
+                      child: ListView(
+                        children: [
+                          for (final item in cartItems) ...[
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: AppImage(
+                                imageRef: item.product.images.isNotEmpty
+                                    ? item.product.images.first
+                                    : null,
+                                width: 44,
+                                height: 44,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              title: Text(item.product.name,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600)),
+                              subtitle: Text(
+                                  '${_money(item.product.price)} ${l10n.eachLabel}'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove_circle_outline,
+                                        size: 20),
+                                    tooltip: item.quantity > 1
+                                        ? l10n.decreaseQuantity
+                                        : l10n.removeFromCart,
+                                    onPressed: () {
                                       setState(() {
+                                        _invalidateCheckoutAttempt();
                                         if (item.quantity > 1) {
                                           item.quantity -= 1;
                                         } else {
                                           _cart.remove(item.product.id);
                                         }
                                       });
-                                    });
-                                  },
-                                ),
-                                Text('${item.quantity}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold)),
-                                IconButton(
-                                  icon: const Icon(Icons.add_circle_outline,
-                                      size: 20),
-                                  tooltip: l10n.increaseQuantity,
-                                  onPressed: () {
-                                    setModalState(() {
-                                      setState(() {
-                                        item.quantity += 1;
-                                      });
-                                    });
-                                  },
-                                ),
-                              ],
+                                      setModalState(() {});
+                                    },
+                                  ),
+                                  Text('${item.quantity}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  IconButton(
+                                    icon: const Icon(Icons.add_circle_outline,
+                                        size: 20),
+                                    tooltip: l10n.increaseQuantity,
+                                    // Cannot add more than the available stock.
+                                    onPressed: item.quantity >=
+                                            item.product.stockQty
+                                        ? null
+                                        : () {
+                                            setState(() {
+                                              _invalidateCheckoutAttempt();
+                                              item.quantity += 1;
+                                            });
+                                            setModalState(() {});
+                                          },
+                                  ),
+                                ],
+                              ),
                             ),
-                          );
-                        },
+                            const Divider(),
+                          ],
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.customerInformation,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            key: const Key('checkout-name'),
+                            controller: _nameCtrl,
+                            textInputAction: TextInputAction.next,
+                            decoration: InputDecoration(
+                              labelText: l10n.customerNameLabel,
+                              errorText: _errorFor(const {
+                                CheckoutProblem.customerNameRequired,
+                                CheckoutProblem.customerNameTooShort,
+                              }, l10n),
+                            ),
+                            onChanged: (_) {
+                              if (_checkoutIssues.isNotEmpty) {
+                                setState(() => _checkoutIssues = const []);
+                                setModalState(() {});
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            key: const Key('checkout-phone'),
+                            controller: _phoneCtrl,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(
+                              labelText: l10n.customerPhoneLabel,
+                              errorText: _errorFor(const {
+                                CheckoutProblem.phoneRequired,
+                                CheckoutProblem.phoneInvalid,
+                              }, l10n),
+                            ),
+                            onChanged: (_) {
+                              if (_checkoutIssues.isNotEmpty) {
+                                setState(() => _checkoutIssues = const []);
+                                setModalState(() {});
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            key: const Key('checkout-address'),
+                            controller: _addressCtrl,
+                            decoration: InputDecoration(
+                              labelText: l10n.customerAddressLabel,
+                              errorText: _errorFor(
+                                  const {CheckoutProblem.addressTooLong}, l10n),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            key: const Key('checkout-city'),
+                            controller: _cityCtrl,
+                            decoration: InputDecoration(
+                              labelText: l10n.customerCityLabel,
+                              errorText: _errorFor(
+                                  const {CheckoutProblem.cityTooLong}, l10n),
+                            ),
+                          ),
+                          if (_checkoutIssues.any((i) =>
+                              i.problem == CheckoutProblem.insufficientStock)) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              _errorFor(const {
+                                    CheckoutProblem.insufficientStock,
+                                  }, l10n) ??
+                                  '',
+                              style: TextStyle(color: theme.colorScheme.error),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                     const Divider(),
@@ -233,7 +475,7 @@ class _StorePageState extends State<StorePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(l10n.subtotalLabel),
-                        Text('\$${subtotal.toStringAsFixed(2)}'),
+                        Text(_money(totals.subtotal)),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -241,7 +483,7 @@ class _StorePageState extends State<StorePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(l10n.estimatedTax),
-                        Text('\$${tax.toStringAsFixed(2)}'),
+                        Text(_money(totals.tax)),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -252,7 +494,7 @@ class _StorePageState extends State<StorePage> {
                             style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold)),
                         Text(
-                          '\$${total.toStringAsFixed(2)}',
+                          _money(totals.total),
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.primary,
@@ -262,58 +504,23 @@ class _StorePageState extends State<StorePage> {
                     ),
                     const SizedBox(height: 16),
                     FilledButton(
-                      onPressed: () async {
-                        final newOrder = Order(
-                          id: 'ord_${DateTime.now().millisecondsSinceEpoch}',
-                          orderNumber:
-                              'ORD-S${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-                          customerName: l10n.storeCustomerName,
-                          status: OrderStatus.paid,
-                          subtotal: subtotal,
-                          tax: tax,
-                          total: total,
-                          notes: l10n.storeOrderNote,
-                          items: cartItems.map((ci) {
-                            return OrderItem(
-                              id: 'item_${DateTime.now().microsecondsSinceEpoch}',
-                              orderId: '',
-                              productId: ci.product.id,
-                              productName: ci.product.name,
-                              productSku: ci.product.sku,
-                              unitPrice: ci.product.price,
-                              qty: ci.quantity,
-                              subtotal: ci.total,
-                            );
-                          }).toList(),
-                          createdAt: DateTime.now(),
-                          updatedAt: DateTime.now(),
-                        );
-
-                        final result = await _orderRepo.create(newOrder);
-                        if (!mounted) return;
-
-                        if (result is Success) {
-                          setState(() {
-                            _cart.clear();
-                          });
-                          if (bottomCtx.mounted) {
-                            Navigator.of(bottomCtx).pop();
-                          }
-                          AppFeedback.success(
-                            context,
-                            l10n.orderPlaced(newOrder.orderNumber),
-                          );
-                        } else {
-                          AppFeedback.error(
-                            context,
-                            (result as Failure).error,
-                          );
-                        }
-                      },
+                      key: const Key('checkout-submit'),
+                      onPressed: _placing
+                          ? null
+                          : () => _submitCheckout(
+                                sheetContext: bottomCtx,
+                                refresh: setModalState,
+                              ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Text(l10n.checkoutAction,
-                            style: const TextStyle(fontSize: 16)),
+                        child: _placing
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : Text(l10n.checkoutAction,
+                                style: const TextStyle(fontSize: 16)),
                       ),
                     ),
                   ],

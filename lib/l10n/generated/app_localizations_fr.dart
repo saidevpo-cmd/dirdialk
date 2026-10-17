@@ -1424,4 +1424,109 @@ class AppLocalizationsFr extends AppLocalizations {
   String imageCounter(Object current, Object total) {
     return '$current / $total';
   }
+
+  @override
+  String get checkoutNameTooShort =>
+      'Veuillez saisir le nom complet du client.';
+
+  @override
+  String get checkoutPhoneInvalid =>
+      'Saisissez un numéro de téléphone valide (7-15 chiffres).';
+
+  @override
+  String get checkoutQuantityInvalid => 'La quantité doit être d\'au moins 1.';
+
+  @override
+  String checkoutInsufficientStock(Object available, Object product) {
+    return 'Il ne reste que $available de $product.';
+  }
+
+  @override
+  String get checkoutAddressTooLong =>
+      'L\'adresse est trop longue (300 caractères max).';
+
+  @override
+  String get checkoutCityTooLong =>
+      'Le nom de la ville est trop long (120 caractères max).';
+
+  @override
+  String get businessLocation => 'Localisation de l\'entreprise';
+
+  @override
+  String get businessLocationHint =>
+      'Affichée sur la carte de la boutique et utilisée pour l\'itinéraire.';
+
+  @override
+  String get latitudeLabel => 'Latitude';
+
+  @override
+  String get longitudeLabel => 'Longitude';
+
+  @override
+  String get useCurrentLocation => 'Utiliser la position actuelle';
+
+  @override
+  String get locationPermissionDenied =>
+      'L\'autorisation de localisation a été refusée.';
+
+  @override
+  String get locationServicesDisabled =>
+      'Les services de localisation sont désactivés.';
+
+  @override
+  String get locationUnavailable => 'Impossible de déterminer votre position.';
+
+  @override
+  String get locationInvalid =>
+      'Saisissez une latitude entre -90 et 90 et une longitude entre -180 et 180.';
+
+  @override
+  String get openInMaps => 'Ouvrir dans les cartes';
+
+  @override
+  String get socialMedia => 'Réseaux sociaux';
+
+  @override
+  String get socialMediaHint =>
+      'Ajoutez les liens de profil affichés sur la boutique.';
+
+  @override
+  String get socialInstagram => 'Instagram';
+
+  @override
+  String get socialFacebook => 'Facebook';
+
+  @override
+  String get socialTiktok => 'TikTok';
+
+  @override
+  String get socialWhatsapp => 'WhatsApp';
+
+  @override
+  String get socialYoutube => 'YouTube';
+
+  @override
+  String get socialLinkedin => 'LinkedIn';
+
+  @override
+  String get socialUrlLabel => 'URL du profil';
+
+  @override
+  String get socialInvalidUrl => 'Saisissez un lien http(s) valide.';
+
+  @override
+  String paginationRange(Object end, Object start, Object total) {
+    return 'Affichage de $start-$end sur $total';
+  }
+
+  @override
+  String paginationPageOf(Object page, Object total) {
+    return 'Page $page sur $total';
+  }
+
+  @override
+  String get paginationPrevious => 'Précédent';
+
+  @override
+  String get paginationNext => 'Suivant';
 }
