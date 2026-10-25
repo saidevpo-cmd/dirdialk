@@ -181,7 +181,7 @@ void main() {
       final expandedWidth = tester.getSize(find.byKey(AppShell.bodyKey)).width;
       expect(expandedWidth, greaterThan(collapsedWidth));
       expect(sidebarToggle(tester).tooltip, l10nEn.showSidebar);
-      expect((sidebarToggle(tester).icon! as Icon).icon, Icons.menu);
+      expect((sidebarToggle(tester).icon as Icon).icon, Icons.menu);
 
       // Navigation keeps working while the sidebar is hidden: the header's
       // quick-settings action still routes to the settings section.
@@ -196,7 +196,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(AppShell.sidebarKey), findsOneWidget);
       expect(sidebarToggle(tester).tooltip, l10nEn.hideSidebar);
-      expect((sidebarToggle(tester).icon! as Icon).icon, Icons.menu_open);
+      expect((sidebarToggle(tester).icon as Icon).icon, Icons.menu_open);
       expect(
         tester.widget<Material>(
           find.byKey(AppShell.navTile(NavSection.settings)),

@@ -186,7 +186,14 @@ void main() {
         find.byKey(OrderTrackingSummary.orderNumberKey),
         findsOneWidget,
       );
-      expect(find.text('#001'), findsOneWidget);
+      // The input field still contains what the customer typed, so scope the
+      // assertion to the formatted value rendered in the result card.
+      expect(
+        tester
+            .widget<Text>(find.byKey(OrderTrackingSummary.orderNumberKey))
+            .data,
+        '#001',
+      );
       expect(find.text(l10n.statusDelivered), findsWidgets);
       expect(
         find.byKey(OrderTrackingTimeline.stageKey(TrackingStage.delivered)),

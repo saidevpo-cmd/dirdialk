@@ -43,7 +43,7 @@ Future<AppLocalizations> pumpHost(
 BoxDecoration? nodeDecoration(WidgetTester tester, TrackingStage stage) {
   final nodes = tester.widgetList<Container>(
     find.descendant(
-      of: OrderTrackingTimeline.stageKey(stage),
+      of: find.byKey(OrderTrackingTimeline.stageKey(stage)),
       matching: find.byWidgetPredicate(
         (widget) => widget is Container && widget.decoration != null,
       ),
@@ -321,7 +321,7 @@ void main() {
         (tester) async {
       final l10n = await pumpHost(
         tester,
-        const OrderTrackingSummary(
+        OrderTrackingSummary(
           orderNumber: '#12',
           statusBadge: StatusBadge.warning(label: 'Shipped'),
           trackingNumber: 'TRK-991',

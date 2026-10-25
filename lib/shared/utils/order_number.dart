@@ -18,10 +18,12 @@ abstract final class OrderNumber {
   /// [padding] digits and keeping a leading `#`.
   ///
   /// Examples: `'#7'` → `'#007'`, `'42'` → `'#0042'`, `'#1048'` → `'#1048'`,
-  /// `'ORD-1-ABCD'` → `'ORD-1-ABCD'`, `''` → `''`.
+  /// `'ORD-1-ABCD'` → `'ORD-1-ABCD'`, `''` → `''`, `'   '` → `'   '`.
   static String format(String raw, {int padding = OrderNumber.padding}) {
     final trimmed = raw.trim();
-    if (trimmed.isEmpty) return trimmed;
+    // Whitespace-only values carry no number to rewrite, so leave the stored
+    // value exactly as it was rather than normalizing it to an empty string.
+    if (trimmed.isEmpty) return raw;
 
     final core =
         trimmed.startsWith('#') ? trimmed.substring(1).trim() : trimmed;

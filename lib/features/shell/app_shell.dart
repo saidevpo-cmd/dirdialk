@@ -14,9 +14,9 @@ import '../../l10n/generated/app_localizations.dart';
 ///
 /// The shell also owns two navigation affordances:
 ///   * a **back-to-top** button that appears once the routed page has been
-///     scrolled past [_backToTopThreshold]. Pages are hosted inside a
-///     [PrimaryScrollController] so their top-level scroll view attaches to
-///     the shell automatically — no page has to opt in.
+///     scrolled past [_backToTopThreshold]. The shell listens to scroll
+///     notifications from the routed page, so no page has to opt in and
+///     offstage routes (kept alive by the nested navigator) never interfere.
 ///   * a **hide/show sidebar** button on desktop and tablet. The persistent
 ///     side navigation collapses with an [AnimatedSize] and the body expands
 ///     to fill the freed width. On mobile the same toggle is the existing
@@ -54,7 +54,12 @@ class _AppShellState extends State<AppShell> {
   static const Duration _scrollDuration = Duration(milliseconds: 350);
   static const Duration _resizeDuration = Duration(milliseconds: 220);
 
-  final ScrollController _bodyScroll = ScrollController();
+  /// The routed page's outermost vertical scrollable, captured from its
+  /// scroll notifications. The nested navigator keeps old routes alive, so a
+  /// shared [ScrollController] would stay attached to several scroll views;
+  /// tracking the active scrollable avoids that and keeps "back to top"
+  /// pointed at what the user can actually see.
+  ScrollableState? _bodyScrollable;
 
   /// Whether the persistent side navigation (sidebar on desktop, rail on
   /// tablet) is expanded. It starts expanded — hiding is opt-in, so the
@@ -65,28 +70,45 @@ class _AppShellState extends State<AppShell> {
   NavSection get _current => widget.currentSection;
 
   @override
-  void initState() {
-    super.initState();
-    _bodyScroll.addListener(_syncBackToTop);
+  void didUpdateWidget(covariant AppShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentSection != widget.currentSection) {
+      // A newly routed page starts at its own scroll position; forget the old
+      // page's scrollable until the new one reports in.
+      _bodyScrollable = null;
+      _showBackToTop = false;
+    }
   }
 
-  @override
-  void dispose() {
-    _bodyScroll.removeListener(_syncBackToTop);
-    _bodyScroll.dispose();
-    super.dispose();
+  bool _handleScrollNotification(ScrollNotification notification) {
+    // Depth 0 is the routed page's outer scroll view. Nested rails, tables and
+    // dialogs emit deeper notifications and must not drive the button.
+    if (notification.depth != 0 ||
+        notification.metrics.axis != Axis.vertical) {
+      return false;
+    }
+    final context = notification.context;
+    if (context != null) {
+      _bodyScrollable =
+          Scrollable.maybeOf(context, axis: Axis.vertical) ?? _bodyScrollable;
+    }
+    _setBackToTopVisible(
+      notification.metrics.pixels > _backToTopThreshold,
+    );
+    return false;
   }
 
-  void _syncBackToTop() {
-    final show =
-        _bodyScroll.hasClients && _bodyScroll.offset > _backToTopThreshold;
+  void _setBackToTopVisible(bool show) {
     if (show == _showBackToTop || !mounted) return;
     setState(() => _showBackToTop = show);
   }
 
   Future<void> _scrollToTop() async {
-    if (!_bodyScroll.hasClients) return;
-    await _bodyScroll.animateTo(
+    final scrollable = _bodyScrollable;
+    if (scrollable == null || !scrollable.mounted) return;
+    final position = scrollable.position;
+    if (!position.hasPixels || !position.hasContentDimensions) return;
+    await position.animateTo(
       0,
       duration: _scrollDuration,
       curve: Curves.easeOutCubic,
@@ -107,12 +129,8 @@ class _AppShellState extends State<AppShell> {
 
   Widget _buildBody() => KeyedSubtree(
         key: AppShell.bodyKey,
-        child: PrimaryScrollController(
-          controller: _bodyScroll,
-          // Desktop and web do not inherit a primary controller by default;
-          // opting in on every platform is what lets one button scroll any
-          // routed page back to the top.
-          automaticallyInheritForPlatforms: TargetPlatform.values.toSet(),
+        child: NotificationListener<ScrollNotification>(
+          onNotification: _handleScrollNotification,
           child: widget.child,
         ),
       );
