@@ -90,6 +90,7 @@ secrets.json
 # Firebase / Google sensitive files
 google-services.json
 GoogleService-Info.plist
+.firebase/
 
 # Hive local database
 *.hive

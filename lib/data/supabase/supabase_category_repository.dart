@@ -1,12 +1,18 @@
+import '../../core/supabase/storage_service.dart';
 import '../../core/supabase/supabase_client.dart';
 import '../../core/supabase/supabase_result.dart';
 import '../../domain/models/app_error.dart';
 import '../../domain/models/category.dart';
 import '../../domain/models/paginated_result.dart';
 import '../../domain/repositories/category_repository.dart';
+import 'remote_images.dart';
 import 'supabase_mappers.dart';
 
 class SupabaseCategoryRepository implements CategoryRepository {
+  SupabaseCategoryRepository({this.storage = const StorageService()});
+
+  final StorageService storage;
+
   static const _select = '*, parent:categories!categories_parent_id_fkey(name)';
 
   @override
@@ -71,11 +77,24 @@ class SupabaseCategoryRepository implements CategoryRepository {
   }
 
   @override
-  Future<Result<Category>> create(Category category) {
+  Future<Result<Category>> create(Category category) async {
+    final prepared = await guard(
+      () => uploadCategoryImage(
+        category,
+        (ref, bucket, folder) => storage.uploadLocalImage(
+          localRef: ref,
+          bucket: bucket,
+          folder: folder,
+        ),
+      ),
+    );
+    if (prepared is Failure<Category>) return prepared;
+    final remoteCategory = (prepared as Success<Category>).data;
+
     return guard(() async {
       final data = await AppSupabase.client
           .from('categories')
-          .insert(Db.category(category))
+          .insert(Db.category(remoteCategory))
           .select('*')
           .single();
       return Db.categoryFrom(Map<String, dynamic>.from(data));
@@ -83,11 +102,24 @@ class SupabaseCategoryRepository implements CategoryRepository {
   }
 
   @override
-  Future<Result<Category>> update(Category category) {
+  Future<Result<Category>> update(Category category) async {
+    final prepared = await guard(
+      () => uploadCategoryImage(
+        category,
+        (ref, bucket, folder) => storage.uploadLocalImage(
+          localRef: ref,
+          bucket: bucket,
+          folder: folder,
+        ),
+      ),
+    );
+    if (prepared is Failure<Category>) return prepared;
+    final remoteCategory = (prepared as Success<Category>).data;
+
     return guard(() async {
       final data = await AppSupabase.client
           .from('categories')
-          .update(Db.category(category))
+          .update(Db.category(remoteCategory))
           .eq('id', category.id)
           .select('*')
           .single();

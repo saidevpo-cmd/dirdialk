@@ -146,15 +146,18 @@ class _StorePageState extends State<StorePage> {
   void _openProduct(Product product) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => ProductDetailsPage(product: product),
+        builder: (_) => ProductDetailsPage(
+          product: product,
+          currencySymbol: _currencySymbol,
+        ),
       ),
     );
   }
 
   void _openTracking() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const OrderTrackingPage()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const OrderTrackingPage()));
   }
 
   void _addToCart(Product product) {
@@ -251,7 +254,9 @@ class _StorePageState extends State<StorePage> {
         });
         if (sheetContext.mounted) Navigator.of(sheetContext).pop();
         AppFeedback.success(
-            context, l10n.orderPlaced(OrderNumber.format(saved.orderNumber)));
+          context,
+          l10n.orderPlaced(OrderNumber.format(saved.orderNumber)),
+        );
       case Failure(:final error):
         AppFeedback.error(context, error);
     }
@@ -305,7 +310,9 @@ class _StorePageState extends State<StorePage> {
           builder: (bottomCtx, setModalState) {
             final cartItems = _cart.values.toList();
             final lines = cartItems
-                .map((ci) => CheckoutLine(product: ci.product, qty: ci.quantity))
+                .map(
+                  (ci) => CheckoutLine(product: ci.product, qty: ci.quantity),
+                )
                 .toList();
             final totals = CheckoutTotals.compute(
               lines: lines,
@@ -316,8 +323,9 @@ class _StorePageState extends State<StorePage> {
               height: MediaQuery.sizeOf(ctx).height * 0.85,
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
               ),
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -362,17 +370,23 @@ class _StorePageState extends State<StorePage> {
                                 height: 44,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              title: Text(item.product.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w600)),
+                              title: Text(
+                                item.product.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               subtitle: Text(
-                                  '${_money(item.product.price)} ${l10n.eachLabel}'),
+                                '${_money(item.product.price)} ${l10n.eachLabel}',
+                              ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.remove_circle_outline,
-                                        size: 20),
+                                    icon: const Icon(
+                                      Icons.remove_circle_outline,
+                                      size: 20,
+                                    ),
                                     tooltip: item.quantity > 1
                                         ? l10n.decreaseQuantity
                                         : l10n.removeFromCart,
@@ -388,16 +402,21 @@ class _StorePageState extends State<StorePage> {
                                       setModalState(() {});
                                     },
                                   ),
-                                  Text('${item.quantity}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
+                                  Text(
+                                    '${item.quantity}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   IconButton(
-                                    icon: const Icon(Icons.add_circle_outline,
-                                        size: 20),
+                                    icon: const Icon(
+                                      Icons.add_circle_outline,
+                                      size: 20,
+                                    ),
                                     tooltip: l10n.increaseQuantity,
                                     // Cannot add more than the available stock.
-                                    onPressed: item.quantity >=
-                                            item.product.stockQty
+                                    onPressed:
+                                        item.quantity >= item.product.stockQty
                                         ? null
                                         : () {
                                             setState(() {
@@ -463,8 +482,9 @@ class _StorePageState extends State<StorePage> {
                             controller: _addressCtrl,
                             decoration: InputDecoration(
                               labelText: l10n.customerAddressLabel,
-                              errorText: _errorFor(
-                                  const {CheckoutProblem.addressTooLong}, l10n),
+                              errorText: _errorFor(const {
+                                CheckoutProblem.addressTooLong,
+                              }, l10n),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -473,12 +493,15 @@ class _StorePageState extends State<StorePage> {
                             controller: _cityCtrl,
                             decoration: InputDecoration(
                               labelText: l10n.customerCityLabel,
-                              errorText: _errorFor(
-                                  const {CheckoutProblem.cityTooLong}, l10n),
+                              errorText: _errorFor(const {
+                                CheckoutProblem.cityTooLong,
+                              }, l10n),
                             ),
                           ),
-                          if (_checkoutIssues.any((i) =>
-                              i.problem == CheckoutProblem.insufficientStock)) ...[
+                          if (_checkoutIssues.any(
+                            (i) =>
+                                i.problem == CheckoutProblem.insufficientStock,
+                          )) ...[
                             const SizedBox(height: 8),
                             Text(
                               _errorFor(const {
@@ -511,9 +534,12 @@ class _StorePageState extends State<StorePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(l10n.totalAmountLabel,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold)),
+                        Text(
+                          l10n.totalAmountLabel,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         Text(
                           _money(totals.total),
                           style: theme.textTheme.titleLarge?.copyWith(
@@ -529,19 +555,23 @@ class _StorePageState extends State<StorePage> {
                       onPressed: _placing
                           ? null
                           : () => _submitCheckout(
-                                sheetContext: bottomCtx,
-                                refresh: setModalState,
-                              ),
+                              sheetContext: bottomCtx,
+                              refresh: setModalState,
+                            ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: _placing
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
-                            : Text(l10n.checkoutAction,
-                                style: const TextStyle(fontSize: 16)),
+                            : Text(
+                                l10n.checkoutAction,
+                                style: const TextStyle(fontSize: 16),
+                              ),
                       ),
                     ),
                   ],
@@ -561,14 +591,13 @@ class _StorePageState extends State<StorePage> {
     final width = MediaQuery.sizeOf(context).width;
 
     if (_errorMessage != null) {
-      return ErrorStateView(
-        message: _errorMessage!,
-        onRetry: _loadCatalog,
-      );
+      return ErrorStateView(message: _errorMessage!, onRetry: _loadCatalog);
     }
 
-    final totalCartCount =
-        _cart.values.fold<int>(0, (sum, item) => sum + item.quantity);
+    final totalCartCount = _cart.values.fold<int>(
+      0,
+      (sum, item) => sum + item.quantity,
+    );
 
     return SingleChildScrollView(
       key: const Key('store-page'),
@@ -586,8 +615,10 @@ class _StorePageState extends State<StorePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(l10n.storefrontTitle,
-                            style: theme.textTheme.headlineMedium),
+                        Text(
+                          l10n.storefrontTitle,
+                          style: theme.textTheme.headlineMedium,
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           l10n.storefrontSubtitle,
@@ -605,7 +636,10 @@ class _StorePageState extends State<StorePage> {
                     children: [
                       OutlinedButton.icon(
                         onPressed: _openTracking,
-                        icon: const Icon(Icons.local_shipping_outlined, size: 20),
+                        icon: const Icon(
+                          Icons.local_shipping_outlined,
+                          size: 20,
+                        ),
                         label: Text(l10n.trackOrderAction),
                       ),
                       Badge(
@@ -613,7 +647,10 @@ class _StorePageState extends State<StorePage> {
                         label: Text('$totalCartCount'),
                         child: FilledButton.tonalIcon(
                           onPressed: _openCartDrawer,
-                          icon: const Icon(Icons.shopping_cart_outlined, size: 20),
+                          icon: const Icon(
+                            Icons.shopping_cart_outlined,
+                            size: 20,
+                          ),
                           label: Text(l10n.cartTitle),
                         ),
                       ),
@@ -639,7 +676,8 @@ class _StorePageState extends State<StorePage> {
                   categories: _categories,
                   selectedId: _selectedCategory,
                   onSelected: (id) => setState(
-                    () => _selectedCategory = id == _selectedCategory ? null : id,
+                    () =>
+                        _selectedCategory = id == _selectedCategory ? null : id,
                   ),
                 ),
                 if (_featuredProducts.isNotEmpty) ...[
@@ -648,6 +686,7 @@ class _StorePageState extends State<StorePage> {
                   const SizedBox(height: AppSpacing.md),
                   _ProductStrip(
                     products: _featuredProducts,
+                    currencySymbol: _currencySymbol,
                     onTap: _openProduct,
                     onAdd: _addToCart,
                   ),
@@ -658,6 +697,7 @@ class _StorePageState extends State<StorePage> {
                   const SizedBox(height: AppSpacing.md),
                   _ProductStrip(
                     products: _allProducts.take(6).toList(),
+                    currencySymbol: _currencySymbol,
                     onTap: _openProduct,
                     onAdd: _addToCart,
                   ),
@@ -668,7 +708,8 @@ class _StorePageState extends State<StorePage> {
                   _selectedCategory == null
                       ? l10n.allProducts
                       : l10n.productsInCategory(
-                          _categoryName(_selectedCategory!)),
+                          _categoryName(_selectedCategory!),
+                        ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 if (_visibleProducts.isEmpty)
@@ -680,6 +721,7 @@ class _StorePageState extends State<StorePage> {
                 else
                   _CatalogGrid(
                     products: _visibleProducts,
+                    currencySymbol: _currencySymbol,
                     onTap: _openProduct,
                     onAdd: _addToCart,
                   ),
@@ -723,10 +765,10 @@ class _BannerCarouselState extends State<_BannerCarousel> {
   }
 
   List<String> _titles(AppLocalizations l10n) => [
-        l10n.bannerNewArrivals,
-        l10n.bannerLocalDelivery,
-        l10n.bannerStorePickup,
-      ];
+    l10n.bannerNewArrivals,
+    l10n.bannerLocalDelivery,
+    l10n.bannerStorePickup,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -770,9 +812,7 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                           alignment: AlignmentDirectional.centerStart,
                           child: Text(
                             titles[i % titles.length],
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -915,11 +955,13 @@ class _CategoryStrip extends StatelessWidget {
 class _ProductStrip extends StatelessWidget {
   const _ProductStrip({
     required this.products,
+    required this.currencySymbol,
     required this.onTap,
     required this.onAdd,
   });
 
   final List<Product> products;
+  final String currencySymbol;
   final ValueChanged<Product> onTap;
   final ValueChanged<Product> onAdd;
 
@@ -936,6 +978,7 @@ class _ProductStrip extends StatelessWidget {
           width: 200,
           child: _StoreProductCard(
             product: products[i],
+            currencySymbol: currencySymbol,
             onTap: () => onTap(products[i]),
             onAdd: () => onAdd(products[i]),
           ),
@@ -948,11 +991,13 @@ class _ProductStrip extends StatelessWidget {
 class _CatalogGrid extends StatelessWidget {
   const _CatalogGrid({
     required this.products,
+    required this.currencySymbol,
     required this.onTap,
     required this.onAdd,
   });
 
   final List<Product> products;
+  final String currencySymbol;
   final ValueChanged<Product> onTap;
   final ValueChanged<Product> onAdd;
 
@@ -975,6 +1020,7 @@ class _CatalogGrid extends StatelessWidget {
           itemCount: products.length,
           itemBuilder: (context, i) => _StoreProductCard(
             product: products[i],
+            currencySymbol: currencySymbol,
             onTap: () => onTap(products[i]),
             onAdd: () => onAdd(products[i]),
           ),
@@ -987,11 +1033,13 @@ class _CatalogGrid extends StatelessWidget {
 class _StoreProductCard extends StatelessWidget {
   const _StoreProductCard({
     required this.product,
+    required this.currencySymbol,
     required this.onTap,
     required this.onAdd,
   });
 
   final Product product;
+  final String currencySymbol;
   final VoidCallback onTap;
   final VoidCallback onAdd;
 
@@ -1012,8 +1060,9 @@ class _StoreProductCard extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: AppImage(
-                      imageRef:
-                          product.images.isNotEmpty ? product.images.first : null,
+                      imageRef: product.images.isNotEmpty
+                          ? product.images.first
+                          : null,
                       fit: BoxFit.cover,
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(12),
@@ -1024,7 +1073,7 @@ class _StoreProductCard extends StatelessWidget {
                     Positioned(
                       top: 8,
                       left: 8,
-                        child: StatusBadge.warning(label: l10n.lowStock),
+                      child: StatusBadge.warning(label: l10n.lowStock),
                     ),
                 ],
               ),
@@ -1056,7 +1105,7 @@ class _StoreProductCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '\$${product.price.toStringAsFixed(2)}',
+                        '$currencySymbol${product.price.toStringAsFixed(2)}',
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.primary,
@@ -1094,7 +1143,8 @@ class _StoreFooter extends StatelessWidget {
     final customization = settings.customization;
     final links = settings.socialLinks;
 
-    final hasContact = customization.contactEmail.isNotEmpty ||
+    final hasContact =
+        customization.contactEmail.isNotEmpty ||
         customization.contactPhone.isNotEmpty ||
         customization.address.isNotEmpty;
     if (links.isEmpty && !hasContact) return const SizedBox.shrink();
@@ -1111,8 +1161,9 @@ class _StoreFooter extends StatelessWidget {
         children: [
           Text(
             customization.brandName,
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           if (customization.tagline.isNotEmpty) ...[
             const SizedBox(height: 4),
@@ -1130,14 +1181,23 @@ class _StoreFooter extends StatelessWidget {
               runSpacing: AppSpacing.sm,
               children: [
                 if (customization.contactEmail.isNotEmpty)
-                  _contactRow(theme, Icons.mail_outline,
-                      customization.contactEmail),
+                  _contactRow(
+                    theme,
+                    Icons.mail_outline,
+                    customization.contactEmail,
+                  ),
                 if (customization.contactPhone.isNotEmpty)
-                  _contactRow(theme, Icons.phone_outlined,
-                      customization.contactPhone),
+                  _contactRow(
+                    theme,
+                    Icons.phone_outlined,
+                    customization.contactPhone,
+                  ),
                 if (customization.address.isNotEmpty)
                   _contactRow(
-                      theme, Icons.location_on_outlined, customization.address),
+                    theme,
+                    Icons.location_on_outlined,
+                    customization.address,
+                  ),
               ],
             ),
           ],
@@ -1145,8 +1205,9 @@ class _StoreFooter extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Text(
               l10n.storefrontFollowUs,
-              style: theme.textTheme.titleSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SocialLinksBar(links: links),
           ],

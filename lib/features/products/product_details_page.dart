@@ -12,9 +12,14 @@ import '../../shared/widgets/status_badge.dart';
 /// Reached by tapping any storefront/back-office product card. It renders only
 /// local data passed in, so it works offline and never triggers a network call.
 class ProductDetailsPage extends StatelessWidget {
-  const ProductDetailsPage({super.key, required this.product});
+  const ProductDetailsPage({
+    super.key,
+    required this.product,
+    this.currencySymbol = r'$',
+  });
 
   final Product product;
+  final String currencySymbol;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +31,7 @@ class ProductDetailsPage extends StatelessWidget {
       images: product.images,
     );
 
-    final details = _Details(product: product);
+    final details = _Details(product: product, currencySymbol: currencySymbol);
 
     return Scaffold(
       key: const Key('product-details-page'),
@@ -63,9 +68,10 @@ class ProductDetailsPage extends StatelessWidget {
 }
 
 class _Details extends StatelessWidget {
-  const _Details({required this.product});
+  const _Details({required this.product, required this.currencySymbol});
 
   final Product product;
+  final String currencySymbol;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +94,7 @@ class _Details extends StatelessWidget {
         Row(
           children: [
             Text(
-              '\$${product.price.toStringAsFixed(2)}',
+              '$currencySymbol${product.price.toStringAsFixed(2)}',
               style: theme.textTheme.headlineSmall?.copyWith(
                 color: scheme.primary,
                 fontWeight: FontWeight.bold,
@@ -124,11 +130,17 @@ class _Details extends StatelessWidget {
             children: [
               _row(context, l10n?.colSku ?? 'SKU', product.sku ?? '—'),
               const Divider(height: 20),
-              _row(context, l10n?.colStock ?? 'Stock',
-                  '${product.stockQty} ${product.unit}'),
+              _row(
+                context,
+                l10n?.colStock ?? 'Stock',
+                '${product.stockQty} ${product.unit}',
+              ),
               const Divider(height: 20),
-              _row(context, l10n?.colStatus ?? 'Status',
-                  _statusLabel(l10n, product.status)),
+              _row(
+                context,
+                l10n?.colStatus ?? 'Status',
+                _statusLabel(l10n, product.status),
+              ),
             ],
           ),
         ),

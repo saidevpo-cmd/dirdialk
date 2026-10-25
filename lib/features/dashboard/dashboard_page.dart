@@ -29,7 +29,8 @@ class _DashboardPageState extends State<DashboardPage> {
   final _repos = AppRepositories.instance;
 
   bool _isLoading = true;
-  String? _error;
+  bool _loadFailed = false;
+  String _currencySymbol = r'$';
 
   Map<String, dynamic> _productStats = {};
   Map<String, dynamic> _categoryStats = {};
@@ -50,7 +51,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<void> _load() async {
     setState(() {
       _isLoading = true;
-      _error = null;
+      _loadFailed = false;
     });
 
     final results = await Future.wait<Object?>([
@@ -62,13 +63,19 @@ class _DashboardPageState extends State<DashboardPage> {
       _repos.products.list(limit: 5),
       _repos.pages.list(limit: 4),
       _repos.resources.list(limit: 4),
+      _repos.siteSettings.currencySymbol(),
     ]);
 
     if (!mounted) return;
 
     setState(() {
       _isLoading = false;
-      _error = results.any((r) => r is Failure) ? 'Failed to load dashboard' : null;
+      _loadFailed = results.any((r) => r is Failure);
+
+      final currency = results[8];
+      if (currency is Success<String> && currency.data.trim().isNotEmpty) {
+        _currencySymbol = currency.data.trim();
+      }
 
       _productStats = _mapOf(results[0]) ?? {};
       _categoryStats = _mapOf(results[1]) ?? {};
@@ -100,8 +107,8 @@ class _DashboardPageState extends State<DashboardPage> {
     final theme = Theme.of(context);
     final config = context.styleConfig;
 
-    if (_error != null) {
-      return ErrorStateView(message: _error!, onRetry: _load);
+    if (_loadFailed) {
+      return ErrorStateView(message: l10n.loadFailed, onRetry: _load);
     }
 
     return LayoutBuilder(
@@ -273,13 +280,13 @@ class _DashboardPageState extends State<DashboardPage> {
     ];
 
     Widget rowChild(int first, int second) => Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: panels[first]),
-            SizedBox(width: AppSpacing.md * scale),
-            Expanded(child: panels[second]),
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: panels[first]),
+        SizedBox(width: AppSpacing.md * scale),
+        Expanded(child: panels[second]),
+      ],
+    );
 
     if (width >= AppBreakpoints.wideContent) {
       return Column(
@@ -300,6 +307,8 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  String _money(double value) => '$_currencySymbol${value.toStringAsFixed(2)}';
+
   Widget _buildRecentOrders(AppLocalizations l10n, ThemeData theme) {
     return _panel(
       title: l10n.dashboardRecentOrders,
@@ -315,9 +324,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     theme,
                     leading: Icons.receipt_long_outlined,
                     title:
-                        '${OrderNumber.format(order.orderNumber)} · ${order.customerName ?? 'Guest'}',
-                    subtitle: '${order.items.length} items',
-                    trailing: '\$${order.total.toStringAsFixed(2)}',
+                        '${OrderNumber.format(order.orderNumber)} · ${order.customerName ?? l10n.guestLabel}',
+                    subtitle: l10n.itemCount(order.items.length),
+                    trailing: _money(order.total),
                   ),
               ],
             ),
@@ -339,7 +348,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     leading: Icons.inventory_2_outlined,
                     title: product.name,
                     subtitle: product.categoryName ?? '—',
-                    trailing: '\$${product.price.toStringAsFixed(2)}',
+                    trailing: _money(product.price),
                   ),
               ],
             ),
@@ -383,7 +392,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     leading: Icons.folder_copy_outlined,
                     title: resource.name,
                     subtitle: resource.category ?? resource.type.name,
-                    trailing: resource.isPublished ? l10n.statusPublished : null,
+                    trailing: resource.isPublished
+                        ? l10n.statusPublished
+                        : null,
                   ),
               ],
             ),
@@ -405,16 +416,14 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(title, style: theme.textTheme.titleMedium),
-              ),
+              Expanded(child: Text(title, style: theme.textTheme.titleMedium)),
               if (actionLabel != null && onAction != null)
                 TextButton(onPressed: onAction, child: Text(actionLabel))
               else if (onOpen != null)
                 IconButton(
                   icon: const Icon(Icons.arrow_forward, size: 18),
                   onPressed: onOpen,
-                  tooltip: 'Open',
+                  tooltip: AppLocalizations.of(context)!.openAction,
                 ),
             ],
           ),

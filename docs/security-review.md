@@ -104,6 +104,12 @@ Introduced in `20261017120000_order_tracking.sql`; design decisions:
 
 File size and MIME types are constrained at the bucket level (`file_size_limit`,
 `allowed_mime_types`). Uploaded names are sanitized client-side (see `StorageService`).
+Product and category images now upload automatically on remote create/update; missing or expired
+local bytes fail the repository call rather than silently persisting a broken `localimg://` ref.
+
+> **Live-stack caveat**: Storage policies, bucket MIME enforcement, and returned public URLs have
+> not been exercised against the live Supabase project in this environment. Verify by uploading a
+> product image as `staff`, then reading it anonymously.
 
 ## 5. Data integrity
 
@@ -116,7 +122,13 @@ File size and MIME types are constrained at the bucket level (`file_size_limit`,
 ## 6. Client-side hardening
 
 - No secrets in source (verified by search). `.env`/keys are git-ignored.
-- Image uploads validated by size/type before upload; local `ImageService` enforces a 12 MB cap.
+- Image uploads validated by size/type before upload; local `ImageService` enforces a
+  10 MB cap matching the Storage bucket limit.
+- Remote product/category repositories upload `localimg://` references to the public
+  `products` bucket before writing the database row, then persist the returned public URL.
+  This removes local-device-only image references from shared business data. The logic is
+  unit-tested; the actual Storage upload and public URL must still be verified against a live
+  Supabase project (`products` bucket says public, staff-only writes).
 - `AppImage` supports safe fallbacks and does not execute content.
 - Storefront social links are validated to `http(s)` only on both the client
   (`SocialLinks.normalize`) and the database (`is_valid_social_links` check on
@@ -132,6 +144,10 @@ File size and MIME types are constrained at the bucket level (`file_size_limit`,
    rate limiting and a CAPTCHA at the platform/WAF layer as defence in depth. The in-database
    throttle in `track_order` is keyed on `x-forwarded-for`, which a client can influence if the
    proxy appends rather than overwrites it — confirm the platform's header handling before launch.
+   `form_submissions` has payload-size enforcement but **no DB-level request throttle**; the
+   published-only insert policy prevents writes to drafts but does not stop spam.
+   The admin form preview now performs a real insert (not a counter edit), so any test submission
+   is a real database row and must be cleaned up if it is not wanted.
 3. `app_settings` tax/currency are client-consumed; re-validate on the server if financial accuracy is
    critical.
 4. Android release manifest must include `INTERNET` (added) and a real signing key before store release.

@@ -1,3 +1,4 @@
+import '../../core/supabase/storage_service.dart';
 import '../../core/supabase/supabase_client.dart';
 import '../../core/supabase/supabase_result.dart';
 import '../../domain/models/app_error.dart';
@@ -6,14 +7,20 @@ import '../../domain/models/paginated_result.dart';
 import '../../domain/models/product.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../domain/repositories/product_repository.dart';
+import 'remote_images.dart';
 import 'supabase_mappers.dart';
 
 class SupabaseProductRepository implements ProductRepository {
-  SupabaseProductRepository({this._categoryRepository});
+  SupabaseProductRepository({
+    this.categoryRepository,
+    this.storage = const StorageService(),
+  });
 
-  final CategoryRepository? _categoryRepository;
+  final CategoryRepository? categoryRepository;
+  final StorageService storage;
 
-  static const _select = '*, category:categories(name), location:locations(name)';
+  static const _select =
+      '*, category:categories(name), location:locations(name)';
 
   @override
   Future<Result<PaginatedResult<Product>>> list({
@@ -66,10 +73,23 @@ class SupabaseProductRepository implements ProductRepository {
 
   @override
   Future<Result<Product>> create(Product product) async {
+    final prepared = await guard(
+      () => uploadProductImages(
+        product,
+        (ref, bucket, folder) => storage.uploadLocalImage(
+          localRef: ref,
+          bucket: bucket,
+          folder: folder,
+        ),
+      ),
+    );
+    if (prepared is Failure<Product>) return prepared;
+    final remoteProduct = (prepared as Success<Product>).data;
+
     final insert = await guard(() async {
       final data = await AppSupabase.client
           .from('products')
-          .insert(Db.product(product))
+          .insert(Db.product(remoteProduct))
           .select(_select)
           .single();
       return Db.productFrom(Map<String, dynamic>.from(data));
@@ -84,11 +104,24 @@ class SupabaseProductRepository implements ProductRepository {
   }
 
   @override
-  Future<Result<Product>> update(Product product) {
+  Future<Result<Product>> update(Product product) async {
+    final prepared = await guard(
+      () => uploadProductImages(
+        product,
+        (ref, bucket, folder) => storage.uploadLocalImage(
+          localRef: ref,
+          bucket: bucket,
+          folder: folder,
+        ),
+      ),
+    );
+    if (prepared is Failure<Product>) return prepared;
+    final remoteProduct = (prepared as Success<Product>).data;
+
     return guard(() async {
       final data = await AppSupabase.client
           .from('products')
-          .update(Db.product(product))
+          .update(Db.product(remoteProduct))
           .eq('id', product.id)
           .select(_select)
           .single();
@@ -105,7 +138,7 @@ class SupabaseProductRepository implements ProductRepository {
 
   @override
   Future<Result<List<Category>>> categories() {
-    final repo = _categoryRepository;
+    final repo = categoryRepository;
     if (repo == null) return Future.value(const Success(<Category>[]));
     return repo.all();
   }
@@ -128,7 +161,7 @@ class SupabaseProductRepository implements ProductRepository {
         byCategory[key] = (byCategory[key] ?? 0) + 1;
       }
 
-      final totalCategoriesRes = _categoryRepository?.stats();
+      final totalCategoriesRes = categoryRepository?.stats();
       var totalCategories = 0;
       if (totalCategoriesRes != null) {
         switch (await totalCategoriesRes) {
@@ -139,11 +172,15 @@ class SupabaseProductRepository implements ProductRepository {
         }
       }
 
-      final active = products.where((p) => p.status == ProductStatus.active).length;
+      final active = products
+          .where((p) => p.status == ProductStatus.active)
+          .length;
       final lowStock = products.where((p) => p.isLowStock).length;
       final outOfStock = products.where((p) => p.isOutOfStock).length;
-      final inventoryValue =
-          products.fold<double>(0, (sum, p) => sum + (p.price * p.stockQty));
+      final inventoryValue = products.fold<double>(
+        0,
+        (sum, p) => sum + (p.price * p.stockQty),
+      );
 
       return {
         'totalProducts': products.length,

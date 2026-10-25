@@ -3147,6 +3147,492 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This order was cancelled.'**
   String get trackingCancelled;
+
+  /// No description provided for @openAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get openAction;
+
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get descriptionLabel;
+
+  /// No description provided for @allTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'All types'**
+  String get allTypes;
+
+  /// No description provided for @categoriesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categoriesLabel;
+
+  /// No description provided for @fieldsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} fields'**
+  String fieldsCount(Object count);
+
+  /// No description provided for @submissionsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} submissions'**
+  String submissionsCountLabel(Object count);
+
+  /// No description provided for @formsPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forms Builder'**
+  String get formsPageTitle;
+
+  /// No description provided for @formsPageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Design lead-capture forms, questionnaires, and survey funnels.'**
+  String get formsPageSubtitle;
+
+  /// No description provided for @createFormAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create form'**
+  String get createFormAction;
+
+  /// No description provided for @editFormTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit form'**
+  String get editFormTitle;
+
+  /// No description provided for @formTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Form title'**
+  String get formTitleLabel;
+
+  /// No description provided for @formSlugLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Slug URL (e.g. contact-us)'**
+  String get formSlugLabel;
+
+  /// No description provided for @formStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Form status'**
+  String get formStatusLabel;
+
+  /// No description provided for @formDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get formDescriptionLabel;
+
+  /// No description provided for @formNameField.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get formNameField;
+
+  /// No description provided for @formEmailField.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get formEmailField;
+
+  /// No description provided for @formMessageField.
+  ///
+  /// In en, this message translates to:
+  /// **'Message / inquiry'**
+  String get formMessageField;
+
+  /// No description provided for @formNamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get formNamePlaceholder;
+
+  /// No description provided for @formEmailPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'you@company.com'**
+  String get formEmailPlaceholder;
+
+  /// No description provided for @formMessagePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'How can we help you?'**
+  String get formMessagePlaceholder;
+
+  /// No description provided for @formTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Form title is required.'**
+  String get formTitleRequired;
+
+  /// No description provided for @formUnpublishedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish this form before submitting a test entry.'**
+  String get formUnpublishedHint;
+
+  /// No description provided for @selectOptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an option'**
+  String get selectOptionLabel;
+
+  /// No description provided for @submitFormAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit form'**
+  String get submitFormAction;
+
+  /// No description provided for @formSubmittedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Form submitted successfully.'**
+  String get formSubmittedMessage;
+
+  /// No description provided for @formCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Form created.'**
+  String get formCreated;
+
+  /// No description provided for @formUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Form updated.'**
+  String get formUpdated;
+
+  /// No description provided for @formDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Form deleted.'**
+  String get formDeleted;
+
+  /// No description provided for @totalForms.
+  ///
+  /// In en, this message translates to:
+  /// **'Total forms'**
+  String get totalForms;
+
+  /// No description provided for @activePublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Active & published'**
+  String get activePublished;
+
+  /// No description provided for @totalSubmissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Total submissions'**
+  String get totalSubmissions;
+
+  /// No description provided for @searchFormsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search forms by title or slug...'**
+  String get searchFormsHint;
+
+  /// No description provided for @noFormsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No forms created yet'**
+  String get noFormsTitle;
+
+  /// No description provided for @noFormsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new form to start collecting customer submissions.'**
+  String get noFormsMessage;
+
+  /// No description provided for @previewFormTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview / test form'**
+  String get previewFormTooltip;
+
+  /// No description provided for @colFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields'**
+  String get colFields;
+
+  /// No description provided for @directoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Business directory'**
+  String get directoryTitle;
+
+  /// No description provided for @directorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Curate local partners, suppliers, and locations with contact details.'**
+  String get directorySubtitle;
+
+  /// No description provided for @addEntryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add entry'**
+  String get addEntryAction;
+
+  /// No description provided for @editEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit directory entry'**
+  String get editEntryTitle;
+
+  /// No description provided for @entryNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Business / entry name'**
+  String get entryNameLabel;
+
+  /// No description provided for @entryNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Restaurant, Supplier'**
+  String get entryNameHint;
+
+  /// No description provided for @entryTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get entryTypeLabel;
+
+  /// No description provided for @entryWebsiteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Website URL'**
+  String get entryWebsiteLabel;
+
+  /// No description provided for @entryContactLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact (phone / email)'**
+  String get entryContactLabel;
+
+  /// No description provided for @entryLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location / address'**
+  String get entryLocationLabel;
+
+  /// No description provided for @publishedInDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Published in directory'**
+  String get publishedInDirectory;
+
+  /// No description provided for @entryNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry name is required.'**
+  String get entryNameRequired;
+
+  /// No description provided for @totalEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Total entries'**
+  String get totalEntries;
+
+  /// No description provided for @withContactLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'With contact'**
+  String get withContactLabel;
+
+  /// No description provided for @searchDirectoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search directory by name, category, or contact...'**
+  String get searchDirectoryHint;
+
+  /// No description provided for @noDirectoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No directory entries found'**
+  String get noDirectoryTitle;
+
+  /// No description provided for @noDirectoryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a partner, supplier, or location to build your directory.'**
+  String get noDirectoryMessage;
+
+  /// No description provided for @viewLinkTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'View link'**
+  String get viewLinkTooltip;
+
+  /// No description provided for @websiteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get websiteLabel;
+
+  /// No description provided for @pagesPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CMS pages'**
+  String get pagesPageTitle;
+
+  /// No description provided for @pagesPageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage public policy pages, company terms, and blog content.'**
+  String get pagesPageSubtitle;
+
+  /// No description provided for @createPageAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create page'**
+  String get createPageAction;
+
+  /// No description provided for @editPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit page'**
+  String get editPageTitle;
+
+  /// No description provided for @pageTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Page title'**
+  String get pageTitleLabel;
+
+  /// No description provided for @urlSlugLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'URL slug'**
+  String get urlSlugLabel;
+
+  /// No description provided for @shortExcerptLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Short excerpt'**
+  String get shortExcerptLabel;
+
+  /// No description provided for @excerptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A one or two sentence summary shown in lists...'**
+  String get excerptHint;
+
+  /// No description provided for @coverImageUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover image URL'**
+  String get coverImageUrlLabel;
+
+  /// No description provided for @pageBodyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Page body content'**
+  String get pageBodyLabel;
+
+  /// No description provided for @pageBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write text, markdown, or article content...'**
+  String get pageBodyHint;
+
+  /// No description provided for @seoMetaTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'SEO meta title'**
+  String get seoMetaTitleLabel;
+
+  /// No description provided for @seoMetaDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'SEO meta description'**
+  String get seoMetaDescriptionLabel;
+
+  /// No description provided for @pageTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Page title is required.'**
+  String get pageTitleRequired;
+
+  /// No description provided for @pageContentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Page body content is required.'**
+  String get pageContentRequired;
+
+  /// No description provided for @pageSlugRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A valid URL slug is required.'**
+  String get pageSlugRequired;
+
+  /// No description provided for @pageSlugInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'The slug \"/pages/{slug}\" is already in use.'**
+  String pageSlugInUse(Object slug);
+
+  /// No description provided for @totalPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Total pages'**
+  String get totalPages;
+
+  /// No description provided for @draftsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts'**
+  String get draftsLabel;
+
+  /// No description provided for @searchPagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search pages by title or content...'**
+  String get searchPagesHint;
+
+  /// No description provided for @noPagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No CMS pages found'**
+  String get noPagesTitle;
+
+  /// No description provided for @noPagesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new page to publish content to your storefront.'**
+  String get noPagesMessage;
+
+  /// No description provided for @readPreviewTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Read / preview page'**
+  String get readPreviewTooltip;
+
+  /// No description provided for @metaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Meta'**
+  String get metaLabel;
+
+  /// No description provided for @noContentYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No content added yet.'**
+  String get noContentYet;
+
+  /// No description provided for @colSeoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SEO title'**
+  String get colSeoTitle;
 }
 
 class _AppLocalizationsDelegate

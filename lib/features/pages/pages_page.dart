@@ -4,6 +4,7 @@ import '../../core/design_system/app_spacing.dart';
 import '../../data/app_repositories.dart';
 import '../../domain/models/app_error.dart';
 import '../../domain/models/page_content.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
 import '../../shared/utils/id_gen.dart';
@@ -26,7 +27,7 @@ class _PagesPageState extends State<PagesPage> {
   final _repo = AppRepositories.instance.pages;
 
   bool _isLoading = true;
-  String? _errorMessage;
+  bool _loadFailed = false;
   List<PageContent> _pages = [];
   Map<String, dynamic> _stats = {};
   PageStatus? _selectedStatus;
@@ -46,7 +47,7 @@ class _PagesPageState extends State<PagesPage> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _loadFailed = false;
     });
 
     final statsRes = await _repo.stats();
@@ -70,21 +71,32 @@ class _PagesPageState extends State<PagesPage> {
       if (res is Success) {
         _pages = (res as Success).data.items;
       } else {
-        _errorMessage = 'Failed to load pages';
+        _loadFailed = true;
       }
     });
   }
 
-  Widget _buildStatusBadge(PageStatus status) {
+  String _statusLabel(AppLocalizations l10n, PageStatus status) {
     switch (status) {
       case PageStatus.published:
-        return StatusBadge.success(label: 'Published');
+        return l10n.statusPublished;
       case PageStatus.draft:
-        return StatusBadge.warning(label: 'Draft');
+        return l10n.statusDraft;
+    }
+  }
+
+  Widget _buildStatusBadge(AppLocalizations l10n, PageStatus status) {
+    final label = _statusLabel(l10n, status);
+    switch (status) {
+      case PageStatus.published:
+        return StatusBadge.success(label: label);
+      case PageStatus.draft:
+        return StatusBadge.warning(label: label);
     }
   }
 
   void _previewPage(PageContent page) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (ctx) {
@@ -93,8 +105,9 @@ class _PagesPageState extends State<PagesPage> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(page.title),
-              _buildStatusBadge(page.status),
+              Flexible(child: Text(page.title)),
+              const SizedBox(width: 12),
+              _buildStatusBadge(l10n, page.status),
             ],
           ),
           content: SizedBox(
@@ -126,7 +139,7 @@ class _PagesPageState extends State<PagesPage> {
                     const SizedBox(height: 12),
                   ],
                   Text(
-                    'Slug: /pages/${page.slug}',
+                    '${l10n.colSlug}: /pages/${page.slug}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -144,7 +157,7 @@ class _PagesPageState extends State<PagesPage> {
                   if (page.metaDesc != null) ...[
                     const SizedBox(height: 8),
                     Text(
-                      'Meta: ${page.metaDesc!}',
+                      '${l10n.metaLabel}: ${page.metaDesc!}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontStyle: FontStyle.italic,
                       ),
@@ -152,10 +165,8 @@ class _PagesPageState extends State<PagesPage> {
                   ],
                   const Divider(height: 24),
                   Text(
-                    page.content ?? 'No content added yet.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      height: 1.6,
-                    ),
+                    page.content ?? l10n.noContentYet,
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
                   ),
                 ],
               ),
@@ -164,7 +175,7 @@ class _PagesPageState extends State<PagesPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Close'),
+              child: Text(l10n.actionClose),
             ),
           ],
         );
@@ -172,7 +183,8 @@ class _PagesPageState extends State<PagesPage> {
     );
   }
 
-  void _showAddEditDialog([PageContent? page]) {
+  Future<void> _showAddEditDialog([PageContent? page]) async {
+    final l10n = AppLocalizations.of(context)!;
     final isEditing = page != null;
     final titleCtrl = TextEditingController(text: page?.title ?? '');
     final slugCtrl = TextEditingController(text: page?.slug ?? '');
@@ -190,13 +202,15 @@ class _PagesPageState extends State<PagesPage> {
         .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         .replaceAll(RegExp(r'^-+|-+$'), '');
 
-    showDialog<void>(
+    final saved = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text(isEditing ? 'Edit Page' : 'Create CMS Page'),
+              title: Text(
+                isEditing ? l10n.editPageTitle : l10n.createPageAction,
+              ),
               content: SizedBox(
                 width: dialogContentWidth(context, 550),
                 child: SingleChildScrollView(
@@ -208,7 +222,9 @@ class _PagesPageState extends State<PagesPage> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Theme.of(dialogCtx).colorScheme.errorContainer,
+                            color: Theme.of(dialogCtx)
+                                .colorScheme
+                                .errorContainer,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -224,9 +240,9 @@ class _PagesPageState extends State<PagesPage> {
                       ],
                       TextField(
                         controller: titleCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Page Title *',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: '${l10n.pageTitleLabel} *',
+                          border: const OutlineInputBorder(),
                         ),
                         onChanged: (val) {
                           if (!isEditing && slugCtrl.text.isEmpty) {
@@ -240,9 +256,9 @@ class _PagesPageState extends State<PagesPage> {
                           Expanded(
                             child: TextField(
                               controller: slugCtrl,
-                              decoration: const InputDecoration(
-                                labelText: 'URL Slug *',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: '${l10n.urlSlugLabel} *',
+                                border: const OutlineInputBorder(),
                               ),
                             ),
                           ),
@@ -250,14 +266,14 @@ class _PagesPageState extends State<PagesPage> {
                           Expanded(
                             child: DropdownButtonFormField<PageStatus>(
                               initialValue: status,
-                              decoration: const InputDecoration(
-                                labelText: 'Status',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: l10n.colStatus,
+                                border: const OutlineInputBorder(),
                               ),
                               items: PageStatus.values.map((s) {
                                 return DropdownMenuItem(
                                   value: s,
-                                  child: Text(s.name.toUpperCase()),
+                                  child: Text(_statusLabel(l10n, s)),
                                 );
                               }).toList(),
                               onChanged: (v) {
@@ -271,29 +287,29 @@ class _PagesPageState extends State<PagesPage> {
                       TextField(
                         controller: excerptCtrl,
                         maxLines: 2,
-                        decoration: const InputDecoration(
-                          labelText: 'Short Excerpt',
-                          hintText: 'A one or two sentence summary shown in lists...',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n.shortExcerptLabel,
+                          hintText: l10n.excerptHint,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: imageCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Cover Image URL',
+                        decoration: InputDecoration(
+                          labelText: l10n.coverImageUrlLabel,
                           hintText: 'https://...',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: contentCtrl,
                         maxLines: 6,
-                        decoration: const InputDecoration(
-                          labelText: 'Page Body Content *',
-                          hintText: 'Write text, markdown, or article content...',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: '${l10n.pageBodyLabel} *',
+                          hintText: l10n.pageBodyHint,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -302,9 +318,9 @@ class _PagesPageState extends State<PagesPage> {
                           Expanded(
                             child: TextField(
                               controller: metaTitleCtrl,
-                              decoration: const InputDecoration(
-                                labelText: 'SEO Meta Title',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: l10n.seoMetaTitleLabel,
+                                border: const OutlineInputBorder(),
                               ),
                             ),
                           ),
@@ -312,9 +328,9 @@ class _PagesPageState extends State<PagesPage> {
                           Expanded(
                             child: TextField(
                               controller: metaDescCtrl,
-                              decoration: const InputDecoration(
-                                labelText: 'SEO Meta Description',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: l10n.seoMetaDescriptionLabel,
+                                border: const OutlineInputBorder(),
                               ),
                             ),
                           ),
@@ -326,8 +342,8 @@ class _PagesPageState extends State<PagesPage> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(dialogCtx).pop(),
-                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.of(dialogCtx).pop(false),
+                  child: Text(l10n.actionCancel),
                 ),
                 FilledButton(
                   onPressed: () async {
@@ -341,17 +357,17 @@ class _PagesPageState extends State<PagesPage> {
 
                     String? validation;
                     if (title.isEmpty) {
-                      validation = 'Page title is required.';
+                      validation = l10n.pageTitleRequired;
                     } else if (content.isEmpty) {
-                      validation = 'Page body content is required.';
+                      validation = l10n.pageContentRequired;
                     } else if (slug.isEmpty) {
-                      validation = 'A valid URL slug is required.';
+                      validation = l10n.pageSlugRequired;
                     } else {
                       final duplicate = _pages.any(
                         (p) => p.slug == slug && p.id != page?.id,
                       );
                       if (duplicate) {
-                        validation = 'The slug "/pages/$slug" is already in use.';
+                        validation = l10n.pageSlugInUse(slug);
                       }
                     }
 
@@ -404,11 +420,12 @@ class _PagesPageState extends State<PagesPage> {
                     }
 
                     if (dialogCtx.mounted) {
-                      Navigator.of(dialogCtx).pop();
+                      Navigator.of(dialogCtx).pop(true);
                     }
-                    _loadData();
                   },
-                  child: Text(isEditing ? 'Save Changes' : 'Create Page'),
+                  child: Text(
+                    isEditing ? l10n.actionSaveChanges : l10n.actionCreate,
+                  ),
                 ),
               ],
             );
@@ -416,24 +433,31 @@ class _PagesPageState extends State<PagesPage> {
         );
       },
     );
+
+    if (saved == true && mounted) {
+      AppFeedback.success(context, l10n.saved);
+      _loadData();
+    }
   }
 
   Future<void> _deletePage(PageContent page) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Page'),
-        content: Text('Are you sure you want to delete "${page.title}"?'),
+        title: Text(l10n.deleteDialogTitle(page.title)),
+        content: Text(l10n.deleteDialogBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error),
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),
@@ -445,7 +469,7 @@ class _PagesPageState extends State<PagesPage> {
       AppFeedback.fromResult(
         context,
         result,
-        successMessage: 'Page deleted.',
+        successMessage: l10n.recordDeleted,
       );
       _loadData();
     }
@@ -454,13 +478,11 @@ class _PagesPageState extends State<PagesPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final width = MediaQuery.sizeOf(context).width;
 
-    if (_errorMessage != null) {
-      return ErrorStateView(
-        message: _errorMessage!,
-        onRetry: _loadData,
-      );
+    if (_loadFailed) {
+      return ErrorStateView(message: l10n.loadFailed, onRetry: _loadData);
     }
 
     final totalPages = _stats['totalPages']?.toString() ?? '—';
@@ -475,17 +497,19 @@ class _PagesPageState extends State<PagesPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Page Header
             Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('CMS Pages', style: theme.textTheme.headlineMedium),
+                      Text(
+                        l10n.pagesPageTitle,
+                        style: theme.textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
-                        'Manage public policy pages, company terms, and blog content',
+                        l10n.pagesPageSubtitle,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -496,13 +520,11 @@ class _PagesPageState extends State<PagesPage> {
                 FilledButton.icon(
                   onPressed: () => _showAddEditDialog(),
                   icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Create Page'),
+                  label: Text(l10n.createPageAction),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-
-            // Stat Cards
             LayoutBuilder(
               builder: (context, constraints) {
                 final isCompact = AppBreakpoints.isMobile(constraints.maxWidth);
@@ -517,18 +539,18 @@ class _PagesPageState extends State<PagesPage> {
                   ),
                   children: [
                     StatCard(
-                      label: 'Total Pages',
+                      label: l10n.totalPages,
                       value: totalPages,
                       icon: Icons.article_outlined,
                     ),
                     StatCard(
-                      label: 'Published',
+                      label: l10n.statusPublished,
                       value: publishedPages,
                       icon: Icons.public,
                       iconColor: Colors.green,
                     ),
                     StatCard(
-                      label: 'Drafts',
+                      label: l10n.draftsLabel,
                       value: draftPages,
                       icon: Icons.edit_note,
                       iconColor: Colors.amber,
@@ -538,26 +560,24 @@ class _PagesPageState extends State<PagesPage> {
               },
             ),
             const SizedBox(height: AppSpacing.lg),
-
-            // Search & Filter
             SearchAndFilterBar(
               searchController: _searchController,
-              searchHint: 'Search pages by title or content...',
+              searchHint: l10n.searchPagesHint,
               onSearchChanged: (_) => _fetchPages(),
               filterWidgets: [
                 DropdownButton<PageStatus?>(
                   value: _selectedStatus,
-                  hint: const Text('All Statuses'),
+                  hint: Text(l10n.allStatuses),
                   underline: const SizedBox.shrink(),
                   items: [
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                       value: null,
-                      child: Text('All Statuses'),
+                      child: Text(l10n.allStatuses),
                     ),
                     ...PageStatus.values.map(
                       (s) => DropdownMenuItem(
                         value: s,
-                        child: Text(s.name.toUpperCase()),
+                        child: Text(_statusLabel(l10n, s)),
                       ),
                     ),
                   ],
@@ -569,22 +589,20 @@ class _PagesPageState extends State<PagesPage> {
               ],
             ),
             const SizedBox(height: AppSpacing.md),
-
-            // Pages Table
             ResponsiveDataTable<PageContent>(
               items: _pages,
               isLoading: _isLoading,
-              emptyTitle: 'No CMS pages found',
-              emptyMessage: 'Create a new page to publish content to your storefront',
-              emptyActionLabel: 'Create Page',
+              emptyTitle: l10n.noPagesTitle,
+              emptyMessage: l10n.noPagesMessage,
+              emptyActionLabel: l10n.createPageAction,
               onEmptyAction: () => _showAddEditDialog(),
-              columns: const [
-                TableColumnDef(label: 'PAGE TITLE', flex: 3),
-                TableColumnDef(label: 'SLUG URL', flex: 2),
-                TableColumnDef(label: 'SEO TITLE', flex: 2),
-                TableColumnDef(label: 'STATUS', flex: 2),
+              columns: [
+                TableColumnDef(label: l10n.colTitle, flex: 3),
+                TableColumnDef(label: l10n.colSlug, flex: 2),
+                TableColumnDef(label: l10n.colSeoTitle, flex: 2),
+                TableColumnDef(label: l10n.colStatus, flex: 2),
                 TableColumnDef(
-                  label: 'ACTIONS',
+                  label: l10n.colActions,
                   flex: 3,
                   alignment: Alignment.centerRight,
                 ),
@@ -595,8 +613,10 @@ class _PagesPageState extends State<PagesPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(page.title,
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text(
+                        page.title,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       if (page.excerpt != null && page.excerpt!.isNotEmpty)
                         Text(
                           page.excerpt!,
@@ -608,13 +628,14 @@ class _PagesPageState extends State<PagesPage> {
                         ),
                     ],
                   ),
-                  Text('/pages/${page.slug}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.primary,
-                      )),
-                  Text(page.metaTitle ?? '—',
-                      style: theme.textTheme.bodySmall),
-                  _buildStatusBadge(page.status),
+                  Text(
+                    '/pages/${page.slug}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  Text(page.metaTitle ?? '—', style: theme.textTheme.bodySmall),
+                  _buildStatusBadge(l10n, page.status),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -622,18 +643,18 @@ class _PagesPageState extends State<PagesPage> {
                       IconButton(
                         icon: const Icon(Icons.visibility_outlined, size: 18),
                         onPressed: () => _previewPage(page),
-                        tooltip: 'Read / Preview Page',
+                        tooltip: l10n.readPreviewTooltip,
                       ),
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 18),
                         onPressed: () => _showAddEditDialog(page),
-                        tooltip: 'Edit',
+                        tooltip: l10n.actionEdit,
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete_outline, size: 18),
                         color: theme.colorScheme.error,
                         onPressed: () => _deletePage(page),
-                        tooltip: 'Delete',
+                        tooltip: l10n.actionDelete,
                       ),
                     ],
                   ),
@@ -647,17 +668,24 @@ class _PagesPageState extends State<PagesPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(page.title,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold)),
-                          _buildStatusBadge(page.status),
+                          Flexible(
+                            child: Text(
+                              page.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          _buildStatusBadge(l10n, page.status),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text('/pages/${page.slug}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                          )),
+                      Text(
+                        '/pages/${page.slug}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
                       if (page.excerpt != null && page.excerpt!.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
@@ -673,25 +701,30 @@ class _PagesPageState extends State<PagesPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildStatusBadge(page.status),
+                          _buildStatusBadge(l10n, page.status),
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.visibility_outlined,
-                                    size: 18),
+                                icon: const Icon(
+                                  Icons.visibility_outlined,
+                                  size: 18,
+                                ),
                                 onPressed: () => _previewPage(page),
-                                tooltip: 'Read / Preview Page',
+                                tooltip: l10n.readPreviewTooltip,
                               ),
                               IconButton(
                                 icon: const Icon(Icons.edit_outlined, size: 18),
                                 onPressed: () => _showAddEditDialog(page),
-                                tooltip: 'Edit',
+                                tooltip: l10n.actionEdit,
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete_outline, size: 18),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  size: 18,
+                                ),
                                 color: theme.colorScheme.error,
                                 onPressed: () => _deletePage(page),
-                                tooltip: 'Delete',
+                                tooltip: l10n.actionDelete,
                               ),
                             ],
                           ),

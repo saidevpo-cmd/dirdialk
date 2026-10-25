@@ -18,5 +18,11 @@ abstract class FormRepository {
 
   Future<Result<void>> delete(String id);
 
+  /// Records a submission for a published form.
+  ///
+  /// The database owns the submission counter trigger and enforces the
+  /// published-only insert policy, so callers must not mutate counters locally.
+  Future<Result<void>> submit(String formId, Map<String, dynamic> payload);
+
   Future<Result<Map<String, dynamic>>> stats();
 }

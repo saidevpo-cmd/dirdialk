@@ -1679,4 +1679,263 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get trackingCancelled => 'Cette commande a été annulée.';
+
+  @override
+  String get openAction => 'Ouvrir';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get allTypes => 'Tous les types';
+
+  @override
+  String get categoriesLabel => 'Catégories';
+
+  @override
+  String fieldsCount(Object count) {
+    return '$count champs';
+  }
+
+  @override
+  String submissionsCountLabel(Object count) {
+    return '$count soumissions';
+  }
+
+  @override
+  String get formsPageTitle => 'Générateur de formulaires';
+
+  @override
+  String get formsPageSubtitle =>
+      'Concevez des formulaires de contact, questionnaires et enquêtes.';
+
+  @override
+  String get createFormAction => 'Créer un formulaire';
+
+  @override
+  String get editFormTitle => 'Modifier le formulaire';
+
+  @override
+  String get formTitleLabel => 'Titre du formulaire';
+
+  @override
+  String get formSlugLabel => 'Slug URL (ex. contact-us)';
+
+  @override
+  String get formStatusLabel => 'Statut du formulaire';
+
+  @override
+  String get formDescriptionLabel => 'Description';
+
+  @override
+  String get formNameField => 'Nom complet';
+
+  @override
+  String get formEmailField => 'Adresse e-mail';
+
+  @override
+  String get formMessageField => 'Message / demande';
+
+  @override
+  String get formNamePlaceholder => 'Votre nom';
+
+  @override
+  String get formEmailPlaceholder => 'vous@entreprise.com';
+
+  @override
+  String get formMessagePlaceholder => 'Comment pouvons-nous vous aider ?';
+
+  @override
+  String get formTitleRequired => 'Le titre du formulaire est requis.';
+
+  @override
+  String get formUnpublishedHint =>
+      'Publiez ce formulaire avant d\'envoyer un test.';
+
+  @override
+  String get selectOptionLabel => 'Sélectionnez une option';
+
+  @override
+  String get submitFormAction => 'Envoyer le formulaire';
+
+  @override
+  String get formSubmittedMessage => 'Formulaire envoyé avec succès.';
+
+  @override
+  String get formCreated => 'Formulaire créé.';
+
+  @override
+  String get formUpdated => 'Formulaire mis à jour.';
+
+  @override
+  String get formDeleted => 'Formulaire supprimé.';
+
+  @override
+  String get totalForms => 'Total des formulaires';
+
+  @override
+  String get activePublished => 'Actifs et publiés';
+
+  @override
+  String get totalSubmissions => 'Total des soumissions';
+
+  @override
+  String get searchFormsHint =>
+      'Rechercher des formulaires par titre ou slug...';
+
+  @override
+  String get noFormsTitle => 'Aucun formulaire créé';
+
+  @override
+  String get noFormsMessage =>
+      'Créez un nouveau formulaire pour recueillir des soumissions.';
+
+  @override
+  String get previewFormTooltip => 'Aperçu / tester le formulaire';
+
+  @override
+  String get colFields => 'Champs';
+
+  @override
+  String get directoryTitle => 'Annuaire d\'affaires';
+
+  @override
+  String get directorySubtitle =>
+      'Organisez vos partenaires, fournisseurs et lieux avec leurs coordonnées.';
+
+  @override
+  String get addEntryAction => 'Ajouter une entrée';
+
+  @override
+  String get editEntryTitle => 'Modifier l\'entrée';
+
+  @override
+  String get entryNameLabel => 'Nom de l\'entreprise / entrée';
+
+  @override
+  String get entryNameHint => 'ex. Restaurant, Fournisseur';
+
+  @override
+  String get entryTypeLabel => 'Type';
+
+  @override
+  String get entryWebsiteLabel => 'URL du site web';
+
+  @override
+  String get entryContactLabel => 'Contact (téléphone / e-mail)';
+
+  @override
+  String get entryLocationLabel => 'Lieu / adresse';
+
+  @override
+  String get publishedInDirectory => 'Publié dans l\'annuaire';
+
+  @override
+  String get entryNameRequired => 'Le nom de l\'entrée est requis.';
+
+  @override
+  String get totalEntries => 'Total des entrées';
+
+  @override
+  String get withContactLabel => 'Avec contact';
+
+  @override
+  String get searchDirectoryHint =>
+      'Rechercher par nom, catégorie ou contact...';
+
+  @override
+  String get noDirectoryTitle => 'Aucune entrée dans l\'annuaire';
+
+  @override
+  String get noDirectoryMessage =>
+      'Ajoutez un partenaire, fournisseur ou lieu pour créer votre annuaire.';
+
+  @override
+  String get viewLinkTooltip => 'Voir le lien';
+
+  @override
+  String get websiteLabel => 'Site web';
+
+  @override
+  String get pagesPageTitle => 'Pages CMS';
+
+  @override
+  String get pagesPageSubtitle =>
+      'Gérez les pages de politique, les conditions et le contenu du blog.';
+
+  @override
+  String get createPageAction => 'Créer une page';
+
+  @override
+  String get editPageTitle => 'Modifier la page';
+
+  @override
+  String get pageTitleLabel => 'Titre de la page';
+
+  @override
+  String get urlSlugLabel => 'Slug URL';
+
+  @override
+  String get shortExcerptLabel => 'Extrait court';
+
+  @override
+  String get excerptHint =>
+      'Un résumé d\'une ou deux phrases affiché dans les listes...';
+
+  @override
+  String get coverImageUrlLabel => 'URL de l\'image de couverture';
+
+  @override
+  String get pageBodyLabel => 'Contenu de la page';
+
+  @override
+  String get pageBodyHint => 'Rédigez du texte, du Markdown ou un article...';
+
+  @override
+  String get seoMetaTitleLabel => 'Titre SEO';
+
+  @override
+  String get seoMetaDescriptionLabel => 'Description SEO';
+
+  @override
+  String get pageTitleRequired => 'Le titre de la page est requis.';
+
+  @override
+  String get pageContentRequired => 'Le contenu de la page est requis.';
+
+  @override
+  String get pageSlugRequired => 'Un slug URL valide est requis.';
+
+  @override
+  String pageSlugInUse(Object slug) {
+    return 'Le slug \"/pages/$slug\" est déjà utilisé.';
+  }
+
+  @override
+  String get totalPages => 'Total des pages';
+
+  @override
+  String get draftsLabel => 'Brouillons';
+
+  @override
+  String get searchPagesHint => 'Rechercher des pages par titre ou contenu...';
+
+  @override
+  String get noPagesTitle => 'Aucune page CMS';
+
+  @override
+  String get noPagesMessage =>
+      'Créez une page pour publier du contenu sur votre vitrine.';
+
+  @override
+  String get readPreviewTooltip => 'Lire / prévisualiser la page';
+
+  @override
+  String get metaLabel => 'SEO';
+
+  @override
+  String get noContentYet => 'Aucun contenu ajouté.';
+
+  @override
+  String get colSeoTitle => 'Titre SEO';
 }

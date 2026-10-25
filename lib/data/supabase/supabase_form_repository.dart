@@ -82,6 +82,16 @@ class SupabaseFormRepository implements FormRepository {
   }
 
   @override
+  Future<Result<void>> submit(String formId, Map<String, dynamic> payload) {
+    return guard(() async {
+      await AppSupabase.client.from('form_submissions').insert({
+        'form_id': formId,
+        'payload': payload,
+      });
+    });
+  }
+
+  @override
   Future<Result<Map<String, dynamic>>> stats() {
     return guard(() async {
       final rows = await AppSupabase.client

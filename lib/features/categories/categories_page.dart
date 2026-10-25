@@ -36,6 +36,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   List<Category> _categories = [];
   Map<String, dynamic> _stats = {};
   Map<String, int> _productCounts = {};
+  String _currencySymbol = r'$';
 
   String? _selectedCategoryId;
   List<Product> _selectedProducts = [];
@@ -62,6 +63,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
     final statsRes = await _repo.stats();
     if (statsRes is Success<Map<String, dynamic>>) {
       _stats = statsRes.data;
+    }
+
+    final currencyRes = await AppRepositories.instance.siteSettings
+        .currencySymbol();
+    if (currencyRes is Success<String> && currencyRes.data.trim().isNotEmpty) {
+      _currencySymbol = currencyRes.data.trim();
     }
 
     final productsRes = await _productRepo.list(limit: 1000);
@@ -121,7 +128,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
   void _openProduct(Product product) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => ProductDetailsPage(product: product),
+        builder: (_) => ProductDetailsPage(
+          product: product,
+          currencySymbol: _currencySymbol,
+        ),
       ),
     );
   }
@@ -157,7 +167,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       CategoryImageField(
                         key: const Key('category-image-field'),
                         imageRef: imageRef,
-                        onChanged: (ref) => setDialogState(() => imageRef = ref),
+                        onChanged: (ref) =>
+                            setDialogState(() => imageRef = ref),
                       ),
                       const Divider(height: 24),
                       TextField(
@@ -204,7 +215,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   onPressed: () async {
                     final name = nameCtrl.text.trim();
                     if (name.isEmpty) {
-                      setDialogState(() => nameError = l10n.categoryNameRequired);
+                      setDialogState(
+                        () => nameError = l10n.categoryNameRequired,
+                      );
                       return;
                     }
 
@@ -214,21 +227,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
                     final Result<Category> result;
                     if (isEditing) {
-                      result = await _repo.update(category.copyWith(
-                        name: name,
-                        slug: slug,
-                        description: descCtrl.text.trim(),
-                        imageUrl: imageRef ?? '',
-                      ));
+                      result = await _repo.update(
+                        category.copyWith(
+                          name: name,
+                          slug: slug,
+                          description: descCtrl.text.trim(),
+                          imageUrl: imageRef ?? '',
+                        ),
+                      );
                     } else {
-                      result = await _repo.create(Category(
-                        id: IdGen.uuid(),
-                        name: name,
-                        slug: slug,
-                        description: descCtrl.text.trim(),
-                        imageUrl: imageRef,
-                        createdAt: DateTime.now(),
-                      ));
+                      result = await _repo.create(
+                        Category(
+                          id: IdGen.uuid(),
+                          name: name,
+                          slug: slug,
+                          description: descCtrl.text.trim(),
+                          imageUrl: imageRef,
+                          createdAt: DateTime.now(),
+                        ),
+                      );
                     }
 
                     if (!dialogCtx.mounted) return;
@@ -239,7 +256,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     }
                     Navigator.of(dialogCtx).pop(true);
                   },
-                  child: Text(isEditing ? l10n.actionConfirm : l10n.addCategory),
+                  child: Text(
+                    isEditing ? l10n.actionConfirm : l10n.addCategory,
+                  ),
                 ),
               ],
             );
@@ -298,14 +317,19 @@ class _CategoriesPageState extends State<CategoriesPage> {
     if (confirmed != true) return;
 
     if (referencing > 0) {
-      final productsRes = await _productRepo.list(categoryId: category.id, limit: 1000);
+      final productsRes = await _productRepo.list(
+        categoryId: category.id,
+        limit: 1000,
+      );
       if (productsRes is Success) {
         for (final p in (productsRes as Success).data.items as List<Product>) {
-          final reassign = await _productRepo.update(p.copyWith(
-            categoryId: null,
-            categoryName: l10n.uncategorized,
-            updatedAt: DateTime.now(),
-          ));
+          final reassign = await _productRepo.update(
+            p.copyWith(
+              categoryId: null,
+              categoryName: l10n.uncategorized,
+              updatedAt: DateTime.now(),
+            ),
+          );
           if (reassign is Failure) {
             if (!mounted) return;
             AppFeedback.error(context, (reassign as Failure).error);
@@ -356,7 +380,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l10n.navCategories, style: theme.textTheme.headlineMedium),
+                      Text(
+                        l10n.navCategories,
+                        style: theme.textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         l10n.categoriesSubtitle,
@@ -448,7 +475,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 TableColumnDef(label: l10n.colSlug.toUpperCase(), flex: 2),
                 TableColumnDef(label: l10n.colProducts.toUpperCase(), flex: 2),
                 TableColumnDef(
-                    label: l10n.colDescription.toUpperCase(), flex: 3),
+                  label: l10n.colDescription.toUpperCase(),
+                  flex: 3,
+                ),
                 TableColumnDef(
                   label: l10n.colActions.toUpperCase(),
                   flex: 2,
@@ -520,15 +549,23 @@ class _CategoriesPageState extends State<CategoriesPage> {
                               ),
                             ),
                           ),
-                          Text(l10n.catProductCount(count),
-                              style: theme.textTheme.bodySmall),
+                          Text(
+                            l10n.catProductCount(count),
+                            style: theme.textTheme.bodySmall,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text('/${category.slug}', style: theme.textTheme.bodySmall),
+                      Text(
+                        '/${category.slug}',
+                        style: theme.textTheme.bodySmall,
+                      ),
                       if (category.description?.isNotEmpty == true) ...[
                         const SizedBox(height: 4),
-                        Text(category.description!, style: theme.textTheme.bodySmall),
+                        Text(
+                          category.description!,
+                          style: theme.textTheme.bodySmall,
+                        ),
                       ],
                       const Divider(height: 16),
                       Row(
@@ -706,7 +743,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                   ),
                                 ),
                                 Text(
-                                  '\$${product.price.toStringAsFixed(2)}',
+                                  '$_currencySymbol${product.price.toStringAsFixed(2)}',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.colorScheme.primary,
                                     fontWeight: FontWeight.bold,

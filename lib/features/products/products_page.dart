@@ -35,6 +35,7 @@ class _ProductsPageState extends State<ProductsPage> {
   List<Product> _products = [];
   List<Category> _categories = [];
   Map<String, dynamic> _stats = {};
+  String _currencySymbol = r'$';
 
   String? _selectedCategory;
   ProductStatus? _selectedStatus;
@@ -67,6 +68,12 @@ class _ProductsPageState extends State<ProductsPage> {
       _stats = statsRes.data;
     }
 
+    final currencyRes = await AppRepositories.instance.siteSettings
+        .currencySymbol();
+    if (currencyRes is Success<String> && currencyRes.data.trim().isNotEmpty) {
+      _currencySymbol = currencyRes.data.trim();
+    }
+
     await _fetchProducts();
   }
 
@@ -92,7 +99,10 @@ class _ProductsPageState extends State<ProductsPage> {
   void _openDetails(Product product) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => ProductDetailsPage(product: product),
+        builder: (_) => ProductDetailsPage(
+          product: product,
+          currencySymbol: _currencySymbol,
+        ),
       ),
     );
   }
@@ -103,15 +113,19 @@ class _ProductsPageState extends State<ProductsPage> {
     final nameCtrl = TextEditingController(text: product?.name ?? '');
     final skuCtrl = TextEditingController(text: product?.sku ?? '');
     final priceCtrl = TextEditingController(
-        text: product != null ? product.price.toString() : '');
+      text: product != null ? product.price.toString() : '',
+    );
     final costCtrl = TextEditingController(
-        text: product?.costPrice != null ? product!.costPrice.toString() : '');
+      text: product?.costPrice != null ? product!.costPrice.toString() : '',
+    );
     final stockCtrl = TextEditingController(
-        text: product != null ? product.stockQty.toString() : '10');
+      text: product != null ? product.stockQty.toString() : '10',
+    );
     final descCtrl = TextEditingController(text: product?.description ?? '');
 
     String? nameError;
-    String? categoryId = product?.categoryId ??
+    String? categoryId =
+        product?.categoryId ??
         (_categories.isNotEmpty ? _categories.first.id : null);
     ProductStatus status = product?.status ?? ProductStatus.active;
     List<String> images = [...?product?.images];
@@ -134,7 +148,8 @@ class _ProductsPageState extends State<ProductsPage> {
                       ProductImageManager(
                         key: const Key('product-image-manager'),
                         images: images,
-                        onChanged: (next) => setDialogState(() => images = next),
+                        onChanged: (next) =>
+                            setDialogState(() => images = next),
                       ),
                       const Divider(height: 28),
                       TextField(
@@ -175,7 +190,8 @@ class _ProductsPageState extends State<ProductsPage> {
                                   ),
                                 );
                               }).toList(),
-                              onChanged: (v) => setDialogState(() => categoryId = v),
+                              onChanged: (v) =>
+                                  setDialogState(() => categoryId = v),
                             ),
                           ),
                         ],
@@ -187,7 +203,9 @@ class _ProductsPageState extends State<ProductsPage> {
                             child: TextField(
                               controller: priceCtrl,
                               keyboardType:
-                                  const TextInputType.numberWithOptions(decimal: true),
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
                               decoration: InputDecoration(
                                 labelText: l10n.productPriceLabel,
                                 border: const OutlineInputBorder(),
@@ -199,7 +217,9 @@ class _ProductsPageState extends State<ProductsPage> {
                             child: TextField(
                               controller: costCtrl,
                               keyboardType:
-                                  const TextInputType.numberWithOptions(decimal: true),
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
                               decoration: InputDecoration(
                                 labelText: l10n.productCostLabel,
                                 border: const OutlineInputBorder(),
@@ -263,7 +283,9 @@ class _ProductsPageState extends State<ProductsPage> {
                 FilledButton(
                   onPressed: () async {
                     if (nameCtrl.text.trim().isEmpty) {
-                      setDialogState(() => nameError = l10n.productNameRequired);
+                      setDialogState(
+                        () => nameError = l10n.productNameRequired,
+                      );
                       return;
                     }
                     final price = double.tryParse(priceCtrl.text) ?? 0.0;
@@ -336,9 +358,7 @@ class _ProductsPageState extends State<ProductsPage> {
                         if (!mounted) return;
                         AppFeedback.success(
                           this.context,
-                          isEditing
-                              ? l10n.productUpdated
-                              : l10n.productCreated,
+                          isEditing ? l10n.productUpdated : l10n.productCreated,
                         );
                         _loadData();
                       case Failure(:final error):
@@ -462,10 +482,7 @@ class _ProductsPageState extends State<ProductsPage> {
     final width = MediaQuery.sizeOf(context).width;
 
     if (_errorMessage != null) {
-      return ErrorStateView(
-        message: _errorMessage!,
-        onRetry: _loadData,
-      );
+      return ErrorStateView(message: _errorMessage!, onRetry: _loadData);
     }
 
     final totalProds = _stats['totalProducts']?.toString() ?? '—';
@@ -488,7 +505,10 @@ class _ProductsPageState extends State<ProductsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l10n.navProducts, style: theme.textTheme.headlineMedium),
+                      Text(
+                        l10n.navProducts,
+                        style: theme.textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         l10n.productsSubtitle,
@@ -568,10 +588,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       child: Text(l10n.allCategories),
                     ),
                     ..._categories.map(
-                      (c) => DropdownMenuItem(
-                        value: c.id,
-                        child: Text(c.name),
-                      ),
+                      (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
                     ),
                   ],
                   onChanged: (cat) {
@@ -631,7 +648,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   _productIdentity(product, theme),
                   Text(product.categoryName ?? '—'),
                   Text(
-                    '\$${product.price.toStringAsFixed(2)}',
+                    '$_currencySymbol${product.price.toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   Row(
@@ -699,8 +716,8 @@ class _ProductsPageState extends State<ProductsPage> {
                                         product.name,
                                         style: theme.textTheme.titleSmall
                                             ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       ),
                                     ),
                                     _buildStatusBadge(l10n, product.status),
@@ -713,17 +730,20 @@ class _ProductsPageState extends State<ProductsPage> {
                                   children: [
                                     Text(
                                       product.categoryName ?? '—',
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme
-                                            .colorScheme.onSurfaceVariant,
-                                      ),
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            color: theme
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                          ),
                                     ),
                                     Text(
-                                      '\$${product.price.toStringAsFixed(2)}',
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: theme.colorScheme.primary,
-                                      ),
+                                      '$_currencySymbol${product.price.toStringAsFixed(2)}',
+                                      style: theme.textTheme.titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: theme.colorScheme.primary,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -742,8 +762,10 @@ class _ProductsPageState extends State<ProductsPage> {
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.visibility_outlined,
-                                    size: 18),
+                                icon: const Icon(
+                                  Icons.visibility_outlined,
+                                  size: 18,
+                                ),
                                 onPressed: () => _openDetails(product),
                                 tooltip: l10n.actionView,
                               ),
@@ -753,7 +775,10 @@ class _ProductsPageState extends State<ProductsPage> {
                                 tooltip: l10n.actionEdit,
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete_outline, size: 18),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  size: 18,
+                                ),
                                 color: theme.colorScheme.error,
                                 onPressed: () => _deleteProduct(product),
                                 tooltip: l10n.actionDelete,

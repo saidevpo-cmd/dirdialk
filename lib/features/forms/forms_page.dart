@@ -4,6 +4,7 @@ import '../../core/design_system/app_spacing.dart';
 import '../../data/app_repositories.dart';
 import '../../domain/models/app_error.dart';
 import '../../domain/models/form_definition.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
 import '../../shared/utils/id_gen.dart';
@@ -26,7 +27,7 @@ class _FormsPageState extends State<FormsPage> {
   final _repo = AppRepositories.instance.forms;
 
   bool _isLoading = true;
-  String? _errorMessage;
+  bool _loadFailed = false;
   List<FormDefinition> _forms = [];
   Map<String, dynamic> _stats = {};
   FormStatus? _selectedStatus;
@@ -46,7 +47,7 @@ class _FormsPageState extends State<FormsPage> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _loadFailed = false;
     });
 
     final statsRes = await _repo.stats();
@@ -70,143 +71,56 @@ class _FormsPageState extends State<FormsPage> {
       if (res is Success) {
         _forms = (res as Success).data.items;
       } else {
-        _errorMessage = 'Failed to load forms';
+        _loadFailed = true;
       }
     });
   }
 
-  Widget _buildStatusBadge(FormStatus status) {
+  String _statusLabel(AppLocalizations l10n, FormStatus status) {
     switch (status) {
       case FormStatus.published:
-        return StatusBadge.success(label: 'Published');
+        return l10n.statusPublished;
       case FormStatus.draft:
-        return StatusBadge.warning(label: 'Draft');
+        return l10n.statusDraft;
       case FormStatus.archived:
-        return StatusBadge.neutral(label: 'Archived');
+        return l10n.statusArchived;
     }
   }
 
-  void _previewForm(FormDefinition form) {
-    showDialog<void>(
+  Widget _buildStatusBadge(AppLocalizations l10n, FormStatus status) {
+    final label = _statusLabel(l10n, status);
+    switch (status) {
+      case FormStatus.published:
+        return StatusBadge.success(label: label);
+      case FormStatus.draft:
+        return StatusBadge.warning(label: label);
+      case FormStatus.archived:
+        return StatusBadge.neutral(label: label);
+    }
+  }
+
+  Future<void> _previewForm(FormDefinition form) async {
+    final submitted = await showDialog<bool>(
       context: context,
-      builder: (ctx) {
-        final theme = Theme.of(ctx);
-        return AlertDialog(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(form.title),
-              _buildStatusBadge(form.status),
-            ],
-          ),
-          content: SizedBox(
-            width: dialogContentWidth(ctx, 500),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (form.description != null) ...[
-                    Text(
-                      form.description!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const Divider(height: 24),
-                  ],
-                  ...form.fields.map((f) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${f.label} ${f.required ? '*' : ''}',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 4),
-                          if (f.type == FieldType.select)
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                hintText: f.placeholder ?? 'Select option',
-                                border: const OutlineInputBorder(),
-                                isDense: true,
-                              ),
-                              items: f.options.map((opt) {
-                                return DropdownMenuItem(
-                                  value: opt,
-                                  child: Text(opt),
-                                );
-                              }).toList(),
-                              onChanged: (_) {},
-                            )
-                          else if (f.type == FieldType.checkbox)
-                            CheckboxListTile(
-                              title: Text(f.placeholder ?? f.label),
-                              value: false,
-                              contentPadding: EdgeInsets.zero,
-                              onChanged: (_) {},
-                            )
-                          else
-                            TextField(
-                              maxLines: f.type == FieldType.textarea ? 3 : 1,
-                              keyboardType: f.type == FieldType.email
-                                  ? TextInputType.emailAddress
-                                  : (f.type == FieldType.number
-                                      ? TextInputType.number
-                                      : TextInputType.text),
-                              decoration: InputDecoration(
-                                hintText: f.placeholder,
-                                border: const OutlineInputBorder(),
-                                isDense: true,
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Close'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                // Simulate form submission
-                final updated = form.copyWith(
-                  submissionsCount: form.submissionsCount + 1,
-                );
-                final result = await _repo.update(updated);
-                if (!mounted) return;
-                if (result is Success) {
-                  if (ctx.mounted) {
-                    Navigator.of(ctx).pop();
-                  }
-                  AppFeedback.success(context, 'Form submitted successfully!');
-                  _loadData();
-                } else {
-                  AppFeedback.error(context, (result as Failure).error);
-                }
-              },
-              child: const Text('Submit Form'),
-            ),
-          ],
-        );
-      },
+      builder: (ctx) => _FormPreviewDialog(form: form),
     );
+    if (submitted == true && mounted) {
+      AppFeedback.success(
+        context,
+        AppLocalizations.of(context)!.formSubmittedMessage,
+      );
+      _loadData();
+    }
   }
 
   void _showAddEditDialog([FormDefinition? form]) {
+    final l10n = AppLocalizations.of(context)!;
     final isEditing = form != null;
     final titleCtrl = TextEditingController(text: form?.title ?? '');
     final slugCtrl = TextEditingController(text: form?.slug ?? '');
     final descCtrl = TextEditingController(text: form?.description ?? '');
     FormStatus status = form?.status ?? FormStatus.published;
+    String? titleError;
 
     showDialog<void>(
       context: context,
@@ -214,7 +128,9 @@ class _FormsPageState extends State<FormsPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text(isEditing ? 'Edit Form' : 'Create Custom Form'),
+              title: Text(
+                isEditing ? l10n.editFormTitle : l10n.createFormAction,
+              ),
               content: SizedBox(
                 width: dialogContentWidth(context, 480),
                 child: Column(
@@ -222,37 +138,42 @@ class _FormsPageState extends State<FormsPage> {
                   children: [
                     TextField(
                       controller: titleCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Form Title *',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: '${l10n.formTitleLabel} *',
+                        errorText: titleError,
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (val) {
+                        if (titleError != null) {
+                          setDialogState(() => titleError = null);
+                        }
                         if (!isEditing && slugCtrl.text.isEmpty) {
-                          slugCtrl.text = val
-                              .toLowerCase()
-                              .replaceAll(RegExp(r'[^a-z0-9]+'), '-');
+                          slugCtrl.text = val.toLowerCase().replaceAll(
+                            RegExp(r'[^a-z0-9]+'),
+                            '-',
+                          );
                         }
                       },
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: slugCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Slug URL (e.g. contact-us) *',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.formSlugLabel,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<FormStatus>(
                       initialValue: status,
-                      decoration: const InputDecoration(
-                        labelText: 'Form Status',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.formStatusLabel,
+                        border: const OutlineInputBorder(),
                       ),
                       items: FormStatus.values.map((s) {
                         return DropdownMenuItem(
                           value: s,
-                          child: Text(s.name.toUpperCase()),
+                          child: Text(_statusLabel(l10n, s)),
                         );
                       }).toList(),
                       onChanged: (v) {
@@ -263,9 +184,9 @@ class _FormsPageState extends State<FormsPage> {
                     TextField(
                       controller: descCtrl,
                       maxLines: 2,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.formDescriptionLabel,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ],
@@ -274,14 +195,20 @@ class _FormsPageState extends State<FormsPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogCtx).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.actionCancel),
                 ),
                 FilledButton(
                   onPressed: () async {
-                    if (titleCtrl.text.trim().isEmpty) return;
+                    if (titleCtrl.text.trim().isEmpty) {
+                      setDialogState(() => titleError = l10n.formTitleRequired);
+                      return;
+                    }
                     final slug = slugCtrl.text.trim().isNotEmpty
                         ? slugCtrl.text.trim()
-                        : titleCtrl.text.trim().toLowerCase().replaceAll(' ', '-');
+                        : titleCtrl.text.trim().toLowerCase().replaceAll(
+                            RegExp(r'[^a-z0-9]+'),
+                            '-',
+                          );
 
                     final Result<FormDefinition> result;
                     if (isEditing) {
@@ -300,26 +227,26 @@ class _FormsPageState extends State<FormsPage> {
                         description: descCtrl.text.trim(),
                         status: status,
                         submissionsCount: 0,
-                        fields: const [
+                        fields: [
                           AppFormField(
                             id: 'f1',
                             type: FieldType.text,
-                            label: 'Full Name',
-                            placeholder: 'Your name',
+                            label: l10n.formNameField,
+                            placeholder: l10n.formNamePlaceholder,
                             required: true,
                           ),
                           AppFormField(
                             id: 'f2',
                             type: FieldType.email,
-                            label: 'Email Address',
-                            placeholder: 'you@company.com',
+                            label: l10n.formEmailField,
+                            placeholder: l10n.formEmailPlaceholder,
                             required: true,
                           ),
                           AppFormField(
                             id: 'f3',
                             type: FieldType.textarea,
-                            label: 'Message / Inquiry',
-                            placeholder: 'How can we help you?',
+                            label: l10n.formMessageField,
+                            placeholder: l10n.formMessagePlaceholder,
                             required: true,
                           ),
                         ],
@@ -335,7 +262,7 @@ class _FormsPageState extends State<FormsPage> {
                         Navigator.of(dialogCtx).pop();
                         AppFeedback.success(
                           dialogCtx,
-                          isEditing ? 'Form updated.' : 'Form created.',
+                          isEditing ? l10n.formUpdated : l10n.formCreated,
                         );
                       }
                       _loadData();
@@ -343,7 +270,7 @@ class _FormsPageState extends State<FormsPage> {
                       AppFeedback.error(dialogCtx, (result as Failure).error);
                     }
                   },
-                  child: Text(isEditing ? 'Save' : 'Create Form'),
+                  child: Text(isEditing ? l10n.actionSave : l10n.actionCreate),
                 ),
               ],
             );
@@ -354,21 +281,23 @@ class _FormsPageState extends State<FormsPage> {
   }
 
   Future<void> _deleteForm(FormDefinition form) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Form'),
-        content: Text('Are you sure you want to delete "${form.title}"?'),
+        title: Text(l10n.deleteDialogTitle(form.title)),
+        content: Text(l10n.deleteDialogBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error),
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),
@@ -377,11 +306,7 @@ class _FormsPageState extends State<FormsPage> {
     if (confirmed == true) {
       final result = await _repo.delete(form.id);
       if (!mounted) return;
-      AppFeedback.fromResult(
-        context,
-        result,
-        successMessage: 'Form deleted.',
-      );
+      AppFeedback.fromResult(context, result, successMessage: l10n.formDeleted);
       _loadData();
     }
   }
@@ -389,13 +314,11 @@ class _FormsPageState extends State<FormsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final width = MediaQuery.sizeOf(context).width;
 
-    if (_errorMessage != null) {
-      return ErrorStateView(
-        message: _errorMessage!,
-        onRetry: _loadData,
-      );
+    if (_loadFailed) {
+      return ErrorStateView(message: l10n.loadFailed, onRetry: _loadData);
     }
 
     final totalForms = _stats['totalForms']?.toString() ?? '—';
@@ -410,17 +333,19 @@ class _FormsPageState extends State<FormsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Page Header
             Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Forms Builder', style: theme.textTheme.headlineMedium),
+                      Text(
+                        l10n.formsPageTitle,
+                        style: theme.textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
-                        'Design lead capture forms, questionnaires, and survey funnels',
+                        l10n.formsPageSubtitle,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -431,13 +356,11 @@ class _FormsPageState extends State<FormsPage> {
                 FilledButton.icon(
                   onPressed: () => _showAddEditDialog(),
                   icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Create Form'),
+                  label: Text(l10n.createFormAction),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-
-            // Stat Cards
             LayoutBuilder(
               builder: (context, constraints) {
                 final isCompact = AppBreakpoints.isMobile(constraints.maxWidth);
@@ -452,18 +375,18 @@ class _FormsPageState extends State<FormsPage> {
                   ),
                   children: [
                     StatCard(
-                      label: 'Total Forms',
+                      label: l10n.totalForms,
                       value: totalForms,
                       icon: Icons.dynamic_form_outlined,
                     ),
                     StatCard(
-                      label: 'Active & Published',
+                      label: l10n.activePublished,
                       value: publishedForms,
                       icon: Icons.check_circle_outline,
                       iconColor: Colors.green,
                     ),
                     StatCard(
-                      label: 'Total Submissions',
+                      label: l10n.totalSubmissions,
                       value: totalSubmissions,
                       icon: Icons.mark_email_read_outlined,
                       iconColor: Colors.blue,
@@ -473,26 +396,24 @@ class _FormsPageState extends State<FormsPage> {
               },
             ),
             const SizedBox(height: AppSpacing.lg),
-
-            // Search & Filter
             SearchAndFilterBar(
               searchController: _searchController,
-              searchHint: 'Search forms by title or slug...',
+              searchHint: l10n.searchFormsHint,
               onSearchChanged: (_) => _fetchForms(),
               filterWidgets: [
                 DropdownButton<FormStatus?>(
                   value: _selectedStatus,
-                  hint: const Text('All Statuses'),
+                  hint: Text(l10n.allStatuses),
                   underline: const SizedBox.shrink(),
                   items: [
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                       value: null,
-                      child: Text('All Statuses'),
+                      child: Text(l10n.allStatuses),
                     ),
                     ...FormStatus.values.map(
                       (s) => DropdownMenuItem(
                         value: s,
-                        child: Text(s.name.toUpperCase()),
+                        child: Text(_statusLabel(l10n, s)),
                       ),
                     ),
                   ],
@@ -504,57 +425,60 @@ class _FormsPageState extends State<FormsPage> {
               ],
             ),
             const SizedBox(height: AppSpacing.md),
-
-            // Forms Table
             ResponsiveDataTable<FormDefinition>(
               items: _forms,
               isLoading: _isLoading,
-              emptyTitle: 'No forms created yet',
-              emptyMessage: 'Create a new form to collect customer submissions',
-              emptyActionLabel: 'Create Form',
+              emptyTitle: l10n.noFormsTitle,
+              emptyMessage: l10n.noFormsMessage,
+              emptyActionLabel: l10n.createFormAction,
               onEmptyAction: () => _showAddEditDialog(),
-              columns: const [
-                TableColumnDef(label: 'FORM TITLE', flex: 3),
-                TableColumnDef(label: 'SLUG URL', flex: 2),
-                TableColumnDef(label: 'FIELDS', flex: 2),
-                TableColumnDef(label: 'SUBMISSIONS', flex: 2),
-                TableColumnDef(label: 'STATUS', flex: 2),
+              columns: [
+                TableColumnDef(label: l10n.colTitle, flex: 3),
+                TableColumnDef(label: l10n.colSlug, flex: 2),
+                TableColumnDef(label: l10n.colFields, flex: 2),
+                TableColumnDef(label: l10n.colSubmissions, flex: 2),
+                TableColumnDef(label: l10n.colStatus, flex: 2),
                 TableColumnDef(
-                  label: 'ACTIONS',
+                  label: l10n.colActions,
                   flex: 3,
                   alignment: Alignment.centerRight,
                 ),
               ],
               rowBuilder: (context, form, index) {
                 return [
-                  Text(form.title,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                  Text('/forms/${form.slug}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.primary,
-                      )),
-                  Text('${form.fields.length} fields'),
+                  Text(
+                    form.title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    '/forms/${form.slug}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  Text(l10n.fieldsCount(form.fields.length)),
                   Text('${form.submissionsCount}'),
-                  _buildStatusBadge(form.status),
+                  _buildStatusBadge(l10n, form.status),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
+                        key: Key('preview-form-${form.id}'),
                         icon: const Icon(Icons.visibility_outlined, size: 18),
                         onPressed: () => _previewForm(form),
-                        tooltip: 'Preview / Test Form',
+                        tooltip: l10n.previewFormTooltip,
                       ),
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 18),
                         onPressed: () => _showAddEditDialog(form),
-                        tooltip: 'Edit',
+                        tooltip: l10n.actionEdit,
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete_outline, size: 18),
                         color: theme.colorScheme.error,
                         onPressed: () => _deleteForm(form),
-                        tooltip: 'Delete',
+                        tooltip: l10n.actionDelete,
                       ),
                     ],
                   ),
@@ -568,41 +492,58 @@ class _FormsPageState extends State<FormsPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(form.title,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold)),
-                          _buildStatusBadge(form.status),
+                          Flexible(
+                            child: Text(
+                              form.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          _buildStatusBadge(l10n, form.status),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text('/forms/${form.slug}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                          )),
+                      Text(
+                        '/forms/${form.slug}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
                       const Divider(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                              '${form.fields.length} fields • ${form.submissionsCount} submissions'),
+                          Flexible(
+                            child: Text(
+                              '${l10n.fieldsCount(form.fields.length)} • '
+                              '${l10n.submissionsCountLabel(form.submissionsCount)}',
+                            ),
+                          ),
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.visibility_outlined,
-                                    size: 18),
+                                key: Key('preview-form-${form.id}'),
+                                icon: const Icon(
+                                  Icons.visibility_outlined,
+                                  size: 18,
+                                ),
                                 onPressed: () => _previewForm(form),
-                                tooltip: 'Preview / Test Form',
+                                tooltip: l10n.previewFormTooltip,
                               ),
                               IconButton(
                                 icon: const Icon(Icons.edit_outlined, size: 18),
                                 onPressed: () => _showAddEditDialog(form),
-                                tooltip: 'Edit',
+                                tooltip: l10n.actionEdit,
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete_outline, size: 18),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  size: 18,
+                                ),
                                 color: theme.colorScheme.error,
                                 onPressed: () => _deleteForm(form),
-                                tooltip: 'Delete',
+                                tooltip: l10n.actionDelete,
                               ),
                             ],
                           ),
@@ -618,4 +559,278 @@ class _FormsPageState extends State<FormsPage> {
       ),
     );
   }
+}
+
+/// Test/preview dialog that submits through the repository instead of
+/// mutating the local submission count.
+class _FormPreviewDialog extends StatefulWidget {
+  const _FormPreviewDialog({required this.form});
+
+  final FormDefinition form;
+
+  @override
+  State<_FormPreviewDialog> createState() => _FormPreviewDialogState();
+}
+
+class _FormPreviewDialogState extends State<_FormPreviewDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final Map<String, TextEditingController> _controllers = {};
+  final Map<String, String?> _selectValues = {};
+  final Map<String, bool> _checkboxValues = {};
+  bool _isSubmitting = false;
+  String? _submitError;
+
+  @override
+  void initState() {
+    super.initState();
+    for (final field in widget.form.fields) {
+      if (field.type == FieldType.select) {
+        _selectValues[field.id] = null;
+      } else if (field.type == FieldType.checkbox) {
+        _checkboxValues[field.id] = false;
+      } else {
+        _controllers[field.id] = TextEditingController();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  String? _validate(AppLocalizations l10n, AppFormField field, String? value) {
+    final trimmed = value?.trim() ?? '';
+    if (field.required && trimmed.isEmpty) return l10n.fieldRequired;
+    if (trimmed.isEmpty) return null;
+    if (field.type == FieldType.email &&
+        !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(trimmed)) {
+      return l10n.loginEmailInvalid;
+    }
+    if (field.type == FieldType.number && double.tryParse(trimmed) == null) {
+      return l10n.fieldRequired;
+    }
+    return null;
+  }
+
+  Map<String, dynamic> _buildPayload() {
+    final payload = <String, dynamic>{};
+    for (final field in widget.form.fields) {
+      switch (field.type) {
+        case FieldType.select:
+          final value = _selectValues[field.id];
+          if (value != null) payload[field.id] = value;
+          break;
+        case FieldType.checkbox:
+          payload[field.id] = _checkboxValues[field.id] ?? false;
+          break;
+        default:
+          final value = _controllers[field.id]?.text.trim() ?? '';
+          if (value.isNotEmpty) payload[field.id] = value;
+      }
+    }
+    return payload;
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
+
+    final result = await AppRepositories.instance.forms.submit(
+      widget.form.id,
+      _buildPayload(),
+    );
+
+    if (!mounted) return;
+    if (result is Success) {
+      Navigator.of(context).pop(true);
+      return;
+    }
+    setState(() {
+      _isSubmitting = false;
+      _submitError = (result as Failure).error.message;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isPublished = widget.form.status == FormStatus.published;
+
+    return AlertDialog(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(child: Text(widget.form.title)),
+          const SizedBox(width: 12),
+          _statusBadge(l10n, widget.form.status),
+        ],
+      ),
+      content: SizedBox(
+        width: dialogContentWidth(context, 500),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.form.description != null) ...[
+                  Text(
+                    widget.form.description!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const Divider(height: 24),
+                ],
+                if (!isPublished) ...[
+                  Text(
+                    l10n.formUnpublishedHint,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                ...widget.form.fields.map(_buildField),
+                if (_submitError != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    _submitError!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          child: Text(l10n.actionClose),
+        ),
+        FilledButton(
+          onPressed: isPublished && !_isSubmitting ? _submit : null,
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(l10n.submitFormAction),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildField(AppFormField field) {
+    final l10n = AppLocalizations.of(context)!;
+    final label = '${field.label}${field.required ? ' *' : ''}';
+
+    if (field.type == FieldType.select) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: DropdownButtonFormField<String>(
+          initialValue: _selectValues[field.id],
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: field.placeholder ?? l10n.selectOptionLabel,
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+          items: field.options.map((opt) {
+            return DropdownMenuItem(value: opt, child: Text(opt));
+          }).toList(),
+          validator: (value) =>
+              field.required && value == null ? l10n.fieldRequired : null,
+          onChanged: (value) {
+            setState(() => _selectValues[field.id] = value);
+          },
+        ),
+      );
+    }
+
+    if (field.type == FieldType.checkbox) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: FormField<bool>(
+          initialValue: _checkboxValues[field.id] ?? false,
+          validator: (value) =>
+              field.required && value != true ? l10n.fieldRequired : null,
+          builder: (state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CheckboxListTile(
+                  title: Text(field.placeholder ?? label),
+                  value: _checkboxValues[field.id] ?? false,
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (value) {
+                    setState(() => _checkboxValues[field.id] = value ?? false);
+                    state.didChange(value);
+                  },
+                ),
+                if (state.hasError)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Text(
+                      state.errorText!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: _controllers[field.id],
+        maxLines: field.type == FieldType.textarea ? 3 : 1,
+        keyboardType: switch (field.type) {
+          FieldType.email => TextInputType.emailAddress,
+          FieldType.number => TextInputType.number,
+          FieldType.phone => TextInputType.phone,
+          _ => TextInputType.text,
+        },
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: field.placeholder,
+          border: const OutlineInputBorder(),
+          isDense: true,
+        ),
+        validator: (value) => _validate(l10n, field, value),
+      ),
+    );
+  }
+}
+
+Widget _statusBadge(AppLocalizations l10n, FormStatus status) {
+  final label = switch (status) {
+    FormStatus.published => l10n.statusPublished,
+    FormStatus.draft => l10n.statusDraft,
+    FormStatus.archived => l10n.statusArchived,
+  };
+  return switch (status) {
+    FormStatus.published => StatusBadge.success(label: label),
+    FormStatus.draft => StatusBadge.warning(label: label),
+    FormStatus.archived => StatusBadge.neutral(label: label),
+  };
 }

@@ -1663,4 +1663,261 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackingCancelled => 'This order was cancelled.';
+
+  @override
+  String get openAction => 'Open';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get allTypes => 'All types';
+
+  @override
+  String get categoriesLabel => 'Categories';
+
+  @override
+  String fieldsCount(Object count) {
+    return '$count fields';
+  }
+
+  @override
+  String submissionsCountLabel(Object count) {
+    return '$count submissions';
+  }
+
+  @override
+  String get formsPageTitle => 'Forms Builder';
+
+  @override
+  String get formsPageSubtitle =>
+      'Design lead-capture forms, questionnaires, and survey funnels.';
+
+  @override
+  String get createFormAction => 'Create form';
+
+  @override
+  String get editFormTitle => 'Edit form';
+
+  @override
+  String get formTitleLabel => 'Form title';
+
+  @override
+  String get formSlugLabel => 'Slug URL (e.g. contact-us)';
+
+  @override
+  String get formStatusLabel => 'Form status';
+
+  @override
+  String get formDescriptionLabel => 'Description';
+
+  @override
+  String get formNameField => 'Full name';
+
+  @override
+  String get formEmailField => 'Email address';
+
+  @override
+  String get formMessageField => 'Message / inquiry';
+
+  @override
+  String get formNamePlaceholder => 'Your name';
+
+  @override
+  String get formEmailPlaceholder => 'you@company.com';
+
+  @override
+  String get formMessagePlaceholder => 'How can we help you?';
+
+  @override
+  String get formTitleRequired => 'Form title is required.';
+
+  @override
+  String get formUnpublishedHint =>
+      'Publish this form before submitting a test entry.';
+
+  @override
+  String get selectOptionLabel => 'Select an option';
+
+  @override
+  String get submitFormAction => 'Submit form';
+
+  @override
+  String get formSubmittedMessage => 'Form submitted successfully.';
+
+  @override
+  String get formCreated => 'Form created.';
+
+  @override
+  String get formUpdated => 'Form updated.';
+
+  @override
+  String get formDeleted => 'Form deleted.';
+
+  @override
+  String get totalForms => 'Total forms';
+
+  @override
+  String get activePublished => 'Active & published';
+
+  @override
+  String get totalSubmissions => 'Total submissions';
+
+  @override
+  String get searchFormsHint => 'Search forms by title or slug...';
+
+  @override
+  String get noFormsTitle => 'No forms created yet';
+
+  @override
+  String get noFormsMessage =>
+      'Create a new form to start collecting customer submissions.';
+
+  @override
+  String get previewFormTooltip => 'Preview / test form';
+
+  @override
+  String get colFields => 'Fields';
+
+  @override
+  String get directoryTitle => 'Business directory';
+
+  @override
+  String get directorySubtitle =>
+      'Curate local partners, suppliers, and locations with contact details.';
+
+  @override
+  String get addEntryAction => 'Add entry';
+
+  @override
+  String get editEntryTitle => 'Edit directory entry';
+
+  @override
+  String get entryNameLabel => 'Business / entry name';
+
+  @override
+  String get entryNameHint => 'e.g. Restaurant, Supplier';
+
+  @override
+  String get entryTypeLabel => 'Type';
+
+  @override
+  String get entryWebsiteLabel => 'Website URL';
+
+  @override
+  String get entryContactLabel => 'Contact (phone / email)';
+
+  @override
+  String get entryLocationLabel => 'Location / address';
+
+  @override
+  String get publishedInDirectory => 'Published in directory';
+
+  @override
+  String get entryNameRequired => 'Entry name is required.';
+
+  @override
+  String get totalEntries => 'Total entries';
+
+  @override
+  String get withContactLabel => 'With contact';
+
+  @override
+  String get searchDirectoryHint =>
+      'Search directory by name, category, or contact...';
+
+  @override
+  String get noDirectoryTitle => 'No directory entries found';
+
+  @override
+  String get noDirectoryMessage =>
+      'Add a partner, supplier, or location to build your directory.';
+
+  @override
+  String get viewLinkTooltip => 'View link';
+
+  @override
+  String get websiteLabel => 'Website';
+
+  @override
+  String get pagesPageTitle => 'CMS pages';
+
+  @override
+  String get pagesPageSubtitle =>
+      'Manage public policy pages, company terms, and blog content.';
+
+  @override
+  String get createPageAction => 'Create page';
+
+  @override
+  String get editPageTitle => 'Edit page';
+
+  @override
+  String get pageTitleLabel => 'Page title';
+
+  @override
+  String get urlSlugLabel => 'URL slug';
+
+  @override
+  String get shortExcerptLabel => 'Short excerpt';
+
+  @override
+  String get excerptHint => 'A one or two sentence summary shown in lists...';
+
+  @override
+  String get coverImageUrlLabel => 'Cover image URL';
+
+  @override
+  String get pageBodyLabel => 'Page body content';
+
+  @override
+  String get pageBodyHint => 'Write text, markdown, or article content...';
+
+  @override
+  String get seoMetaTitleLabel => 'SEO meta title';
+
+  @override
+  String get seoMetaDescriptionLabel => 'SEO meta description';
+
+  @override
+  String get pageTitleRequired => 'Page title is required.';
+
+  @override
+  String get pageContentRequired => 'Page body content is required.';
+
+  @override
+  String get pageSlugRequired => 'A valid URL slug is required.';
+
+  @override
+  String pageSlugInUse(Object slug) {
+    return 'The slug \"/pages/$slug\" is already in use.';
+  }
+
+  @override
+  String get totalPages => 'Total pages';
+
+  @override
+  String get draftsLabel => 'Drafts';
+
+  @override
+  String get searchPagesHint => 'Search pages by title or content...';
+
+  @override
+  String get noPagesTitle => 'No CMS pages found';
+
+  @override
+  String get noPagesMessage =>
+      'Create a new page to publish content to your storefront.';
+
+  @override
+  String get readPreviewTooltip => 'Read / preview page';
+
+  @override
+  String get metaLabel => 'Meta';
+
+  @override
+  String get noContentYet => 'No content added yet.';
+
+  @override
+  String get colSeoTitle => 'SEO title';
 }

@@ -4,6 +4,7 @@ import '../../core/design_system/app_spacing.dart';
 import '../../data/app_repositories.dart';
 import '../../domain/models/app_error.dart';
 import '../../domain/models/resource.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
 import '../../shared/utils/id_gen.dart';
@@ -26,7 +27,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
   final _repo = AppRepositories.instance.resources;
 
   bool _isLoading = true;
-  String? _errorMessage;
+  bool _loadFailed = false;
   List<Resource> _all = [];
   List<Resource> _resources = [];
   ResourceType? _selectedType;
@@ -48,7 +49,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _loadFailed = false;
     });
 
     final res = await _repo.list(limit: 200);
@@ -60,7 +61,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
         _all = data.items;
         _applyFilters();
       } else {
-        _errorMessage = 'Failed to load directory';
+        _loadFailed = true;
       }
     });
   }
@@ -72,8 +73,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
       if (_selectedCategory != null && r.category != _selectedCategory) {
         return false;
       }
-      if (_selectedPublished != null &&
-          r.isPublished != _selectedPublished) {
+      if (_selectedPublished != null && r.isPublished != _selectedPublished) {
         return false;
       }
       if (query.isNotEmpty) {
@@ -104,19 +104,20 @@ class _ResourcesPageState extends State<ResourcesPage> {
   IconData _getResourceIcon(ResourceType type) {
     switch (type) {
       case ResourceType.document:
-        return Icons.storefront_outlined;
+        return Icons.description_outlined;
       case ResourceType.spreadsheet:
-        return Icons.point_of_sale_outlined;
+        return Icons.table_chart_outlined;
       case ResourceType.image:
-        return Icons.handshake_outlined;
+        return Icons.image_outlined;
       case ResourceType.folder:
-        return Icons.category_outlined;
+        return Icons.folder_outlined;
       case ResourceType.other:
-        return Icons.location_on_outlined;
+        return Icons.insert_drive_file_outlined;
     }
   }
 
   void _showLink(Resource resource) {
+    final l10n = AppLocalizations.of(context)!;
     if (!resource.hasLink) return;
     showDialog<void>(
       context: context,
@@ -127,17 +128,20 @@ class _ResourcesPageState extends State<ResourcesPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (resource.category != null)
-              Text('Category: ${resource.category}'),
+              Text('${l10n.colCategory}: ${resource.category}'),
             if (resource.contact != null) ...[
               const SizedBox(height: 4),
-              Text('Contact: ${resource.contact}'),
+              Text('${l10n.entryContactLabel}: ${resource.contact}'),
             ],
             if (resource.location != null) ...[
               const SizedBox(height: 4),
-              Text('Location: ${resource.location}'),
+              Text('${l10n.entryLocationLabel}: ${resource.location}'),
             ],
             const SizedBox(height: 12),
-            const Text('Website', style: TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              l10n.websiteLabel,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 4),
             SelectableText(resource.url!),
           ],
@@ -145,14 +149,15 @@ class _ResourcesPageState extends State<ResourcesPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Close'),
+            child: Text(l10n.actionClose),
           ),
         ],
       ),
     );
   }
 
-  void _showAddEditDialog([Resource? resource]) {
+  Future<void> _showAddEditDialog([Resource? resource]) async {
+    final l10n = AppLocalizations.of(context)!;
     final isEditing = resource != null;
     final nameCtrl = TextEditingController(text: resource?.name ?? '');
     final categoryCtrl = TextEditingController(text: resource?.category ?? '');
@@ -164,14 +169,14 @@ class _ResourcesPageState extends State<ResourcesPage> {
     bool isPublished = resource?.isPublished ?? false;
     String? errorText;
 
-    showDialog<void>(
+    final saved = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
               title: Text(
-                isEditing ? 'Edit Directory Entry' : 'Add Directory Entry',
+                isEditing ? l10n.editEntryTitle : l10n.addEntryAction,
               ),
               content: SizedBox(
                 width: dialogContentWidth(context, 520),
@@ -202,9 +207,9 @@ class _ResourcesPageState extends State<ResourcesPage> {
                       ],
                       TextField(
                         controller: nameCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Business / Entry Name *',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: '${l10n.entryNameLabel} *',
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -213,10 +218,10 @@ class _ResourcesPageState extends State<ResourcesPage> {
                           Expanded(
                             child: TextField(
                               controller: categoryCtrl,
-                              decoration: const InputDecoration(
-                                labelText: 'Category',
-                                hintText: 'e.g. Restaurant, Supplier',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: l10n.colCategory,
+                                hintText: l10n.entryNameHint,
+                                border: const OutlineInputBorder(),
                               ),
                             ),
                           ),
@@ -224,9 +229,9 @@ class _ResourcesPageState extends State<ResourcesPage> {
                           Expanded(
                             child: DropdownButtonFormField<ResourceType>(
                               initialValue: type,
-                              decoration: const InputDecoration(
-                                labelText: 'Type',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: l10n.entryTypeLabel,
+                                border: const OutlineInputBorder(),
                               ),
                               items: ResourceType.values.map((t) {
                                 return DropdownMenuItem(
@@ -245,18 +250,18 @@ class _ResourcesPageState extends State<ResourcesPage> {
                       TextField(
                         controller: descCtrl,
                         maxLines: 2,
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n.descriptionLabel,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: urlCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Website URL',
+                        decoration: InputDecoration(
+                          labelText: l10n.entryWebsiteLabel,
                           hintText: 'https://...',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -265,9 +270,9 @@ class _ResourcesPageState extends State<ResourcesPage> {
                           Expanded(
                             child: TextField(
                               controller: contactCtrl,
-                              decoration: const InputDecoration(
-                                labelText: 'Contact (phone / email)',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: l10n.entryContactLabel,
+                                border: const OutlineInputBorder(),
                               ),
                             ),
                           ),
@@ -275,9 +280,9 @@ class _ResourcesPageState extends State<ResourcesPage> {
                           Expanded(
                             child: TextField(
                               controller: locationCtrl,
-                              decoration: const InputDecoration(
-                                labelText: 'Location / Address',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: l10n.entryLocationLabel,
+                                border: const OutlineInputBorder(),
                               ),
                             ),
                           ),
@@ -286,10 +291,9 @@ class _ResourcesPageState extends State<ResourcesPage> {
                       const SizedBox(height: 8),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Published in directory'),
+                        title: Text(l10n.publishedInDirectory),
                         value: isPublished,
-                        onChanged: (v) =>
-                            setDialogState(() => isPublished = v),
+                        onChanged: (v) => setDialogState(() => isPublished = v),
                       ),
                     ],
                   ),
@@ -297,16 +301,14 @@ class _ResourcesPageState extends State<ResourcesPage> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(dialogCtx).pop(),
-                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.of(dialogCtx).pop(false),
+                  child: Text(l10n.actionCancel),
                 ),
                 FilledButton(
                   onPressed: () async {
                     final name = nameCtrl.text.trim();
                     if (name.isEmpty) {
-                      setDialogState(
-                        () => errorText = 'Entry name is required.',
-                      );
+                      setDialogState(() => errorText = l10n.entryNameRequired);
                       return;
                     }
 
@@ -336,8 +338,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
                           id: IdGen.uuid(),
                           name: name,
                           category: category.isEmpty ? null : category,
-                          description:
-                              description.isEmpty ? null : description,
+                          description: description.isEmpty ? null : description,
                           url: url.isEmpty ? null : url,
                           contact: contact.isEmpty ? null : contact,
                           location: location.isEmpty ? null : location,
@@ -356,11 +357,12 @@ class _ResourcesPageState extends State<ResourcesPage> {
                     }
 
                     if (dialogCtx.mounted) {
-                      Navigator.of(dialogCtx).pop();
+                      Navigator.of(dialogCtx).pop(true);
                     }
-                    _loadData();
                   },
-                  child: Text(isEditing ? 'Save' : 'Add Entry'),
+                  child: Text(
+                    isEditing ? l10n.actionSave : l10n.addEntryAction,
+                  ),
                 ),
               ],
             );
@@ -368,24 +370,31 @@ class _ResourcesPageState extends State<ResourcesPage> {
         );
       },
     );
+
+    if (saved == true && mounted) {
+      AppFeedback.success(context, l10n.saved);
+      _loadData();
+    }
   }
 
   Future<void> _deleteResource(Resource resource) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Entry'),
-        content: Text('Remove "${resource.name}" from the directory?'),
+        title: Text(l10n.deleteDialogTitle(resource.name)),
+        content: Text(l10n.deleteDialogBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error),
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),
@@ -397,7 +406,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
       AppFeedback.fromResult(
         context,
         result,
-        successMessage: 'Entry removed from the directory.',
+        successMessage: l10n.recordDeleted,
       );
       _loadData();
     }
@@ -406,13 +415,11 @@ class _ResourcesPageState extends State<ResourcesPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final width = MediaQuery.sizeOf(context).width;
 
-    if (_errorMessage != null) {
-      return ErrorStateView(
-        message: _errorMessage!,
-        onRetry: _loadData,
-      );
+    if (_loadFailed) {
+      return ErrorStateView(message: l10n.loadFailed, onRetry: _loadData);
     }
 
     final totalEntries = _all.length.toString();
@@ -437,11 +444,13 @@ class _ResourcesPageState extends State<ResourcesPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Business Directory',
-                          style: theme.textTheme.headlineMedium),
+                      Text(
+                        l10n.directoryTitle,
+                        style: theme.textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
-                        'Curate local partners, suppliers, and locations with contact details',
+                        l10n.directorySubtitle,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -452,7 +461,7 @@ class _ResourcesPageState extends State<ResourcesPage> {
                 FilledButton.icon(
                   onPressed: () => _showAddEditDialog(),
                   icon: const Icon(Icons.add_business_outlined, size: 20),
-                  label: const Text('Add Entry'),
+                  label: Text(l10n.addEntryAction),
                 ),
               ],
             ),
@@ -471,24 +480,24 @@ class _ResourcesPageState extends State<ResourcesPage> {
                   ),
                   children: [
                     StatCard(
-                      label: 'Total Entries',
+                      label: l10n.totalEntries,
                       value: totalEntries,
                       icon: Icons.storefront_outlined,
                     ),
                     StatCard(
-                      label: 'Published',
+                      label: l10n.statusPublished,
                       value: publishedCount,
                       icon: Icons.public,
                       iconColor: Colors.green,
                     ),
                     StatCard(
-                      label: 'Categories',
+                      label: l10n.categoriesLabel,
                       value: categoriesCount,
                       icon: Icons.category_outlined,
                       iconColor: Colors.blue,
                     ),
                     StatCard(
-                      label: 'With Contact',
+                      label: l10n.withContactLabel,
                       value: withContact,
                       icon: Icons.contact_phone_outlined,
                       iconColor: Colors.purple,
@@ -500,17 +509,17 @@ class _ResourcesPageState extends State<ResourcesPage> {
             const SizedBox(height: AppSpacing.lg),
             SearchAndFilterBar(
               searchController: _searchController,
-              searchHint: 'Search directory by name, category, or contact...',
+              searchHint: l10n.searchDirectoryHint,
               onSearchChanged: (_) => setState(_applyFilters),
               filterWidgets: [
                 DropdownButton<String?>(
                   value: _selectedCategory,
-                  hint: const Text('All Categories'),
+                  hint: Text(l10n.categoriesLabel),
                   underline: const SizedBox.shrink(),
                   items: [
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                       value: null,
-                      child: Text('All Categories'),
+                      child: Text(l10n.categoriesLabel),
                     ),
                     ..._categories.map(
                       (c) => DropdownMenuItem(value: c, child: Text(c)),
@@ -525,12 +534,21 @@ class _ResourcesPageState extends State<ResourcesPage> {
                 ),
                 DropdownButton<bool?>(
                   value: _selectedPublished,
-                  hint: const Text('All Statuses'),
+                  hint: Text(l10n.allStatuses),
                   underline: const SizedBox.shrink(),
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('All Statuses')),
-                    DropdownMenuItem(value: true, child: Text('Published')),
-                    DropdownMenuItem(value: false, child: Text('Hidden')),
+                  items: [
+                    DropdownMenuItem(
+                      value: null,
+                      child: Text(l10n.allStatuses),
+                    ),
+                    DropdownMenuItem(
+                      value: true,
+                      child: Text(l10n.statusPublished),
+                    ),
+                    DropdownMenuItem(
+                      value: false,
+                      child: Text(l10n.statusHidden),
+                    ),
                   ],
                   onChanged: (v) {
                     setState(() {
@@ -541,13 +559,10 @@ class _ResourcesPageState extends State<ResourcesPage> {
                 ),
                 DropdownButton<ResourceType?>(
                   value: _selectedType,
-                  hint: const Text('All Types'),
+                  hint: Text(l10n.allTypes),
                   underline: const SizedBox.shrink(),
                   items: [
-                    const DropdownMenuItem(
-                      value: null,
-                      child: Text('All Types'),
-                    ),
+                    DropdownMenuItem(value: null, child: Text(l10n.allTypes)),
                     ...ResourceType.values.map(
                       (t) => DropdownMenuItem(
                         value: t,
@@ -568,18 +583,17 @@ class _ResourcesPageState extends State<ResourcesPage> {
             ResponsiveDataTable<Resource>(
               items: _resources,
               isLoading: _isLoading,
-              emptyTitle: 'No directory entries found',
-              emptyMessage:
-                  'Add a partner, supplier, or location to build your directory',
-              emptyActionLabel: 'Add Entry',
+              emptyTitle: l10n.noDirectoryTitle,
+              emptyMessage: l10n.noDirectoryMessage,
+              emptyActionLabel: l10n.addEntryAction,
               onEmptyAction: () => _showAddEditDialog(),
-              columns: const [
-                TableColumnDef(label: 'NAME', flex: 4),
-                TableColumnDef(label: 'CATEGORY', flex: 2),
-                TableColumnDef(label: 'CONTACT', flex: 3),
-                TableColumnDef(label: 'STATUS', flex: 2),
+              columns: [
+                TableColumnDef(label: l10n.colName, flex: 4),
+                TableColumnDef(label: l10n.colCategory, flex: 2),
+                TableColumnDef(label: l10n.colContact, flex: 3),
+                TableColumnDef(label: l10n.colStatus, flex: 2),
                 TableColumnDef(
-                  label: 'ACTIONS',
+                  label: l10n.colActions,
                   flex: 3,
                   alignment: Alignment.centerRight,
                 ),
@@ -588,17 +602,23 @@ class _ResourcesPageState extends State<ResourcesPage> {
                 return [
                   Row(
                     children: [
-                      Icon(_getResourceIcon(res.type),
-                          size: 20, color: theme.colorScheme.primary),
+                      Icon(
+                        _getResourceIcon(res.type),
+                        size: 20,
+                        color: theme.colorScheme.primary,
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(res.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600)),
+                            Text(
+                              res.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             if (res.location != null &&
                                 res.location!.isNotEmpty)
                               Text(
@@ -621,8 +641,10 @@ class _ResourcesPageState extends State<ResourcesPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(res.contact ?? '—',
-                          style: theme.textTheme.bodySmall),
+                      Text(
+                        res.contact ?? '—',
+                        style: theme.textTheme.bodySmall,
+                      ),
                       if (res.url != null && res.url!.isNotEmpty)
                         Text(
                           res.url!,
@@ -635,8 +657,8 @@ class _ResourcesPageState extends State<ResourcesPage> {
                     ],
                   ),
                   res.isPublished
-                      ? StatusBadge.success(label: 'Published')
-                      : StatusBadge.warning(label: 'Hidden'),
+                      ? StatusBadge.success(label: l10n.statusPublished)
+                      : StatusBadge.warning(label: l10n.statusHidden),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -645,18 +667,18 @@ class _ResourcesPageState extends State<ResourcesPage> {
                         IconButton(
                           icon: const Icon(Icons.open_in_new, size: 18),
                           onPressed: () => _showLink(res),
-                          tooltip: 'View Link',
+                          tooltip: l10n.viewLinkTooltip,
                         ),
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 18),
                         onPressed: () => _showAddEditDialog(res),
-                        tooltip: 'Edit',
+                        tooltip: l10n.actionEdit,
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete_outline, size: 18),
                         color: theme.colorScheme.error,
                         onPressed: () => _deleteResource(res),
-                        tooltip: 'Delete',
+                        tooltip: l10n.actionDelete,
                       ),
                     ],
                   ),
@@ -669,29 +691,38 @@ class _ResourcesPageState extends State<ResourcesPage> {
                     children: [
                       Row(
                         children: [
-                          Icon(_getResourceIcon(res.type),
-                              size: 24, color: theme.colorScheme.primary),
+                          Icon(
+                            _getResourceIcon(res.type),
+                            size: 24,
+                            color: theme.colorScheme.primary,
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: Text(res.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
+                            child: Text(
+                              res.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                           res.isPublished
-                              ? StatusBadge.success(label: 'Published')
-                              : StatusBadge.warning(label: 'Hidden'),
+                              ? StatusBadge.success(label: l10n.statusPublished)
+                              : StatusBadge.warning(label: l10n.statusHidden),
                         ],
                       ),
                       const SizedBox(height: 8),
                       if (res.category != null)
-                        Text(res.category!,
-                            style: theme.textTheme.bodySmall),
+                        Text(res.category!, style: theme.textTheme.bodySmall),
                       if (res.contact != null)
-                        Text('Contact: ${res.contact}',
-                            style: theme.textTheme.bodySmall),
+                        Text(
+                          '${l10n.colContact}: ${res.contact}',
+                          style: theme.textTheme.bodySmall,
+                        ),
                       if (res.location != null)
-                        Text('Location: ${res.location}',
-                            style: theme.textTheme.bodySmall),
+                        Text(
+                          '${l10n.colLocation}: ${res.location}',
+                          style: theme.textTheme.bodySmall,
+                        ),
                       const Divider(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -700,18 +731,18 @@ class _ResourcesPageState extends State<ResourcesPage> {
                             IconButton(
                               icon: const Icon(Icons.open_in_new, size: 18),
                               onPressed: () => _showLink(res),
-                              tooltip: 'View Link',
+                              tooltip: l10n.viewLinkTooltip,
                             ),
                           IconButton(
                             icon: const Icon(Icons.edit_outlined, size: 18),
                             onPressed: () => _showAddEditDialog(res),
-                            tooltip: 'Edit',
+                            tooltip: l10n.actionEdit,
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete_outline, size: 18),
                             color: theme.colorScheme.error,
                             onPressed: () => _deleteResource(res),
-                            tooltip: 'Delete',
+                            tooltip: l10n.actionDelete,
                           ),
                         ],
                       ),

@@ -6,9 +6,9 @@ import 'mock_seed_data.dart';
 
 class MockFormRepository implements FormRepository {
   MockFormRepository({List<FormDefinition>? initialData})
-      : _forms = initialData != null
-            ? List<FormDefinition>.from(initialData)
-            : List<FormDefinition>.from(MockSeedData.forms);
+    : _forms = initialData != null
+          ? List<FormDefinition>.from(initialData)
+          : List<FormDefinition>.from(MockSeedData.forms);
 
   final List<FormDefinition> _forms;
 
@@ -89,11 +89,31 @@ class MockFormRepository implements FormRepository {
   }
 
   @override
+  Future<Result<void>> submit(
+    String formId,
+    Map<String, dynamic> payload,
+  ) async {
+    final index = _forms.indexWhere((f) => f.id == formId);
+    if (index == -1) return const Failure(AppError.notFound);
+    if (_forms[index].status != FormStatus.published) {
+      return Failure(AppError.validation('This form is not published.'));
+    }
+    _forms[index] = _forms[index].copyWith(
+      submissionsCount: _forms[index].submissionsCount + 1,
+      updatedAt: DateTime.now(),
+    );
+    return const Success(null);
+  }
+
+  @override
   Future<Result<Map<String, dynamic>>> stats() async {
-    final totalSubmissions =
-        _forms.fold<int>(0, (sum, f) => sum + f.submissionsCount);
-    final publishedCount =
-        _forms.where((f) => f.status == FormStatus.published).length;
+    final totalSubmissions = _forms.fold<int>(
+      0,
+      (sum, f) => sum + f.submissionsCount,
+    );
+    final publishedCount = _forms
+        .where((f) => f.status == FormStatus.published)
+        .length;
     return Success({
       'totalForms': _forms.length,
       'publishedForms': publishedCount,

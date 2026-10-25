@@ -7,7 +7,8 @@
 
 - Flutter SDK 3.47.x (Dart 3.13.x) — required for `flutter build web --release`.
 - A Supabase project (free tier is enough) → https://supabase.com/dashboard
-- A static host with SPA rewrites (Netlify / Vercel / Cloudflare Pages / Firebase Hosting).
+- A static host with SPA rewrites. This repository ships Firebase Hosting config for project
+  `diali-bus` (`firebase.json` + `.firebaserc`), but Netlify / Vercel / Cloudflare Pages also work.
 
 ## 1. Create and configure Supabase
 
@@ -77,6 +78,11 @@ Output: `build/web/`. Add a SPA fallback so deep links (`/products/123`, `/artic
   { "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
   ```
 - **Cloudflare Pages**: build `build/web`, add a `_redirects` file with `/* /index.html 200`.
+- **Firebase Hosting** (configured): `firebase deploy --only hosting --project diali-bus`.
+  `firebase.json` already contains the `** → /index.html` rewrite plus `nosniff`,
+  `X-Frame-Options: DENY`, referrer policy, permissions policy, and no-cache rules for
+  `index.html` / `flutter_service_worker.js`. It does **not** set a CSP yet; adding one must be
+  tested against Flutter's CanvasKit/WASM and Supabase Storage origins first.
 
 Deploy `build/web` to any of these. The host provides HTTPS automatically.
 
@@ -110,7 +116,28 @@ No third-party OAuth is configured, so no provider setup is required by default.
   rather than editing history; restore from a Supabase backup (Database → Backups) for data loss.
 - Never run destructive git commands; `build/web` is reproducible from source + the two defines.
 
-## 7. Environment separation
+## 6.1 CI and automated deployment
+
+`.github/workflows/ci.yml` runs on every push and pull request:
+
+1. `flutter pub get`
+2. `flutter analyze`
+3. `flutter test`
+4. `flutter build web --release` (mock/local configuration)
+5. uploads `build/web` as a CI artifact
+
+Manual production deployment is a separate `workflow_dispatch` job restricted to `main` and the
+`production` environment. It requires these GitHub secrets:
+
+| Secret | Purpose |
+|---|---|
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_ANON_KEY` | anon/publishable key — safe for the client |
+| `FIREBASE_SERVICE_ACCOUNT_DIALI_BUS` | Firebase Hosting deploy service account JSON |
+
+The **service-role key is never used by CI or the app**. If any secret is missing, the deploy job
+fails before building; it does not fall back to mock mode. The deploy has not been executed from
+this environment — verify CI and the first deployment in GitHub/Actions and Firebase.
 
 | Env | Supabase | Notes |
 |---|---|---|

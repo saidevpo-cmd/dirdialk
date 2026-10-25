@@ -45,16 +45,17 @@ class ImageService {
     ImagePicker? picker,
     ImageCropper? cropper,
     ImageStore? store,
-    this.maxBytes = 12 * 1024 * 1024,
-  })  : _picker = picker ?? ImagePicker(),
-        _cropper = cropper ?? ImageCropper(),
-        _store = store ?? AppImages.instance;
+    this.maxBytes = 10 * 1024 * 1024,
+  }) : _picker = picker ?? ImagePicker(),
+       _cropper = cropper ?? ImageCropper(),
+       _store = store ?? AppImages.instance;
 
   final ImagePicker _picker;
   final ImageCropper _cropper;
   final ImageStore _store;
 
-  /// Upper bound for a single stored image (12 MB by default).
+  /// Upper bound for a single stored image (10 MB by default, matching the
+  /// Supabase Storage bucket limit).
   final int maxBytes;
 
   /// Lets the user select an image from their device and optionally crop or
@@ -123,10 +124,7 @@ class ImageService {
             CropAspectRatioPreset.original,
           ],
         ),
-        IOSUiSettings(
-          title: 'Crop image',
-          aspectRatioLockEnabled: true,
-        ),
+        IOSUiSettings(title: 'Crop image', aspectRatioLockEnabled: true),
       ];
       if (kIsWeb && context.mounted) {
         uiSettings.add(WebUiSettings(context: context));

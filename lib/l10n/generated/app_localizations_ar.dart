@@ -234,7 +234,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get colUpdated => 'آخر تحديث';
 
   @override
-  String get colSubmissions => 'الإرسالات';
+  String get colSubmissions => 'المشاركات';
 
   @override
   String get colTitle => 'العنوان';
@@ -1641,4 +1641,259 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get trackingCancelled => 'تم إلغاء هذا الطلب.';
+
+  @override
+  String get openAction => 'فتح';
+
+  @override
+  String get descriptionLabel => 'الوصف';
+
+  @override
+  String get allTypes => 'كل الأنواع';
+
+  @override
+  String get categoriesLabel => 'الفئات';
+
+  @override
+  String fieldsCount(Object count) {
+    return '$count حقل';
+  }
+
+  @override
+  String submissionsCountLabel(Object count) {
+    return '$count مشاركة';
+  }
+
+  @override
+  String get formsPageTitle => 'منشئ النماذج';
+
+  @override
+  String get formsPageSubtitle =>
+      'صمّم نماذج جمع العملاء والاستبيانات ومسارات الاستطلاع.';
+
+  @override
+  String get createFormAction => 'إنشاء نموذج';
+
+  @override
+  String get editFormTitle => 'تعديل النموذج';
+
+  @override
+  String get formTitleLabel => 'عنوان النموذج';
+
+  @override
+  String get formSlugLabel => 'الرابط المختصر (مثل contact-us)';
+
+  @override
+  String get formStatusLabel => 'حالة النموذج';
+
+  @override
+  String get formDescriptionLabel => 'الوصف';
+
+  @override
+  String get formNameField => 'الاسم الكامل';
+
+  @override
+  String get formEmailField => 'البريد الإلكتروني';
+
+  @override
+  String get formMessageField => 'الرسالة / الاستفسار';
+
+  @override
+  String get formNamePlaceholder => 'اسمك';
+
+  @override
+  String get formEmailPlaceholder => 'you@company.com';
+
+  @override
+  String get formMessagePlaceholder => 'كيف يمكننا مساعدتك؟';
+
+  @override
+  String get formTitleRequired => 'عنوان النموذج مطلوب.';
+
+  @override
+  String get formUnpublishedHint => 'انشر النموذج قبل إرسال مشاركة تجريبية.';
+
+  @override
+  String get selectOptionLabel => 'اختر خيارًا';
+
+  @override
+  String get submitFormAction => 'إرسال النموذج';
+
+  @override
+  String get formSubmittedMessage => 'تم إرسال النموذج بنجاح.';
+
+  @override
+  String get formCreated => 'تم إنشاء النموذج.';
+
+  @override
+  String get formUpdated => 'تم تحديث النموذج.';
+
+  @override
+  String get formDeleted => 'تم حذف النموذج.';
+
+  @override
+  String get totalForms => 'إجمالي النماذج';
+
+  @override
+  String get activePublished => 'نشط ومنشور';
+
+  @override
+  String get totalSubmissions => 'إجمالي المشاركات';
+
+  @override
+  String get searchFormsHint => 'ابحث عن النماذج بالعنوان أو الرابط...';
+
+  @override
+  String get noFormsTitle => 'لا توجد نماذج بعد';
+
+  @override
+  String get noFormsMessage =>
+      'أنشئ نموذجًا جديدًا لبدء استقبال مشاركات العملاء.';
+
+  @override
+  String get previewFormTooltip => 'معاينة / اختبار النموذج';
+
+  @override
+  String get colFields => 'الحقول';
+
+  @override
+  String get directoryTitle => 'دليل الأعمال';
+
+  @override
+  String get directorySubtitle =>
+      'نسّق الشركاء والموردين والمواقع المحلية مع بيانات التواصل.';
+
+  @override
+  String get addEntryAction => 'إضافة سجل';
+
+  @override
+  String get editEntryTitle => 'تعديل سجل الدليل';
+
+  @override
+  String get entryNameLabel => 'اسم النشاط / السجل';
+
+  @override
+  String get entryNameHint => 'مثال: مطعم، مورد';
+
+  @override
+  String get entryTypeLabel => 'النوع';
+
+  @override
+  String get entryWebsiteLabel => 'رابط الموقع';
+
+  @override
+  String get entryContactLabel => 'التواصل (هاتف / بريد)';
+
+  @override
+  String get entryLocationLabel => 'الموقع / العنوان';
+
+  @override
+  String get publishedInDirectory => 'منشور في الدليل';
+
+  @override
+  String get entryNameRequired => 'اسم السجل مطلوب.';
+
+  @override
+  String get totalEntries => 'إجمالي السجلات';
+
+  @override
+  String get withContactLabel => 'مع بيانات تواصل';
+
+  @override
+  String get searchDirectoryHint =>
+      'ابحث في الدليل بالاسم أو الفئة أو التواصل...';
+
+  @override
+  String get noDirectoryTitle => 'لا توجد سجلات في الدليل';
+
+  @override
+  String get noDirectoryMessage =>
+      'أضف شريكًا أو موردًا أو موقعًا لبناء دليلك.';
+
+  @override
+  String get viewLinkTooltip => 'عرض الرابط';
+
+  @override
+  String get websiteLabel => 'الموقع الإلكتروني';
+
+  @override
+  String get pagesPageTitle => 'صفحات المحتوى';
+
+  @override
+  String get pagesPageSubtitle =>
+      'أدر صفحات السياسات العامة وشروط الشركة ومحتوى المدونة.';
+
+  @override
+  String get createPageAction => 'إنشاء صفحة';
+
+  @override
+  String get editPageTitle => 'تعديل الصفحة';
+
+  @override
+  String get pageTitleLabel => 'عنوان الصفحة';
+
+  @override
+  String get urlSlugLabel => 'الرابط المختصر';
+
+  @override
+  String get shortExcerptLabel => 'مقتطف قصير';
+
+  @override
+  String get excerptHint => 'ملخص من جملة أو جملتين يظهر في القوائم...';
+
+  @override
+  String get coverImageUrlLabel => 'رابط صورة الغلاف';
+
+  @override
+  String get pageBodyLabel => 'محتوى الصفحة';
+
+  @override
+  String get pageBodyHint => 'اكتب نصًا أو Markdown أو محتوى مقال...';
+
+  @override
+  String get seoMetaTitleLabel => 'عنوان SEO';
+
+  @override
+  String get seoMetaDescriptionLabel => 'وصف SEO';
+
+  @override
+  String get pageTitleRequired => 'عنوان الصفحة مطلوب.';
+
+  @override
+  String get pageContentRequired => 'محتوى الصفحة مطلوب.';
+
+  @override
+  String get pageSlugRequired => 'رابط مختصر صالح مطلوب.';
+
+  @override
+  String pageSlugInUse(Object slug) {
+    return 'الرابط \"/pages/$slug\" مستخدم بالفعل.';
+  }
+
+  @override
+  String get totalPages => 'إجمالي الصفحات';
+
+  @override
+  String get draftsLabel => 'المسودات';
+
+  @override
+  String get searchPagesHint => 'ابحث في الصفحات بالعنوان أو المحتوى...';
+
+  @override
+  String get noPagesTitle => 'لا توجد صفحات محتوى';
+
+  @override
+  String get noPagesMessage => 'أنشئ صفحة جديدة لنشر محتوى في متجرك.';
+
+  @override
+  String get readPreviewTooltip => 'قراءة / معاينة الصفحة';
+
+  @override
+  String get metaLabel => 'SEO';
+
+  @override
+  String get noContentYet => 'لم يُضف محتوى بعد.';
+
+  @override
+  String get colSeoTitle => 'عنوان SEO';
 }

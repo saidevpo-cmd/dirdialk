@@ -30,6 +30,7 @@ class _CustomersPageState extends State<CustomersPage> {
   String? _errorMessage;
   List<Customer> _customers = [];
   Map<String, dynamic> _stats = {};
+  String _currencySymbol = r'$';
   CustomerTier? _selectedTier;
 
   @override
@@ -53,6 +54,12 @@ class _CustomersPageState extends State<CustomersPage> {
     final statsRes = await _repo.stats();
     if (statsRes is Success<Map<String, dynamic>>) {
       _stats = statsRes.data;
+    }
+
+    final currencyRes = await AppRepositories.instance.siteSettings
+        .currencySymbol();
+    if (currencyRes is Success<String> && currencyRes.data.trim().isNotEmpty) {
+      _currencySymbol = currencyRes.data.trim();
     }
 
     await _fetchCustomers();
@@ -323,16 +330,13 @@ class _CustomersPageState extends State<CustomersPage> {
     final width = MediaQuery.sizeOf(context).width;
 
     if (_errorMessage != null) {
-      return ErrorStateView(
-        message: _errorMessage!,
-        onRetry: _loadData,
-      );
+      return ErrorStateView(message: _errorMessage!, onRetry: _loadData);
     }
 
     final totalCust = _stats['totalCustomers']?.toString() ?? '—';
     final vipCust = _stats['vipCustomers']?.toString() ?? '—';
     final totalSpent = _stats['totalSpentAll'] != null
-        ? '\$${(_stats['totalSpentAll'] as double).toStringAsFixed(2)}'
+        ? '$_currencySymbol${(_stats['totalSpentAll'] as double).toStringAsFixed(2)}'
         : '—';
 
     return SingleChildScrollView(
@@ -350,8 +354,10 @@ class _CustomersPageState extends State<CustomersPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l10n.navCustomers,
-                          style: theme.textTheme.headlineMedium),
+                      Text(
+                        l10n.navCustomers,
+                        style: theme.textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         l10n.customersSubtitle,
@@ -419,10 +425,7 @@ class _CustomersPageState extends State<CustomersPage> {
                   hint: Text(l10n.allTiers),
                   underline: const SizedBox.shrink(),
                   items: [
-                    DropdownMenuItem(
-                      value: null,
-                      child: Text(l10n.allTiers),
-                    ),
+                    DropdownMenuItem(value: null, child: Text(l10n.allTiers)),
                     ...CustomerTier.values.map(
                       (t) => DropdownMenuItem(
                         value: t,
@@ -501,16 +504,19 @@ class _CustomersPageState extends State<CustomersPage> {
                     ],
                   ),
                   Text(
-                    [customer.city, customer.country]
-                        .where((s) => s != null && s.isNotEmpty)
-                        .join(', '),
+                    [
+                      customer.city,
+                      customer.country,
+                    ].where((s) => s != null && s.isNotEmpty).join(', '),
                   ),
                   customer.tier == CustomerTier.vip
                       ? StatusBadge.warning(
-                          label: l10n.statusVip, icon: Icons.star)
+                          label: l10n.statusVip,
+                          icon: Icons.star,
+                        )
                       : StatusBadge.neutral(label: l10n.statusRegular),
                   Text(
-                    '\$${customer.totalSpent.toStringAsFixed(2)}',
+                    '$_currencySymbol${customer.totalSpent.toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   Row(
@@ -556,14 +562,18 @@ class _CustomersPageState extends State<CustomersPage> {
                                   ),
                                 ),
                                 if (customer.email != null)
-                                  Text(customer.email!,
-                                      style: theme.textTheme.bodySmall),
+                                  Text(
+                                    customer.email!,
+                                    style: theme.textTheme.bodySmall,
+                                  ),
                               ],
                             ),
                           ),
                           customer.tier == CustomerTier.vip
                               ? StatusBadge.warning(
-                                  label: l10n.statusVip, icon: Icons.star)
+                                  label: l10n.statusVip,
+                                  icon: Icons.star,
+                                )
                               : StatusBadge.neutral(label: l10n.statusRegular),
                         ],
                       ),
@@ -573,7 +583,7 @@ class _CustomersPageState extends State<CustomersPage> {
                         children: [
                           Expanded(
                             child: Text(
-                              '${l10n.spentLabel}: \$${customer.totalSpent.toStringAsFixed(2)}',
+                              '${l10n.spentLabel}: $_currencySymbol${customer.totalSpent.toStringAsFixed(2)}',
                             ),
                           ),
                           Row(
@@ -584,7 +594,10 @@ class _CustomersPageState extends State<CustomersPage> {
                                 tooltip: l10n.actionEdit,
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete_outline, size: 18),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  size: 18,
+                                ),
                                 color: theme.colorScheme.error,
                                 onPressed: () => _deleteCustomer(customer),
                                 tooltip: l10n.actionDelete,

@@ -32,6 +32,7 @@ class _OrdersPageState extends State<OrdersPage> {
 
   bool _isLoading = true;
   String? _errorMessage;
+  String _currencySymbol = r'$';
   List<Order> _orders = [];
   Map<String, dynamic> _stats = {};
   OrderStatus? _selectedStatus;
@@ -63,8 +64,16 @@ class _OrdersPageState extends State<OrdersPage> {
       _stats = statsRes.data;
     }
 
+    final currencyRes = await AppRepositories.instance.siteSettings
+        .currencySymbol();
+    if (currencyRes is Success<String> && currencyRes.data.trim().isNotEmpty) {
+      _currencySymbol = currencyRes.data.trim();
+    }
+
     await _fetchOrders();
   }
+
+  String _money(double value) => '$_currencySymbol${value.toStringAsFixed(2)}';
 
   Future<void> _fetchOrders() async {
     final res = await _repo.list(
@@ -119,18 +128,26 @@ class _OrdersPageState extends State<OrdersPage> {
     switch (status) {
       case OrderStatus.pending:
         return StatusBadge.warning(
-            label: l10n.statusPending, icon: Icons.schedule);
+          label: l10n.statusPending,
+          icon: Icons.schedule,
+        );
       case OrderStatus.paid:
         return StatusBadge.info(label: l10n.statusPaid, icon: Icons.payment);
       case OrderStatus.shipped:
         return StatusBadge.info(
-            label: l10n.statusShipped, icon: Icons.local_shipping_outlined);
+          label: l10n.statusShipped,
+          icon: Icons.local_shipping_outlined,
+        );
       case OrderStatus.delivered:
         return StatusBadge.success(
-            label: l10n.statusDelivered, icon: Icons.check_circle_outline);
+          label: l10n.statusDelivered,
+          icon: Icons.check_circle_outline,
+        );
       case OrderStatus.cancelled:
         return StatusBadge.danger(
-            label: l10n.statusCancelled, icon: Icons.cancel_outlined);
+          label: l10n.statusCancelled,
+          icon: Icons.cancel_outlined,
+        );
     }
   }
 
@@ -151,10 +168,7 @@ class _OrdersPageState extends State<OrdersPage> {
     }
   }
 
-  Future<void> _confirmCancelOrder(
-    BuildContext dialogCtx,
-    Order order,
-  ) async {
+  Future<void> _confirmCancelOrder(BuildContext dialogCtx, Order order) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: dialogCtx,
@@ -247,13 +261,16 @@ class _OrdersPageState extends State<OrdersPage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                                '${l10n.nameLabel}: ${order.customerName ?? l10n.guestLabel}'),
+                              '${l10n.nameLabel}: ${order.customerName ?? l10n.guestLabel}',
+                            ),
                             if (order.customerEmail != null)
                               Text(
-                                  '${l10n.emailLabel}: ${order.customerEmail}'),
+                                '${l10n.emailLabel}: ${order.customerEmail}',
+                              ),
                             if (order.shippingAddress != null)
                               Text(
-                                  '${l10n.addressLabel}: ${order.shippingAddress}, ${order.shippingCity ?? ''}'),
+                                '${l10n.addressLabel}: ${order.shippingAddress}, ${order.shippingCity ?? ''}',
+                              ),
                           ],
                         ),
                       ),
@@ -280,25 +297,31 @@ class _OrdersPageState extends State<OrdersPage> {
                                     Text(
                                       item.productName,
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.w600),
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                     if (item.productSku != null)
                                       Text(
                                         '${l10n.colSku}: ${item.productSku}',
-                                        style: theme.textTheme.bodySmall?.copyWith(
-                                          color: theme
-                                              .colorScheme.onSurfaceVariant,
-                                        ),
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
                                       ),
                                   ],
                                 ),
                               ),
                               Text(
-                                  '${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}'),
+                                '${item.quantity} x ${_money(item.unitPrice)}',
+                              ),
                               const SizedBox(width: 16),
                               Text(
-                                '\$${item.total.toStringAsFixed(2)}',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                _money(item.total),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
@@ -311,7 +334,7 @@ class _OrdersPageState extends State<OrdersPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(l10n.subtotalLabel),
-                          Text('\$${order.subtotal.toStringAsFixed(2)}'),
+                          Text(_money(order.subtotal)),
                         ],
                       ),
                       if (order.tax > 0) ...[
@@ -320,7 +343,7 @@ class _OrdersPageState extends State<OrdersPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(l10n.taxLabel),
-                            Text('\$${order.tax.toStringAsFixed(2)}'),
+                            Text(_money(order.tax)),
                           ],
                         ),
                       ],
@@ -330,7 +353,7 @@ class _OrdersPageState extends State<OrdersPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(l10n.shippingLabel),
-                            Text('\$${order.shippingFee.toStringAsFixed(2)}'),
+                            Text(_money(order.shippingFee)),
                           ],
                         ),
                       ],
@@ -345,7 +368,7 @@ class _OrdersPageState extends State<OrdersPage> {
                             ),
                           ),
                           Text(
-                            '\$${order.total.toStringAsFixed(2)}',
+                            _money(order.total),
                             style: theme.textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.primary,
@@ -370,24 +393,37 @@ class _OrdersPageState extends State<OrdersPage> {
                           if (order.status == OrderStatus.pending)
                             FilledButton.tonalIcon(
                               onPressed: () => _updateStatus(
-                                  dialogCtx, order, OrderStatus.paid),
+                                dialogCtx,
+                                order,
+                                OrderStatus.paid,
+                              ),
                               icon: const Icon(Icons.payment, size: 16),
                               label: Text(l10n.markPaid),
                             ),
                           if (order.status == OrderStatus.paid)
                             FilledButton.tonalIcon(
                               onPressed: () => _updateStatus(
-                                  dialogCtx, order, OrderStatus.shipped),
-                              icon: const Icon(Icons.local_shipping_outlined,
-                                  size: 16),
+                                dialogCtx,
+                                order,
+                                OrderStatus.shipped,
+                              ),
+                              icon: const Icon(
+                                Icons.local_shipping_outlined,
+                                size: 16,
+                              ),
                               label: Text(l10n.markShipped),
                             ),
                           if (order.status == OrderStatus.shipped)
                             FilledButton.icon(
                               onPressed: () => _updateStatus(
-                                  dialogCtx, order, OrderStatus.delivered),
-                              icon: const Icon(Icons.check_circle_outline,
-                                  size: 16),
+                                dialogCtx,
+                                order,
+                                OrderStatus.delivered,
+                              ),
+                              icon: const Icon(
+                                Icons.check_circle_outline,
+                                size: 16,
+                              ),
                               label: Text(l10n.markDelivered),
                             ),
                           if (order.status != OrderStatus.cancelled &&
@@ -427,15 +463,13 @@ class _OrdersPageState extends State<OrdersPage> {
     final width = MediaQuery.sizeOf(context).width;
 
     if (_errorMessage != null) {
-      return ErrorStateView(
-        message: _errorMessage!,
-        onRetry: _loadData,
-      );
+      return ErrorStateView(message: _errorMessage!, onRetry: _loadData);
     }
 
     final totalOrders = _stats['totalOrders']?.toString() ?? '—';
-    final totalSales = _stats['totalSales'] != null
-        ? '\$${(_stats['totalSales'] as double).toStringAsFixed(2)}'
+    final totalSalesValue = _stats['totalSales'];
+    final totalSales = totalSalesValue is num
+        ? _money(totalSalesValue.toDouble())
         : '—';
     final pendingOrders = _stats['pendingOrders']?.toString() ?? '—';
     final deliveredOrders = _stats['deliveredOrders']?.toString() ?? '—';
@@ -582,7 +616,7 @@ class _OrdersPageState extends State<OrdersPage> {
                   ),
                   Text(l10n.itemCount(order.items.length)),
                   Text(
-                    '\$${order.total.toStringAsFixed(2)}',
+                    _money(order.total),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   _buildOrderStatusBadge(l10n, order.status),
@@ -628,7 +662,7 @@ class _OrdersPageState extends State<OrdersPage> {
                           children: [
                             Text(l10n.itemCount(order.items.length)),
                             Text(
-                              '\$${order.total.toStringAsFixed(2)}',
+                              _money(order.total),
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: theme.colorScheme.primary,
