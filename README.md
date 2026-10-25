@@ -61,6 +61,10 @@ Dashboard, Products, Categories, Orders, Customers, Resources, Forms, Pages and 
 - Server-side order placement via `place_order()` PostgreSQL function
 - Idempotent checkout (safe retries without duplicate orders)
 - Stock pre-check + server-side pricing (client cannot dictate prices)
+- Public order tracking (`/track`) by order number + checkout phone, backed by the
+  `track_order()` RPC (no access to the private orders tables)
+- Footer with business contact details, social links and a WhatsApp chat button
+  (configured in Settings)
 
 ### Settings
 - Language: Arabic / English / Français
@@ -69,6 +73,8 @@ Dashboard, Products, Categories, Orders, Customers, Resources, Forms, Pages and 
 - Notifications: orders, low stock, weekly digest toggles
 - Privacy: analytics, crash reporting, personalization
 - Consent management with privacy policy and terms of service dialogs
+- Social links editor for the public storefront (Instagram, Facebook, TikTok,
+  WhatsApp, YouTube, LinkedIn)
 - Data export (preferences JSON), demo data loader, reset
 - Account section (sign out) when backend is configured
 
@@ -112,6 +118,7 @@ lib/
     forms/                  # Form definitions list, CRUD dialog
     pages/                  # Page content list, CRUD dialog
     store/                  # Storefront with cart and checkout
+    tracking/               # Public order tracking (/track)
     settings/               # All settings sections
   shared/
     utils/                  # AppFeedback, DialogSizing, IdGen, PhoneNumber
@@ -124,7 +131,7 @@ assets/
   images/                   # Bundled demo images (products/categories/banners)
   fonts/                    # Inter (Latin) + Cairo (Arabic)
 supabase/
-  migrations/               # 7 sequential SQL migrations
+  migrations/               # 8 sequential SQL migrations
   seed.sql                  # Optional demo seed data
 docs/
   deployment-guide.md       # Production deployment steps
@@ -141,7 +148,7 @@ The app runs in two modes, selected at compile time:
 | Local / offline | No `--dart-define` | Mock + Hive | None required |
 | Production | `SUPABASE_URL` + `SUPABASE_ANON_KEY` provided | Supabase | Email + password |
 
-### Database schema (7 migrations applied in order)
+### Database schema (8 migrations applied in order)
 
 1. `20261008000000_initial_schema.sql` — core tables: profiles, locations, categories, products, product_images, stock_movements, tracking_events, orders, order_items, customers, resources, form_definitions, form_submissions, page_content, templates
 2. `20261008120000_templates_and_settings.sql` — app_settings, site_settings tables
@@ -150,6 +157,7 @@ The app runs in two modes, selected at compile time:
 5. `20261013130000_least_privilege_and_storage.sql` — profiles.role defaults to `viewer`, resources bucket MIME allow-list
 6. `20261013140000_owner_only_roles_and_execute_hardening.sql` — `is_owner()` helper, owner-only role change trigger, revoke `place_order` from `anon`
 7. `20261015120000_checkout_integrity_social_and_location.sql` — `customer_phone` + `idempotency_key` on orders, social links on site_settings, indexes, updated `place_order()` with server-side pricing + stock pre-check, `apply_order_status_stock()` trigger
+8. `20261017120000_order_tracking.sql` — public `track_order(order_number, phone)` RPC (two-factor lookup, PII-free projection, `SECURITY DEFINER`) + `order_tracking_attempts` throttle ledger
 
 ### Security
 
@@ -158,6 +166,7 @@ The app runs in two modes, selected at compile time:
 - Credentials are injected via `--dart-define` (never hardcoded)
 - `place_order()` is SECURITY DEFINER and validates all input server-side (client cannot dictate prices, totals, or bypass stock checks)
 - Anonymous users cannot read customers, orders, profiles, or any private resource
+- Public order tracking requires **both** the order number and the checkout phone; the `track_order()` RPC returns a PII-free projection and is rate-limited per caller
 - Profile roles can only be changed by an owner (enforced by a BEFORE UPDATE trigger, not just RLS)
 - Public sign-ups should be disabled in the Supabase dashboard (Authentication → Providers → Email)
 
@@ -195,7 +204,7 @@ flutter run -d chrome \
 ## Test
 
 ```bash
-flutter test        # 91 tests — all pass
+flutter test        # 110 tests — all pass
 flutter analyze     # no issues
 ```
 

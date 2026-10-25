@@ -4,11 +4,15 @@ import '../../core/design_system/app_spacing.dart';
 import '../../data/app_repositories.dart';
 import '../../domain/models/app_error.dart';
 import '../../domain/models/order.dart';
+import '../../domain/models/tracking_stage.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
 import '../../shared/utils/dialog_sizing.dart';
+import '../../shared/utils/order_number.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/error_state_view.dart';
+import '../../shared/widgets/order_tracking_summary.dart';
+import '../../shared/widgets/order_tracking_timeline.dart';
 import '../../shared/widgets/pagination_bar.dart';
 import '../../shared/widgets/responsive_data_table.dart';
 import '../../shared/widgets/search_and_filter_bar.dart';
@@ -189,7 +193,11 @@ class _OrdersPageState extends State<OrdersPage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(l10n.orderLabel(order.orderNumber))),
+                  Expanded(
+                    child: Text(
+                      l10n.orderLabel(OrderNumber.format(order.orderNumber)),
+                    ),
+                  ),
                   _buildOrderStatusBadge(l10n, order.status),
                 ],
               ),
@@ -200,6 +208,31 @@ class _OrdersPageState extends State<OrdersPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Shipment tracking — one card holding everything the
+                      // backend knows: timeline states come only from the
+                      // timestamps that exist on the row, and the summary
+                      // says so when nothing else is known. The status badge
+                      // stays in the dialog title above.
+                      AppCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            OrderTrackingSummary(
+                              orderNumber: order.orderNumber,
+                              shipmentDate: shipmentDateFor(order),
+                            ),
+                            const Divider(height: AppSpacing.lg),
+                            OrderTrackingTimeline(
+                              currentStage: trackingStageForOrder(order),
+                              timestamps: stageTimestampsForOrder(order),
+                              cancelled: order.cancelledAt != null,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
                       // Customer Summary
                       AppCard(
                         expand: true,
@@ -527,7 +560,7 @@ class _OrdersPageState extends State<OrdersPage> {
               rowBuilder: (context, order, index) {
                 return [
                   Text(
-                    order.orderNumber,
+                    OrderNumber.format(order.orderNumber),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Column(
@@ -576,7 +609,7 @@ class _OrdersPageState extends State<OrdersPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              order.orderNumber,
+                              OrderNumber.format(order.orderNumber),
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),

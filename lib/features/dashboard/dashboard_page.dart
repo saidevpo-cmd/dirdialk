@@ -11,6 +11,7 @@ import '../../domain/models/paginated_result.dart';
 import '../../domain/models/product.dart';
 import '../../domain/models/resource.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../shared/utils/order_number.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/error_state_view.dart';
 import '../../shared/widgets/stat_card.dart';
@@ -313,7 +314,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   _row(
                     theme,
                     leading: Icons.receipt_long_outlined,
-                    title: '${order.orderNumber} · ${order.customerName ?? 'Guest'}',
+                    title:
+                        '${OrderNumber.format(order.orderNumber)} · ${order.customerName ?? 'Guest'}',
                     subtitle: '${order.items.length} items',
                     trailing: '\$${order.total.toStringAsFixed(2)}',
                   ),

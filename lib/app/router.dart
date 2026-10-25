@@ -9,6 +9,7 @@ import '../features/categories/categories_page.dart';
 import '../features/customers/customers_page.dart';
 import '../features/dashboard/dashboard_page.dart';
 import '../features/forms/forms_page.dart';
+import '../features/history/order_history_page.dart';
 import '../features/orders/orders_page.dart';
 import '../features/pages/pages_page.dart';
 import '../features/products/products_page.dart';
@@ -16,6 +17,7 @@ import '../features/resources/resources_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/shell/app_shell.dart';
 import '../features/store/store_page.dart';
+import '../features/tracking/order_tracking_page.dart';
 
 /// Application router.
 ///
@@ -34,6 +36,11 @@ class AppRouter {
   static const String loginPath = '/login';
   static const String adminPath = '/admin';
 
+  /// Public, unauthenticated customer route: order tracking. It reads only
+  /// through the `track_order` RPC (order number + phone proof), so it can
+  /// safely sit outside the admin auth gate.
+  static const String trackPath = '/track';
+
   static String sectionPath(NavSection section) => section.location;
 
   late final GoRouter router = GoRouter(
@@ -48,6 +55,11 @@ class AppRouter {
       }
 
       final isLogin = location == loginPath;
+
+      // Public customer page: never gated, even when a backend is configured.
+      if (location == trackPath) {
+        return null;
+      }
 
       // Offline/local mode: no gate. Login is never shown.
       if (!auth.requireAuth) {
@@ -67,6 +79,10 @@ class AppRouter {
       GoRoute(
         path: loginPath,
         builder: (context, state) => LoginPage(auth: auth),
+      ),
+      GoRoute(
+        path: trackPath,
+        builder: (context, state) => const OrderTrackingPage(),
       ),
       ShellRoute(
         builder: (context, state, child) {
@@ -96,6 +112,7 @@ class AppRouter {
       NavSection.products => const ProductsPage(),
       NavSection.categories => const CategoriesPage(),
       NavSection.orders => const OrdersPage(),
+      NavSection.history => const OrderHistoryPage(),
       NavSection.customers => const CustomersPage(),
       NavSection.resources => const ResourcesPage(),
       NavSection.forms => const FormsPage(),

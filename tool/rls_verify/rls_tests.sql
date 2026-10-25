@@ -429,6 +429,76 @@ SELECT _expect_rows('app_settings.updated_at refreshed by trigger', 1,
   'SELECT 1 FROM app_settings WHERE key=''currency'' AND updated_at > now() - interval ''1 minute''');
 
 -- =====================================================================
+-- Public order tracking: track_order() RPC + throttle ledger
+--
+-- The public storefront looks up *its own* order by (order number +
+-- checkout phone) without any read access to the private orders /
+-- order_items tables. The RPC returns a curated, PII-free projection, and
+-- the same NULL for an unknown order and a wrong phone (no oracle).
+-- =====================================================================
+RESET ROLE;
+SET request.jwt.claims = '{"role":"anon"}';
+SET ROLE anon;
+
+-- ORD-STAFF-1 was placed earlier by staff with phone '+1 555 0100'.
+SELECT _expect_rows('anon tracks its order with the right phone', 1,
+  $$SELECT 1 WHERE (public.track_order('ORD-STAFF-1','+1 555 0100')->>'status') = 'paid'$$);
+SELECT _expect_rows('tracking result carries the order items', 1,
+  $$SELECT 1 WHERE jsonb_array_length(public.track_order('ORD-STAFF-1','+1 555 0100')->'items') = 1$$);
+SELECT _expect_rows('tracking result exposes no PII', 1,
+  $$SELECT 1 WHERE NOT (public.track_order('ORD-STAFF-1','+1 555 0100') ? 'customer_email')$$);
+SELECT _expect_rows('wrong phone returns nothing (no oracle)', 0,
+  $$SELECT 1 WHERE public.track_order('ORD-STAFF-1','+1 555 0199') IS NOT NULL$$);
+SELECT _expect_rows('unknown order number returns nothing', 0,
+  $$SELECT 1 WHERE public.track_order('NO-SUCH-ORDER','+1 555 0100') IS NOT NULL$$);
+SELECT _expect_err('track_order rejects a malformed phone',
+  $$SELECT public.track_order('ORD-STAFF-1','abc')$$);
+SELECT _expect_err('track_order rejects a blank order number',
+  $$SELECT public.track_order('','+1 555 0100')$$);
+
+-- The throttle ledger is an implementation detail: anon must not read or write it.
+-- Privileges are revoked outright, so even the SELECT is denied (stronger than
+-- merely returning zero rows under RLS).
+SELECT _expect_err('anon cannot read the tracking throttle ledger',
+  'SELECT 1 FROM order_tracking_attempts');
+SELECT _expect_err('anon cannot write the tracking throttle ledger',
+  $$INSERT INTO order_tracking_attempts (caller) VALUES ('x')$$);
+
+-- Repeated anonymous lookups are throttled. The harness sets no
+-- request.headers, so the fallback per-order bucket is used: 20 lookups in
+-- the 10-minute window succeed, the 21st is rejected.
+DO $$
+BEGIN
+  FOR i IN 1..20 LOOP
+    PERFORM public.track_order('TRACK-THROTTLE','+1 555 0100');
+  END LOOP;
+END $$;
+SELECT _expect_err('21st anonymous lookup in the window is throttled',
+  $$SELECT public.track_order('TRACK-THROTTLE','+1 555 0100')$$);
+
+-- A signed-in user can track too (same proof-of-ownership rule).
+RESET ROLE;
+SET request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000004","role":"authenticated","email":"viewer@diali.test"}';
+SET ROLE authenticated;
+SELECT _expect_rows('signed-in user can track their order', 1,
+  $$SELECT 1 WHERE (public.track_order('ORD-STAFF-1','+1 555 0100')->>'order_number') = 'ORD-STAFF-1'$$);
+
+-- Grant / privilege checks (superuser).
+RESET ROLE;
+RESET request.jwt.claims;
+SELECT _expect_rows('anon has EXECUTE on track_order', 1,
+  $$SELECT 1 WHERE has_function_privilege('anon','public.track_order(text,text)','EXECUTE')$$);
+SELECT _expect_rows('authenticated has EXECUTE on track_order', 1,
+  $$SELECT 1 WHERE has_function_privilege('authenticated','public.track_order(text,text)','EXECUTE')$$);
+SELECT _expect_rows('PUBLIC has no EXECUTE on track_order', 0,
+  $$SELECT 1 FROM information_schema.routine_privileges
+     WHERE routine_name='track_order' AND grantee='PUBLIC'$$);
+SELECT _expect_rows('anon has no SELECT on the throttle ledger', 1,
+  $$SELECT 1 WHERE NOT has_table_privilege('anon','public.order_tracking_attempts','SELECT')$$);
+SELECT _expect_rows('authenticated has no SELECT on the throttle ledger', 1,
+  $$SELECT 1 WHERE NOT has_table_privilege('authenticated','public.order_tracking_attempts','SELECT')$$);
+
+-- =====================================================================
 -- Structural checks (superuser)
 -- =====================================================================
 RESET ROLE;
@@ -445,6 +515,9 @@ SELECT _expect_rows('private resources bucket has explicit MIME allow-list', 1,
 SELECT _expect_rows('profiles.role defaults to viewer', 1,
   $$SELECT 1 FROM information_schema.columns
      WHERE table_name='profiles' AND column_name='role' AND column_default LIKE '%viewer%'$$);
+SELECT _expect_rows('tracking throttle ledger has no client policies', 0,
+  $$SELECT 1 FROM pg_policies
+     WHERE schemaname='public' AND tablename='order_tracking_attempts'$$);
 
 -- =====================================================================
 -- RESULTS

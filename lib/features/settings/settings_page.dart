@@ -10,8 +10,13 @@ import '../../core/design_system/app_style.dart';
 import '../../core/settings/settings_controller.dart';
 import '../../data/app_repositories.dart';
 import '../../data/demo/demo_data_seeder.dart';
+import '../../domain/models/app_error.dart';
+import '../../domain/models/site_settings.dart';
+import '../../domain/models/social_links.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../shared/utils/app_feedback.dart';
 import '../../shared/widgets/app_card.dart';
+import '../../shared/widgets/social_links_bar.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, required this.settings, this.auth});
@@ -30,6 +35,92 @@ class _SettingsPageState extends State<SettingsPage> {
   String _query = '';
 
   SettingsController get settings => widget.settings;
+
+  /// Storefront social links, edited here and persisted to `site_settings`.
+  final Map<SocialPlatform, TextEditingController> _socialCtrls = {
+    for (final platform in SocialPlatform.values)
+      platform: TextEditingController(),
+  };
+  bool _socialLoading = true;
+  bool _socialSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSiteSettings();
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _socialCtrls.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  /// Loads the public site settings and fills the social-link editors. A
+  /// failure leaves the fields empty rather than blocking the whole page.
+  Future<void> _loadSiteSettings() async {
+    final result = await AppRepositories.instance.siteSettings.load();
+    if (!mounted) return;
+    setState(() {
+      _socialLoading = false;
+      if (result is Success<SiteSettings>) {
+        final links = result.data.socialLinks;
+        for (final platform in SocialPlatform.values) {
+          _socialCtrls[platform]!.text = links.url(platform) ?? '';
+        }
+      }
+    });
+  }
+
+  SocialLinks _collectSocialLinks() {
+    var links = SocialLinks.empty;
+    for (final platform in SocialPlatform.values) {
+      final raw = _socialCtrls[platform]!.text;
+      if (raw.trim().isEmpty) continue;
+      final normalized = SocialLinks.normalize(platform, raw);
+      if (normalized != null) {
+        links = links.withLink(platform, normalized);
+      }
+    }
+    return links;
+  }
+
+  /// Validation message for a field, or `null` when it is empty/valid.
+  String? _socialFieldError(SocialPlatform platform, AppLocalizations l10n) {
+    final raw = _socialCtrls[platform]!.text.trim();
+    if (raw.isEmpty) return null;
+    return SocialLinks.normalize(platform, raw) == null
+        ? l10n.socialInvalidUrl
+        : null;
+  }
+
+  Future<void> _saveSocialLinks() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (SocialPlatform.values
+        .any((platform) => _socialFieldError(platform, l10n) != null)) {
+      // Surface the errors (already shown inline) without a round trip.
+      setState(() {});
+      AppFeedback.failure(context, l10n.socialInvalidUrl);
+      return;
+    }
+
+    setState(() => _socialSaving = true);
+    final repo = AppRepositories.instance.siteSettings;
+    final loaded = await repo.load();
+    if (!mounted) return;
+    final base = loaded is Success<SiteSettings>
+        ? loaded.data
+        : const SiteSettings();
+    final result =
+        await repo.save(base.copyWith(socialLinks: _collectSocialLinks()));
+    if (!mounted) return;
+    setState(() {
+      _socialSaving = false;
+    });
+    AppFeedback.fromResult(context, result, successMessage: l10n.saved);
+  }
 
   bool _matches(String title, String description) {
     final q = _query.trim().toLowerCase();
@@ -123,6 +214,13 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildAppearance(l10n, theme, scale),
           _buildStyle(l10n, theme, scale),
         ],
+      ),
+      _buildGroup(
+        icon: Icons.share_outlined,
+        title: l10n.socialMedia,
+        description: l10n.socialMediaHint,
+        theme: theme,
+        children: [_buildSocial(l10n, theme)],
       ),
       _buildGroup(
         icon: Icons.notifications_outlined,
@@ -309,6 +407,58 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     ].whereType<Widget>().toList();
+  }
+
+  /// Editor for the public storefront social links (includes WhatsApp).
+  Widget _buildSocial(AppLocalizations l10n, ThemeData theme) {
+    return _buildCard([
+      if (_socialLoading)
+        const Padding(
+          padding: EdgeInsets.all(AppSpacing.md),
+          child: Center(child: CircularProgressIndicator()),
+        )
+      else ...[
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            children: [
+              for (final platform in SocialPlatform.values) ...[
+                TextField(
+                  key: Key('social-${platform.name}'),
+                  controller: _socialCtrls[platform],
+                  keyboardType: TextInputType.url,
+                  decoration: InputDecoration(
+                    labelText: socialPlatformLabel(l10n, platform),
+                    hintText: platform == SocialPlatform.whatsapp
+                        ? '${l10n.socialUrlLabel} / +212600000000'
+                        : l10n.socialUrlLabel,
+                    prefixIcon: Icon(socialPlatformIcon(platform)),
+                    errorText: _socialFieldError(platform, l10n),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ],
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.icon(
+            key: const Key('social-save'),
+            onPressed: _socialSaving ? null : _saveSocialLinks,
+            icon: _socialSaving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.save_outlined),
+            label: Text(l10n.actionSaveChanges),
+          ),
+        ),
+      ],
+    ]);
   }
 
   Widget _buildGroup({

@@ -22,6 +22,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navOrders => 'Orders';
 
   @override
+  String get navOrderHistory => 'Order History';
+
+  @override
   String get navCustomers => 'Customers';
 
   @override
@@ -1135,6 +1138,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchOrdersHint => 'Search orders by order number or customer...';
 
   @override
+  String get orderHistorySubtitle => 'Find, view and reprint any past order.';
+
+  @override
+  String get searchHistoryHint => 'Search by order number or customer...';
+
+  @override
+  String get orderDateLabel => 'Order date';
+
+  @override
+  String get dateRangeFilter => 'Date range';
+
+  @override
+  String get clearDateFilter => 'Clear date filter';
+
+  @override
+  String get colQty => 'Qty';
+
+  @override
+  String get unitPriceLabel => 'Unit price';
+
+  @override
+  String get discountLabel => 'Discount';
+
+  @override
+  String get notesLabel => 'Notes';
+
+  @override
+  String get historyEmptyTitle => 'No orders match your filters';
+
+  @override
+  String get historyEmptyMessage =>
+      'Try adjusting the search text, date range or status filter.';
+
+  @override
+  String get printOrder => 'Print order';
+
+  @override
+  String get downloadPdf => 'Download PDF';
+
+  @override
+  String get printDocumentFailed =>
+      'Could not prepare the print document. Please try again.';
+
+  @override
+  String get orderDocumentTitle => 'Order receipt';
+
+  @override
+  String reprintFooter(Object date) {
+    return 'Reprinted on $date from the original order data.';
+  }
+
+  @override
   String get customerInformation => 'Customer information';
 
   @override
@@ -1501,6 +1556,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get socialInvalidUrl => 'Enter a valid http(s) link.';
 
   @override
+  String get trackOrderTitle => 'Track your order';
+
+  @override
+  String get trackOrderSubtitle =>
+      'Enter your order number and the phone number used at checkout.';
+
+  @override
+  String get orderNumberLabel => 'Order number';
+
+  @override
+  String get trackOrderAction => 'Track order';
+
+  @override
+  String get trackOrderRequired =>
+      'Enter both the order number and phone number.';
+
+  @override
+  String get trackOrderNotFound =>
+      'No order matches those details. Check the order number and phone, then try again.';
+
+  @override
+  String get trackOrderFailed =>
+      'Could not look up the order. Please try again.';
+
+  @override
+  String get trackOrderItems => 'Items';
+
+  @override
+  String get storefrontFollowUs => 'Follow us';
+
+  @override
+  String get chatOnWhatsapp => 'Chat on WhatsApp';
+
+  @override
+  String get chatOnWhatsappMessage =>
+      'Hello! I would like to ask about my order.';
+
+  @override
   String paginationRange(Object end, Object start, Object total) {
     return 'Showing $start-$end of $total';
   }
@@ -1515,4 +1608,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paginationNext => 'Next';
+
+  @override
+  String get backToTop => 'Back to top';
+
+  @override
+  String get hideSidebar => 'Hide sidebar';
+
+  @override
+  String get showSidebar => 'Show sidebar';
+
+  @override
+  String get trackingTitle => 'Shipment tracking';
+
+  @override
+  String get trackingStageOrderReceived => 'Order received';
+
+  @override
+  String get trackingStageProcessing => 'Processing';
+
+  @override
+  String get trackingStageShipped => 'Shipped';
+
+  @override
+  String get trackingStageInTransit => 'In transit';
+
+  @override
+  String get trackingStageOutForDelivery => 'Out for delivery';
+
+  @override
+  String get trackingStageDelivered => 'Delivered';
+
+  @override
+  String get trackingNumberLabel => 'Tracking number';
+
+  @override
+  String get shippingCompanyLabel => 'Shipping company';
+
+  @override
+  String get shipmentDateLabel => 'Shipment date';
+
+  @override
+  String get estimatedDeliveryLabel => 'Estimated delivery';
+
+  @override
+  String get currentLocationLabel => 'Current location';
+
+  @override
+  String get latestUpdateLabel => 'Latest update';
+
+  @override
+  String get trackingUnavailable =>
+      'Tracking information is not available yet.';
+
+  @override
+  String get trackingCancelled => 'This order was cancelled.';
 }

@@ -27,10 +27,14 @@ RLS is **enabled on every table**. Default is deny. Policies:
 
 | Actor | Can read | Can write |
 |---|---|---|
-| `anon` (public visitor) | active products, published pages/articles, categories, page categories, published templates, site settings, published forms | insert `form_submissions` for a **published** form only |
+| `anon` (public visitor) | active products, published pages/articles, categories, page categories, published templates, site settings, published forms; **its own order only via the `track_order` RPC (order number + checkout phone)** | insert `form_submissions` for a **published** form only |
 | `viewer` (signed-in) | all business data | nothing |
 | `staff` | all business data | operational tables (products, orders, customers, resources, tracking, stock) |
 | `admin`/`owner` | all business data | everything incl. templates, site settings, app settings, profiles |
+
+`anon` never reads the `orders`/`order_items` rows directly. Public tracking is a
+single `SECURITY DEFINER` RPC (`track_order`) that returns a curated JSON
+projection — see section 3.1.
 
 Changing `profiles.role` is **owner-only**. A `BEFORE UPDATE` trigger
 (`enforce_profile_role_change`) rejects role changes from the client roles
@@ -39,12 +43,14 @@ Changing `profiles.role` is **owner-only**. A `BEFORE UPDATE` trigger
 bootstrap the first owner and repair roles.
 
 Tables with **no** public read policy: `customers`, `orders`, `order_items`, `locations`,
-`stock_movements`, `tracking_events`, `resources`, `app_settings`, `profiles`.
+`stock_movements`, `tracking_events`, `resources`, `app_settings`, `profiles`,
+`order_tracking_attempts`.
 
 > **Status**: policies are written and reviewed in the migration, and are exercised against a real
 > PostgreSQL instance by the version-controlled harness `tool/rls_verify/run.sh` (Supabase-compatible
 > shim: `auth.uid()`, `storage.buckets`, `storage.objects`, `anon`/`authenticated`/`service_role`
-> roles). 74 assertions across `anon`/`viewer`/`staff`/`admin`/`owner`; all expectations held. The
+> roles). 124 assertions across `anon`/`viewer`/`staff`/`admin`/`owner`; all expectations held
+> (re-verified 2026-10-17 against the bundled PostgreSQL 16, including the order-tracking RPC). The
 > first run of this harness caught a real bug: an initial owner-only role trigger would have blocked
 > role changes from the SQL editor/`service_role` too, making the first owner impossible to
 > bootstrap; it was corrected by scoping the guard to the client roles. `run.sh` exits non-zero on
@@ -53,6 +59,39 @@ Tables with **no** public read policy: `customers`, `orders`, `order_items`, `lo
 > the Storage API and signed URLs, `service_role` behaviour, and Supabase's exact default GRANTs
 > (see `deployment-guide.md`).
 > Re-run the checks on a cloud project before public launch.
+
+### 3.1 Public order tracking (`track_order`)
+
+The storefront lets a customer follow their order at the public `/track` route
+without signing in. Because `orders`/`order_items` are staff-only, the lookup
+goes through a single `SECURITY DEFINER` RPC rather than opening a read policy.
+Introduced in `20261017120000_order_tracking.sql`; design decisions:
+
+- **Two factors required.** A lookup needs both the human order number and the
+  phone captured at checkout (digits-only comparison, so `+212 6..` and
+  `2126..` match). Without the phone the order cannot be retrieved.
+- **No enumeration oracle.** An unknown order number and a wrong phone both
+  return `NULL` (never an error that distinguishes them), so the endpoint cannot
+  be scripted to discover valid order numbers.
+- **Allow-listed projection.** The RPC returns only order number, status,
+  lifecycle timestamps, total, currency symbol and line snapshots
+  (`name`, `qty`, `subtotal`). `customer_email`, `shipping_address`,
+  `customer_id` and the raw row are never returned. Verified by an assertion.
+- **Pinned search path.** `SET search_path = public, pg_temp` prevents
+  `search_path` hijacking; input length and phone-digit range mirror the client
+  `PhoneNumber` / `place_order` rules.
+- **Throttled.** Attempts are logged in `order_tracking_attempts` (RLS on, no
+  policies, table privileges revoked from `anon`/`authenticated`), keyed by the
+  hashed caller IP from the request headers (raw IPs are never stored), with a
+  per-order fallback when headers are absent. 20 lookups per 10 minutes per
+  bucket, then the RPC raises. Verified by an assertion (20 pass, 21st blocked).
+- **Grants.** `EXECUTE` is revoked from `PUBLIC`, then granted to `anon` and
+  `authenticated` only. Verified by assertions.
+
+> **Live-stack caveat**: the harness runs no PostgREST, so it does not exercise
+> `request.headers` → `x-forwarded-for`. On the live stack confirm that the
+> platform supplies the client IP (the throttle then keys on it) and add an
+> edge/WAF rate limit + CAPTCHA for the public route as defence in depth.
 
 ## 4. Storage security
 
@@ -79,12 +118,20 @@ File size and MIME types are constrained at the bucket level (`file_size_limit`,
 - No secrets in source (verified by search). `.env`/keys are git-ignored.
 - Image uploads validated by size/type before upload; local `ImageService` enforces a 12 MB cap.
 - `AppImage` supports safe fallbacks and does not execute content.
+- Storefront social links are validated to `http(s)` only on both the client
+  (`SocialLinks.normalize`) and the database (`is_valid_social_links` check on
+  `site_settings.social_links`), and `ExternalLinks.open` refuses any non-`http(s)`
+  scheme before launching — a bad value cannot trigger another URI scheme
+  (e.g. `javascript:`).
 - Article/page content renders as **plain text** (no HTML/markdown injection path currently enabled).
 
 ## 7. Known limitations / follow-ups
 
 1. **RLS not live-tested** here — run `supabase test`/manual anon-key checks after project setup.
-2. Public form submission is anonymous; consider rate limiting / CAPTCHA for spam.
+2. Public form submission and public order tracking (`/track`) are anonymous entry points; add edge
+   rate limiting and a CAPTCHA at the platform/WAF layer as defence in depth. The in-database
+   throttle in `track_order` is keyed on `x-forwarded-for`, which a client can influence if the
+   proxy appends rather than overwrites it — confirm the platform's header handling before launch.
 3. `app_settings` tax/currency are client-consumed; re-validate on the server if financial accuracy is
    critical.
 4. Android release manifest must include `INTERNET` (added) and a real signing key before store release.

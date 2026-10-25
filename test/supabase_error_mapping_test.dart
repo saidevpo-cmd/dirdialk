@@ -49,6 +49,16 @@ void main() {
       }
     });
 
+    test('P0001 (plpgsql RAISE from an RPC) -> VALIDATION 400', () async {
+      final error = await map(
+        _pg('P0001', 'a valid phone number is required'),
+      );
+      expect(error.code, 'VALIDATION');
+      expect(error.statusCode, 400);
+      // The server message is surfaced so a validation error is actionable.
+      expect(error.message, 'a valid phone number is required');
+    });
+
     test('insufficient privilege (RLS) -> FORBIDDEN 403', () async {
       final error = await map(_pg('42501', 'permission denied for table'));
       expect(error.code, 'FORBIDDEN');

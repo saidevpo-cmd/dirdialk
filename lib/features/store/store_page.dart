@@ -6,16 +6,22 @@ import '../../data/demo/demo_catalog.dart';
 import '../../domain/models/app_error.dart';
 import '../../domain/models/category.dart';
 import '../../domain/models/product.dart';
+import '../../domain/models/site_settings.dart';
+import '../../domain/models/social_links.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/utils/app_feedback.dart';
+import '../../shared/utils/external_links.dart';
 import '../../shared/utils/id_gen.dart';
+import '../../shared/utils/order_number.dart';
 import '../../shared/utils/phone_number.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/app_image.dart';
 import '../../shared/widgets/empty_state_view.dart';
 import '../../shared/widgets/error_state_view.dart';
+import '../../shared/widgets/social_links_bar.dart';
 import '../../shared/widgets/status_badge.dart';
 import '../products/product_details_page.dart';
+import '../tracking/order_tracking_page.dart';
 import 'checkout/checkout.dart';
 
 class StoreCartItem {
@@ -49,6 +55,10 @@ class _StorePageState extends State<StorePage> {
   /// estimates only — `place_order` recomputes them from the product rows.
   double _taxRatePercent = 0;
   String _currencySymbol = r'$';
+
+  /// Public presentation content (brand, contact, social links) shown in the
+  /// storefront footer and the WhatsApp chat button.
+  SiteSettings _siteSettings = const SiteSettings();
 
   // Contact fields are captured once per checkout attempt so a retry after a
   // failed submission keeps the same idempotency key.
@@ -112,6 +122,7 @@ class _StorePageState extends State<StorePage> {
 
     final currencyRes = await _settingsRepo.currencySymbol();
     final taxRes = await _settingsRepo.taxRatePercent();
+    final settingsRes = await _settingsRepo.load();
     final symbol = currencyRes is Success<String> ? currencyRes.data : r'$';
     final tax = taxRes is Success<double> ? taxRes.data : 0.0;
 
@@ -121,6 +132,9 @@ class _StorePageState extends State<StorePage> {
       _isLoading = false;
       _currencySymbol = symbol;
       _taxRatePercent = tax;
+      if (settingsRes is Success<SiteSettings>) {
+        _siteSettings = settingsRes.data;
+      }
       if (prodRes is Success) {
         _allProducts = (prodRes as Success).data.items;
       } else {
@@ -134,6 +148,12 @@ class _StorePageState extends State<StorePage> {
       MaterialPageRoute<void>(
         builder: (_) => ProductDetailsPage(product: product),
       ),
+    );
+  }
+
+  void _openTracking() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const OrderTrackingPage()),
     );
   }
 
@@ -230,7 +250,8 @@ class _StorePageState extends State<StorePage> {
           _invalidateCheckoutAttempt();
         });
         if (sheetContext.mounted) Navigator.of(sheetContext).pop();
-        AppFeedback.success(context, l10n.orderPlaced(saved.orderNumber));
+        AppFeedback.success(
+            context, l10n.orderPlaced(OrderNumber.format(saved.orderNumber)));
       case Failure(:final error):
         AppFeedback.error(context, error);
     }
@@ -577,14 +598,26 @@ class _StorePageState extends State<StorePage> {
                       ],
                     ),
                   ),
-                  Badge(
-                    isLabelVisible: totalCartCount > 0,
-                    label: Text('$totalCartCount'),
-                    child: FilledButton.tonalIcon(
-                      onPressed: _openCartDrawer,
-                      icon: const Icon(Icons.shopping_cart_outlined, size: 20),
-                      label: Text(l10n.cartTitle),
-                    ),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _openTracking,
+                        icon: const Icon(Icons.local_shipping_outlined, size: 20),
+                        label: Text(l10n.trackOrderAction),
+                      ),
+                      Badge(
+                        isLabelVisible: totalCartCount > 0,
+                        label: Text('$totalCartCount'),
+                        child: FilledButton.tonalIcon(
+                          onPressed: _openCartDrawer,
+                          icon: const Icon(Icons.shopping_cart_outlined, size: 20),
+                          label: Text(l10n.cartTitle),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -650,6 +683,8 @@ class _StorePageState extends State<StorePage> {
                     onTap: _openProduct,
                     onAdd: _addToCart,
                   ),
+                const SizedBox(height: AppSpacing.xl),
+                _StoreFooter(settings: _siteSettings),
               ],
             ],
           ),
@@ -1041,6 +1076,105 @@ class _StoreProductCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Storefront footer: business identity, contact details, the public social
+/// links and a prominent WhatsApp chat button (all from `site_settings`).
+class _StoreFooter extends StatelessWidget {
+  const _StoreFooter({required this.settings});
+
+  final SiteSettings settings;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final customization = settings.customization;
+    final links = settings.socialLinks;
+
+    final hasContact = customization.contactEmail.isNotEmpty ||
+        customization.contactPhone.isNotEmpty ||
+        customization.address.isNotEmpty;
+    if (links.isEmpty && !hasContact) return const SizedBox.shrink();
+
+    final whatsapp = SocialLinks.whatsappChatUrl(
+      links.whatsappUrl,
+      text: l10n.chatOnWhatsappMessage,
+    );
+
+    return AppCard(
+      expand: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            customization.brandName,
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          if (customization.tagline.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              customization.tagline,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+          if (hasContact) ...[
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.lg,
+              runSpacing: AppSpacing.sm,
+              children: [
+                if (customization.contactEmail.isNotEmpty)
+                  _contactRow(theme, Icons.mail_outline,
+                      customization.contactEmail),
+                if (customization.contactPhone.isNotEmpty)
+                  _contactRow(theme, Icons.phone_outlined,
+                      customization.contactPhone),
+                if (customization.address.isNotEmpty)
+                  _contactRow(
+                      theme, Icons.location_on_outlined, customization.address),
+              ],
+            ),
+          ],
+          if (links.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              l10n.storefrontFollowUs,
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            SocialLinksBar(links: links),
+          ],
+          if (whatsapp != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            FilledButton.icon(
+              onPressed: () => ExternalLinks.open(whatsapp),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF25D366),
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.chat),
+              label: Text(l10n.chatOnWhatsapp),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _contactRow(ThemeData theme, IconData icon, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
+        const SizedBox(width: 6),
+        Text(label, style: theme.textTheme.bodyMedium),
+      ],
     );
   }
 }

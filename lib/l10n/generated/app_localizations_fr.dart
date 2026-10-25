@@ -22,6 +22,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navOrders => 'Commandes';
 
   @override
+  String get navOrderHistory => 'Historique des commandes';
+
+  @override
   String get navCustomers => 'Clients';
 
   @override
@@ -1142,6 +1145,60 @@ class AppLocalizationsFr extends AppLocalizations {
       'Rechercher par numéro de commande ou client...';
 
   @override
+  String get orderHistorySubtitle =>
+      'Retrouvez, consultez et réimprimez toute commande passée.';
+
+  @override
+  String get searchHistoryHint =>
+      'Rechercher par numéro de commande ou client...';
+
+  @override
+  String get orderDateLabel => 'Date de la commande';
+
+  @override
+  String get dateRangeFilter => 'Période';
+
+  @override
+  String get clearDateFilter => 'Effacer la période';
+
+  @override
+  String get colQty => 'Qté';
+
+  @override
+  String get unitPriceLabel => 'Prix unitaire';
+
+  @override
+  String get discountLabel => 'Remise';
+
+  @override
+  String get notesLabel => 'Remarques';
+
+  @override
+  String get historyEmptyTitle => 'Aucune commande ne correspond aux filtres';
+
+  @override
+  String get historyEmptyMessage =>
+      'Essayez d\'ajuster la recherche, la période ou le filtre de statut.';
+
+  @override
+  String get printOrder => 'Imprimer la commande';
+
+  @override
+  String get downloadPdf => 'Télécharger le PDF';
+
+  @override
+  String get printDocumentFailed =>
+      'Impossible de préparer le document d\'impression. Veuillez réessayer.';
+
+  @override
+  String get orderDocumentTitle => 'Reçu de commande';
+
+  @override
+  String reprintFooter(Object date) {
+    return 'Réimprimé le $date à partir des données originales de la commande.';
+  }
+
+  @override
   String get customerInformation => 'Informations client';
 
   @override
@@ -1515,6 +1572,44 @@ class AppLocalizationsFr extends AppLocalizations {
   String get socialInvalidUrl => 'Saisissez un lien http(s) valide.';
 
   @override
+  String get trackOrderTitle => 'Suivre votre commande';
+
+  @override
+  String get trackOrderSubtitle =>
+      'Saisissez votre numéro de commande et le téléphone utilisé lors du paiement.';
+
+  @override
+  String get orderNumberLabel => 'Numéro de commande';
+
+  @override
+  String get trackOrderAction => 'Suivre la commande';
+
+  @override
+  String get trackOrderRequired =>
+      'Saisissez le numéro de commande et le téléphone.';
+
+  @override
+  String get trackOrderNotFound =>
+      'Aucune commande ne correspond à ces informations. Vérifiez le numéro et le téléphone, puis réessayez.';
+
+  @override
+  String get trackOrderFailed =>
+      'Impossible de retrouver la commande. Veuillez réessayer.';
+
+  @override
+  String get trackOrderItems => 'Articles';
+
+  @override
+  String get storefrontFollowUs => 'Suivez-nous';
+
+  @override
+  String get chatOnWhatsapp => 'Discuter sur WhatsApp';
+
+  @override
+  String get chatOnWhatsappMessage =>
+      'Bonjour ! Je souhaite me renseigner sur ma commande.';
+
+  @override
   String paginationRange(Object end, Object start, Object total) {
     return 'Affichage de $start-$end sur $total';
   }
@@ -1529,4 +1624,59 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get paginationNext => 'Suivant';
+
+  @override
+  String get backToTop => 'Retour en haut';
+
+  @override
+  String get hideSidebar => 'Masquer la barre latérale';
+
+  @override
+  String get showSidebar => 'Afficher la barre latérale';
+
+  @override
+  String get trackingTitle => 'Suivi de l\'expédition';
+
+  @override
+  String get trackingStageOrderReceived => 'Commande reçue';
+
+  @override
+  String get trackingStageProcessing => 'En préparation';
+
+  @override
+  String get trackingStageShipped => 'Expédiée';
+
+  @override
+  String get trackingStageInTransit => 'En transit';
+
+  @override
+  String get trackingStageOutForDelivery => 'En cours de livraison';
+
+  @override
+  String get trackingStageDelivered => 'Livrée';
+
+  @override
+  String get trackingNumberLabel => 'Numéro de suivi';
+
+  @override
+  String get shippingCompanyLabel => 'Transporteur';
+
+  @override
+  String get shipmentDateLabel => 'Date d\'expédition';
+
+  @override
+  String get estimatedDeliveryLabel => 'Livraison estimée';
+
+  @override
+  String get currentLocationLabel => 'Position actuelle';
+
+  @override
+  String get latestUpdateLabel => 'Dernière mise à jour';
+
+  @override
+  String get trackingUnavailable =>
+      'Les informations de suivi ne sont pas encore disponibles.';
+
+  @override
+  String get trackingCancelled => 'Cette commande a été annulée.';
 }

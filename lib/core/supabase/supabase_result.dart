@@ -63,6 +63,12 @@ AppError _fromPostgrest(PostgrestException e) {
         message: 'You do not have permission to perform this action.',
         statusCode: 403,
       );
+    case 'P0001': // RAISE EXCEPTION from a plpgsql RPC (validation / throttle)
+      return AppError(
+        code: 'VALIDATION',
+        message: e.message,
+        statusCode: 400,
+      );
     case 'PGRST116': // no row / multiple rows returned for single()
       return AppError.notFound;
     case 'PGRST301': // JWT expired or invalid

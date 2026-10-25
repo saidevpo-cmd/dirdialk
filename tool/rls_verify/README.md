@@ -47,6 +47,12 @@ A passing run ends with a summary table and `RLS verification PASSED`.
   (SQL editor) and `service_role` can still bootstrap/repair roles.
 - `place_order` validates input server-side, keeps stock/ledger consistent, and
   is not executable by `anon`.
+- `track_order` lets an anonymous visitor look up an order only with **both** the
+  order number and the checkout phone, returns a PII-free projection, returns the
+  same `NULL` for a wrong phone and an unknown order (no enumeration oracle),
+  rejects malformed input, and throttles repeated anonymous lookups. The
+  `order_tracking_attempts` throttle ledger is not readable or writable by
+  `anon`/`authenticated` at the privilege level.
 - RLS is enabled on every table; the `resources` bucket is private with an
   explicit MIME allow-list; `profiles.role` defaults to `viewer`.
 

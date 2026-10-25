@@ -3,11 +3,13 @@ import '../../domain/models/customer.dart';
 import '../../domain/models/form_definition.dart';
 import '../../domain/models/location.dart';
 import '../../domain/models/order.dart';
+import '../../domain/models/order_tracking.dart';
 import '../../domain/models/page_content.dart';
 import '../../domain/models/product.dart';
 import '../../domain/models/product_tracking.dart';
 import '../../domain/models/resource.dart';
 import '../../domain/models/site_settings.dart';
+import '../../domain/models/social_links.dart';
 import '../../domain/models/template.dart';
 
 /// Central conversion between domain models and Supabase rows (snake_case).
@@ -259,6 +261,29 @@ class Db {
         subtotal: _dbl(r['subtotal']),
       );
 
+  /// Parses the curated jsonb document returned by the `track_order` RPC.
+  static OrderTracking orderTrackingFrom(Map<String, dynamic> r) => OrderTracking(
+        orderNumber: _str(r['order_number']) ?? '',
+        status: _enum(OrderStatus.values, r['status'], OrderStatus.pending),
+        createdAt: _dateOr(r['created_at'], DateTime.now()),
+        updatedAt: _dateOr(r['updated_at'], DateTime.now()),
+        paidAt: _date(r['paid_at']),
+        deliveredAt: _date(r['delivered_at']),
+        cancelledAt: _date(r['cancelled_at']),
+        total: _dbl(r['total']),
+        currencySymbol: _str(r['currency_symbol']) ?? '',
+        items: (r['items'] is List)
+            ? (r['items'] as List).whereType<Map>().map((e) {
+                final m = e.cast<String, dynamic>();
+                return OrderTrackingItem(
+                  name: _str(m['name']) ?? '',
+                  qty: _int(m['qty'], 1),
+                  subtotal: _dbl(m['subtotal']),
+                );
+              }).toList()
+            : const [],
+      );
+
   // ---- Resource -------------------------------------------------------
   static Map<String, dynamic> resource(Resource r) => {
         'id': r.id,
@@ -475,6 +500,7 @@ class Db {
       'show_featured_products': c.showFeaturedProducts,
       'show_articles': c.showArticles,
       'show_contact': c.showContact,
+      'social_links': s.socialLinks.toJson(),
     };
   }
 
@@ -482,6 +508,7 @@ class Db {
     const d = TemplateCustomization();
     return SiteSettings(
       activeTemplateId: _str(r['active_template_id']),
+      socialLinks: SocialLinks.fromJson(r['social_links']),
       customization: TemplateCustomization(
         brandName: _str(r['brand_name']) ?? d.brandName,
         tagline: _str(r['tagline']) ?? '',

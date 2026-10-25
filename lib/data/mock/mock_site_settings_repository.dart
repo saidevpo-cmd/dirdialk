@@ -1,5 +1,6 @@
 import '../../domain/models/app_error.dart';
 import '../../domain/models/site_settings.dart';
+import '../../domain/models/social_links.dart';
 import '../../domain/models/template.dart';
 import '../../domain/repositories/site_settings_repository.dart';
 
@@ -19,6 +20,11 @@ class MockSiteSettingsRepository implements SiteSettingsRepository {
                 address: 'Casablanca, Morocco',
                 footerText: '© 2026 Diali. All rights reserved.',
               ),
+              socialLinks: SocialLinks({
+                SocialPlatform.instagram: 'https://instagram.com/diali',
+                SocialPlatform.facebook: 'https://facebook.com/diali',
+                SocialPlatform.whatsapp: 'https://wa.me/212600000000',
+              }),
             );
 
   SiteSettings _settings;

@@ -1,9 +1,11 @@
 import '../../domain/models/app_error.dart';
 import '../../domain/models/order.dart';
+import '../../domain/models/order_tracking.dart';
 import '../../domain/models/paginated_result.dart';
 import '../../domain/models/product.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../../domain/repositories/product_repository.dart';
+import '../../shared/utils/phone_number.dart';
 import 'mock_seed_data.dart';
 
 /// In-memory order store used when Supabase is not configured.
@@ -30,6 +32,8 @@ class MockOrderRepository implements OrderRepository {
     String? search,
     OrderStatus? status,
     String? customerId,
+    DateTime? createdFrom,
+    DateTime? createdTo,
     int page = 1,
     int limit = 20,
   }) async {
@@ -41,6 +45,15 @@ class MockOrderRepository implements OrderRepository {
 
     if (customerId != null && customerId.isNotEmpty) {
       filtered = filtered.where((o) => o.customerId == customerId).toList();
+    }
+
+    // Inclusive order-date window (local time), mirroring the Supabase
+    // repository's gte/lte filters on created_at.
+    if (createdFrom != null) {
+      filtered = filtered.where((o) => !o.createdAt.isBefore(createdFrom)).toList();
+    }
+    if (createdTo != null) {
+      filtered = filtered.where((o) => !o.createdAt.isAfter(createdTo)).toList();
     }
 
     if (search != null && search.trim().isNotEmpty) {
@@ -227,4 +240,57 @@ class MockOrderRepository implements OrderRepository {
       'deliveredOrders': deliveredCount,
     });
   }
+
+  /// Local mirror of the `track_order` RPC.
+  ///
+  /// The match is on order number **and** phone digits. Seeded demo orders
+  /// carry no stored phone, so those match the number alone — a signed-in
+  /// checkout always records a phone (the server enforces it), so real orders
+  /// keep the two-factor proof. Unknown numbers and wrong phones both yield
+  /// `null`, matching the backend's non-enumerable behaviour.
+  @override
+  Future<Result<OrderTracking?>> track({
+    required String orderNumber,
+    required String phone,
+  }) async {
+    final number = orderNumber.trim().toUpperCase();
+    final digits = PhoneNumber.digits(phone);
+    if (number.isEmpty || !PhoneNumber.isValid(phone)) {
+      return Failure(
+        AppError.validation('Enter a valid order number and phone number.'),
+      );
+    }
+
+    for (final order in _orders) {
+      if (order.orderNumber.toUpperCase() != number) continue;
+      final stored = order.customerPhone;
+      if (stored != null &&
+          stored.isNotEmpty &&
+          PhoneNumber.digits(stored) != digits) {
+        continue;
+      }
+      return Success(_toTracking(order));
+    }
+    return const Success<OrderTracking?>(null);
+  }
+
+  OrderTracking _toTracking(Order order) => OrderTracking(
+        orderNumber: order.orderNumber,
+        status: order.status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        paidAt: order.paidAt,
+        deliveredAt: order.deliveredAt,
+        cancelledAt: order.cancelledAt,
+        total: order.total,
+        currencySymbol: r'$',
+        items: [
+          for (final item in order.items)
+            OrderTrackingItem(
+              name: item.productName,
+              qty: item.qty,
+              subtotal: item.subtotal,
+            ),
+        ],
+      );
 }

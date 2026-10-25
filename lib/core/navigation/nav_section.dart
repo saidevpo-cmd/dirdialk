@@ -7,6 +7,7 @@ enum NavSection {
   products,
   categories,
   orders,
+  history,
   customers,
   resources,
   forms,
@@ -19,6 +20,7 @@ enum NavSection {
         NavSection.products => l10n.navProducts,
         NavSection.categories => l10n.navCategories,
         NavSection.orders => l10n.navOrders,
+        NavSection.history => l10n.navOrderHistory,
         NavSection.customers => l10n.navCustomers,
         NavSection.resources => l10n.navResources,
         NavSection.forms => l10n.navForms,
@@ -36,6 +38,7 @@ enum NavSection {
           selected ? Icons.category : Icons.category_outlined,
         NavSection.orders =>
           selected ? Icons.receipt_long : Icons.receipt_long_outlined,
+        NavSection.history => selected ? Icons.history : Icons.history_outlined,
         NavSection.customers =>
           selected ? Icons.people : Icons.people_outline,
         NavSection.resources =>
@@ -55,6 +58,7 @@ enum NavSection {
         NavSection.products => '2',
         NavSection.categories => '2',
         NavSection.orders => '6',
+        NavSection.history => '6',
         NavSection.customers => '6',
         NavSection.resources => '7',
         NavSection.forms => '8',

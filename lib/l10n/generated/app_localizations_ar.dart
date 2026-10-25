@@ -22,6 +22,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navOrders => 'الطلبات';
 
   @override
+  String get navOrderHistory => 'سجل الطلبات';
+
+  @override
   String get navCustomers => 'العملاء';
 
   @override
@@ -1118,6 +1121,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String get searchOrdersHint => 'ابحث عن الطلبات برقم الطلب أو العميل...';
 
   @override
+  String get orderHistorySubtitle => 'اعثر على أي طلب سابق واعرضه وأعد طباعته.';
+
+  @override
+  String get searchHistoryHint => 'ابحث برقم الطلب أو اسم الزبون...';
+
+  @override
+  String get orderDateLabel => 'تاريخ الطلب';
+
+  @override
+  String get dateRangeFilter => 'الفترة الزمنية';
+
+  @override
+  String get clearDateFilter => 'مسح الفلتر الزمني';
+
+  @override
+  String get colQty => 'الكمية';
+
+  @override
+  String get unitPriceLabel => 'سعر الوحدة';
+
+  @override
+  String get discountLabel => 'الخصم';
+
+  @override
+  String get notesLabel => 'ملاحظات';
+
+  @override
+  String get historyEmptyTitle => 'لا توجد طلبات مطابقة للمرشّحات';
+
+  @override
+  String get historyEmptyMessage =>
+      'جرّب تعديل نص البحث أو الفترة الزمنية أو حالة الطلب.';
+
+  @override
+  String get printOrder => 'طباعة الطلب';
+
+  @override
+  String get downloadPdf => 'تنزيل PDF';
+
+  @override
+  String get printDocumentFailed =>
+      'تعذّر تحضير مستند الطباعة. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get orderDocumentTitle => 'وصل الطلب';
+
+  @override
+  String reprintFooter(Object date) {
+    return 'أُعيدت الطباعة في $date اعتمادًا على بيانات الطلب الأصلية.';
+  }
+
+  @override
   String get customerInformation => 'معلومات العميل';
 
   @override
@@ -1482,6 +1537,42 @@ class AppLocalizationsAr extends AppLocalizations {
   String get socialInvalidUrl => 'أدخل رابط http(s) صالحًا.';
 
   @override
+  String get trackOrderTitle => 'تتبّع طلبك';
+
+  @override
+  String get trackOrderSubtitle =>
+      'أدخل رقم الطلب ورقم الهاتف المستخدم عند الدفع.';
+
+  @override
+  String get orderNumberLabel => 'رقم الطلب';
+
+  @override
+  String get trackOrderAction => 'تتبّع الطلب';
+
+  @override
+  String get trackOrderRequired => 'أدخل رقم الطلب ورقم الهاتف.';
+
+  @override
+  String get trackOrderNotFound =>
+      'لا يوجد طلب مطابق لهذه البيانات. تحقّق من الرقم والهاتف ثم حاول مجددًا.';
+
+  @override
+  String get trackOrderFailed =>
+      'تعذّر العثور على الطلب. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get trackOrderItems => 'العناصر';
+
+  @override
+  String get storefrontFollowUs => 'تابعنا';
+
+  @override
+  String get chatOnWhatsapp => 'الدردشة على واتساب';
+
+  @override
+  String get chatOnWhatsappMessage => 'مرحبًا! أرغب في الاستفسار عن طلبي.';
+
+  @override
   String paginationRange(Object end, Object start, Object total) {
     return 'عرض $start-$end من $total';
   }
@@ -1496,4 +1587,58 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paginationNext => 'التالي';
+
+  @override
+  String get backToTop => 'العودة إلى الأعلى';
+
+  @override
+  String get hideSidebar => 'إخفاء الشريط الجانبي';
+
+  @override
+  String get showSidebar => 'إظهار الشريط الجانبي';
+
+  @override
+  String get trackingTitle => 'تتبّع الشحنة';
+
+  @override
+  String get trackingStageOrderReceived => 'تم استلام الطلب';
+
+  @override
+  String get trackingStageProcessing => 'قيد التجهيز';
+
+  @override
+  String get trackingStageShipped => 'تم الشحن';
+
+  @override
+  String get trackingStageInTransit => 'في الطريق';
+
+  @override
+  String get trackingStageOutForDelivery => 'خارج للتوصيل';
+
+  @override
+  String get trackingStageDelivered => 'تم التوصيل';
+
+  @override
+  String get trackingNumberLabel => 'رقم التتبّع';
+
+  @override
+  String get shippingCompanyLabel => 'شركة الشحن';
+
+  @override
+  String get shipmentDateLabel => 'تاريخ الشحن';
+
+  @override
+  String get estimatedDeliveryLabel => 'التوصيل المتوقّع';
+
+  @override
+  String get currentLocationLabel => 'الموقع الحالي';
+
+  @override
+  String get latestUpdateLabel => 'آخر تحديث';
+
+  @override
+  String get trackingUnavailable => 'معلومات التتبّع غير متاحة بعد.';
+
+  @override
+  String get trackingCancelled => 'تم إلغاء هذا الطلب.';
 }

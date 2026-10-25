@@ -2,6 +2,7 @@ import '../../core/supabase/supabase_client.dart';
 import '../../core/supabase/supabase_result.dart';
 import '../../domain/models/app_error.dart';
 import '../../domain/models/order.dart';
+import '../../domain/models/order_tracking.dart';
 import '../../domain/models/paginated_result.dart';
 import '../../domain/repositories/order_repository.dart';
 import 'supabase_mappers.dart';
@@ -14,6 +15,8 @@ class SupabaseOrderRepository implements OrderRepository {
     String? search,
     OrderStatus? status,
     String? customerId,
+    DateTime? createdFrom,
+    DateTime? createdTo,
     int page = 1,
     int limit = 20,
   }) {
@@ -22,6 +25,13 @@ class SupabaseOrderRepository implements OrderRepository {
       if (status != null) query = query.eq('status', status.name);
       if (customerId != null && customerId.isNotEmpty) {
         query = query.eq('customer_id', customerId);
+      }
+      // Inclusive order-date window on created_at (stored as timestamptz).
+      if (createdFrom != null) {
+        query = query.gte('created_at', createdFrom.toUtc().toIso8601String());
+      }
+      if (createdTo != null) {
+        query = query.lte('created_at', createdTo.toUtc().toIso8601String());
       }
       if (search != null && search.trim().isNotEmpty) {
         final q = search.trim();
@@ -127,6 +137,21 @@ class SupabaseOrderRepository implements OrderRepository {
         'pendingOrders': pending,
         'deliveredOrders': delivered,
       };
+    });
+  }
+
+  @override
+  Future<Result<OrderTracking?>> track({
+    required String orderNumber,
+    required String phone,
+  }) {
+    return guard(() async {
+      final data = await AppSupabase.client.rpc('track_order', params: {
+        'p_order_number': orderNumber,
+        'p_phone': phone,
+      });
+      if (data == null) return null;
+      return Db.orderTrackingFrom(Map<String, dynamic>.from(data as Map));
     });
   }
 }

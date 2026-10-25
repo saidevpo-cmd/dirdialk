@@ -60,40 +60,40 @@ abstract class MockSeedData {
 
   // ── Orders ───────────────────────────────────────────────────────
   static final orders = <Order>[
-    _o('o-01', '#1048', 'c-01', 'Ahmed Ben Ali', OrderStatus.delivered, 2650, _d(2), [
+    _o('o-01', '#001', 'c-01', 'Ahmed Ben Ali', OrderStatus.delivered, 2650, _d(2), [
       OrderItem(id: 'oi-1', orderId: 'o-01', productId: 'p-01', productName: 'Laptop Pro 15"', productSku: 'ELEC-001', unitPrice: 8500, qty: 1, subtotal: 8500),
     ]),
-    _o('o-02', '#1047', 'c-03', 'Mohamed Chraibi', OrderStatus.shipped, 720, _d(3), [
+    _o('o-02', '#002', 'c-03', 'Mohamed Chraibi', OrderStatus.shipped, 720, _d(3), [
       OrderItem(id: 'oi-2', orderId: 'o-02', productId: 'p-05', productName: 'Cotton T-Shirt', productSku: 'CLO-001', unitPrice: 85, qty: 4, subtotal: 340),
       OrderItem(id: 'oi-3', orderId: 'o-02', productId: 'p-07', productName: 'Jeans Classic', productSku: 'CLO-003', unitPrice: 250, qty: 1, subtotal: 250),
     ]),
-    _o('o-03', '#1046', 'c-06', 'Leila Mansouri', OrderStatus.paid, 1800, _d(4), [
+    _o('o-03', '#003', 'c-06', 'Leila Mansouri', OrderStatus.paid, 1800, _d(4), [
       OrderItem(id: 'oi-4', orderId: 'o-03', productId: 'p-04', productName: 'Monitor 24"', productSku: 'ELEC-004', unitPrice: 1800, qty: 1, subtotal: 1800),
     ]),
-    _o('o-04', '#1045', 'c-02', 'Sara Benali', OrderStatus.pending, 420, _d(1), [
+    _o('o-04', '#004', 'c-02', 'Sara Benali', OrderStatus.pending, 420, _d(1), [
       OrderItem(id: 'oi-5', orderId: 'o-04', productId: 'p-09', productName: 'Olive Oil 1L', productSku: 'FOOD-001', unitPrice: 45, qty: 4, subtotal: 180),
       OrderItem(id: 'oi-6', orderId: 'o-04', productId: 'p-12', productName: 'Argan Oil 100ml', productSku: 'FOOD-004', unitPrice: 120, qty: 2, subtotal: 240),
     ]),
-    _o('o-05', '#1044', 'c-09', 'Omar Tazi', OrderStatus.delivered, 650, _d(6), [
+    _o('o-05', '#005', 'c-09', 'Omar Tazi', OrderStatus.delivered, 650, _d(6), [
       OrderItem(id: 'oi-7', orderId: 'o-05', productId: 'p-15', productName: 'Drill 18V', productSku: 'TOOL-003', unitPrice: 650, qty: 1, subtotal: 650),
     ]),
-    _o('o-06', '#1043', 'c-04', 'Fatima Zahra', OrderStatus.cancelled, 255, _d(7), [
+    _o('o-06', '#006', 'c-04', 'Fatima Zahra', OrderStatus.cancelled, 255, _d(7), [
       OrderItem(id: 'oi-8', orderId: 'o-06', productId: 'p-13', productName: 'Hammer 500g', productSku: 'TOOL-001', unitPrice: 65, qty: 2, subtotal: 130),
       OrderItem(id: 'oi-9', orderId: 'o-06', productId: 'p-14', productName: 'Screwdriver Set 24pc', productSku: 'TOOL-002', unitPrice: 95, qty: 1, subtotal: 95),
     ]),
-    _o('o-07', '#1042', 'c-01', 'Ahmed Ben Ali', OrderStatus.delivered, 510, _d(10), [
+    _o('o-07', '#007', 'c-01', 'Ahmed Ben Ali', OrderStatus.delivered, 510, _d(10), [
       OrderItem(id: 'oi-10', orderId: 'o-07', productId: 'p-17', productName: 'Air Filter X20', productSku: 'AUTO-001', unitPrice: 85, qty: 2, subtotal: 170),
       OrderItem(id: 'oi-11', orderId: 'o-07', productId: 'p-18', productName: 'Oil Filter Pro', productSku: 'AUTO-002', unitPrice: 55, qty: 2, subtotal: 110),
       OrderItem(id: 'oi-12', orderId: 'o-07', productId: 'p-19', productName: 'Brake Pad Set', productSku: 'AUTO-003', unitPrice: 180, qty: 1, subtotal: 180),
     ]),
-    _o('o-08', '#1041', 'c-07', 'Youssef Alami', OrderStatus.paid, 680, _d(12), [
+    _o('o-08', '#008', 'c-07', 'Youssef Alami', OrderStatus.paid, 680, _d(12), [
       OrderItem(id: 'oi-13', orderId: 'o-08', productId: 'p-03', productName: 'USB Hub 7-Port', productSku: 'ELEC-003', unitPrice: 85, qty: 4, subtotal: 340),
       OrderItem(id: 'oi-14', orderId: 'o-08', productId: 'p-02', productName: 'Wireless Mouse', productSku: 'ELEC-002', unitPrice: 120, qty: 2, subtotal: 240),
     ]),
-    _o('o-09', '#1040', 'c-05', 'Karim Naciri', OrderStatus.pending, 350, _d(1), [
+    _o('o-09', '#009', 'c-05', 'Karim Naciri', OrderStatus.pending, 350, _d(1), [
       OrderItem(id: 'oi-15', orderId: 'o-09', productId: 'p-11', productName: 'Mineral Water 24-Pack', productSku: 'FOOD-003', unitPrice: 35, qty: 10, subtotal: 350),
     ]),
-    _o('o-10', '#1039', 'c-10', 'Amina El Fassi', OrderStatus.shipped, 500, _d(5), [
+    _o('o-10', '#010', 'c-10', 'Amina El Fassi', OrderStatus.shipped, 500, _d(5), [
       OrderItem(id: 'oi-16', orderId: 'o-10', productId: 'p-08', productName: 'Hoodie Sport', productSku: 'CLO-004', unitPrice: 180, qty: 1, subtotal: 180),
       OrderItem(id: 'oi-17', orderId: 'o-10', productId: 'p-06', productName: 'Polo Shirt', productSku: 'CLO-002', unitPrice: 140, qty: 2, subtotal: 280),
     ]),

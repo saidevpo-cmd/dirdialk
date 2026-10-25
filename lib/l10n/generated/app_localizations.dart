@@ -124,6 +124,12 @@ abstract class AppLocalizations {
   /// **'Orders'**
   String get navOrders;
 
+  /// No description provided for @navOrderHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Order History'**
+  String get navOrderHistory;
+
   /// No description provided for @navCustomers.
   ///
   /// In en, this message translates to:
@@ -2164,6 +2170,102 @@ abstract class AppLocalizations {
   /// **'Search orders by order number or customer...'**
   String get searchOrdersHint;
 
+  /// No description provided for @orderHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find, view and reprint any past order.'**
+  String get orderHistorySubtitle;
+
+  /// No description provided for @searchHistoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by order number or customer...'**
+  String get searchHistoryHint;
+
+  /// No description provided for @orderDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order date'**
+  String get orderDateLabel;
+
+  /// No description provided for @dateRangeFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Date range'**
+  String get dateRangeFilter;
+
+  /// No description provided for @clearDateFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear date filter'**
+  String get clearDateFilter;
+
+  /// No description provided for @colQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get colQty;
+
+  /// No description provided for @unitPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit price'**
+  String get unitPriceLabel;
+
+  /// No description provided for @discountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discountLabel;
+
+  /// No description provided for @notesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesLabel;
+
+  /// No description provided for @historyEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders match your filters'**
+  String get historyEmptyTitle;
+
+  /// No description provided for @historyEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting the search text, date range or status filter.'**
+  String get historyEmptyMessage;
+
+  /// No description provided for @printOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Print order'**
+  String get printOrder;
+
+  /// No description provided for @downloadPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF'**
+  String get downloadPdf;
+
+  /// No description provided for @printDocumentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not prepare the print document. Please try again.'**
+  String get printDocumentFailed;
+
+  /// No description provided for @orderDocumentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order receipt'**
+  String get orderDocumentTitle;
+
+  /// No description provided for @reprintFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Reprinted on {date} from the original order data.'**
+  String reprintFooter(Object date);
+
   /// No description provided for @customerInformation.
   ///
   /// In en, this message translates to:
@@ -2848,6 +2950,72 @@ abstract class AppLocalizations {
   /// **'Enter a valid http(s) link.'**
   String get socialInvalidUrl;
 
+  /// No description provided for @trackOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your order'**
+  String get trackOrderTitle;
+
+  /// No description provided for @trackOrderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your order number and the phone number used at checkout.'**
+  String get trackOrderSubtitle;
+
+  /// No description provided for @orderNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order number'**
+  String get orderNumberLabel;
+
+  /// No description provided for @trackOrderAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Track order'**
+  String get trackOrderAction;
+
+  /// No description provided for @trackOrderRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter both the order number and phone number.'**
+  String get trackOrderRequired;
+
+  /// No description provided for @trackOrderNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No order matches those details. Check the order number and phone, then try again.'**
+  String get trackOrderNotFound;
+
+  /// No description provided for @trackOrderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not look up the order. Please try again.'**
+  String get trackOrderFailed;
+
+  /// No description provided for @trackOrderItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get trackOrderItems;
+
+  /// No description provided for @storefrontFollowUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow us'**
+  String get storefrontFollowUs;
+
+  /// No description provided for @chatOnWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat on WhatsApp'**
+  String get chatOnWhatsapp;
+
+  /// No description provided for @chatOnWhatsappMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! I would like to ask about my order.'**
+  String get chatOnWhatsappMessage;
+
   /// No description provided for @paginationRange.
   ///
   /// In en, this message translates to:
@@ -2871,6 +3039,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next'**
   String get paginationNext;
+
+  /// No description provided for @backToTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to top'**
+  String get backToTop;
+
+  /// No description provided for @hideSidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide sidebar'**
+  String get hideSidebar;
+
+  /// No description provided for @showSidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Show sidebar'**
+  String get showSidebar;
+
+  /// No description provided for @trackingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment tracking'**
+  String get trackingTitle;
+
+  /// No description provided for @trackingStageOrderReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Order received'**
+  String get trackingStageOrderReceived;
+
+  /// No description provided for @trackingStageProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing'**
+  String get trackingStageProcessing;
+
+  /// No description provided for @trackingStageShipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped'**
+  String get trackingStageShipped;
+
+  /// No description provided for @trackingStageInTransit.
+  ///
+  /// In en, this message translates to:
+  /// **'In transit'**
+  String get trackingStageInTransit;
+
+  /// No description provided for @trackingStageOutForDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Out for delivery'**
+  String get trackingStageOutForDelivery;
+
+  /// No description provided for @trackingStageDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get trackingStageDelivered;
+
+  /// No description provided for @trackingNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking number'**
+  String get trackingNumberLabel;
+
+  /// No description provided for @shippingCompanyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping company'**
+  String get shippingCompanyLabel;
+
+  /// No description provided for @shipmentDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment date'**
+  String get shipmentDateLabel;
+
+  /// No description provided for @estimatedDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated delivery'**
+  String get estimatedDeliveryLabel;
+
+  /// No description provided for @currentLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current location'**
+  String get currentLocationLabel;
+
+  /// No description provided for @latestUpdateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest update'**
+  String get latestUpdateLabel;
+
+  /// No description provided for @trackingUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking information is not available yet.'**
+  String get trackingUnavailable;
+
+  /// No description provided for @trackingCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled.'**
+  String get trackingCancelled;
 }
 
 class _AppLocalizationsDelegate
